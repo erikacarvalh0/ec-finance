@@ -1,36 +1,52 @@
 # EC Finance
 
-Next.js + TypeScript foundation for a multi-user personal finance product.
+Next.js + TypeScript personal finance product designed for multiple users.
 
-> Current status: demonstration dashboard with **fictional data only**. No real authentication, persistent data or Open Finance connection.
+> **Current status:** GitHub OAuth and database-backed sessions are implemented in code but require a configured PostgreSQL database and OAuth application to run. The dashboard uses fictional financial data only. Open Finance is not connected.
 
 ## Run locally
 
-Requires Node.js 22+, npm and Git with access to GitHub.
+Requirements: Node.js 22+, npm, Git, PostgreSQL, and a GitHub OAuth application.
 
 ```bash
 npm install
 npm run setup:ds
+cp .env.example .env
+# Set DATABASE_URL, AUTH_SECRET, AUTH_GITHUB_ID and AUTH_GITHUB_SECRET.
+npm run db:generate
+npm run db:migrate
 npm run dev
 ```
 
-The setup script clones a **pinned revision** of [erikacarvalho-ds](https://github.com/erikacarvalh0/erikacarvalho-ds), builds `packages/react`, then installs the resulting local package. This lets EC Finance use actual upstream `Button` and `Card` exports rather than copying their implementations.
+In the GitHub OAuth app, use `http://localhost:3000/api/auth/callback/github` as the development callback URL.
 
-The cloned checkout is stored in the ignored `.design-system` directory. Update its pinned commit hash in `scripts/setup-design-system.mjs` only after reviewing a new DS version. CI follows the same setup.
+## Validate
 
-**Current integration caveat:** This is a Git-backed setup script, not yet a published registry dependency. When the DS is published with versioned releases, replace the bootstrap script with an npm dependency and lockfile.
+```bash
+npm run db:generate
+npm test
+npm run typecheck
+npm run build
+```
 
-## Structure
+CI generates Prisma Client and runs tests, typecheck and Next.js build. CI does not connect to a live database or test the OAuth handshake.
 
-- `src/app` — demo dashboard.
-- `src/integrations/open-finance` — provider interface (no active integration).
-- `docs/security.md` — mandatory security work before enabling real financial data.
+## Design System
 
-## Conventional Commits + Gitmoji
+The app consumes actual `Button` and `Card` components from [erikacarvalho-ds](https://github.com/erikacarvalh0/erikacarvalho-ds). The React package is built by `npm run setup:ds` using a pinned upstream Git commit. It has not been published to a package registry yet.
+
+## Architecture and security
+
+- [Authentication and tenant isolation](docs/authentication.md)
+- [Security baseline](docs/security.md)
+- [Design System integration](docs/design-system.md)
+
+## Conventions
+
+All commits and PR descriptions are written in English. Commits follow Conventional Commits and Gitmoji.
 
 ```text
-feat(app): :sparkles: add dashboard layout
-feat(ui): :sparkles: integrate design system primitives
-fix(banking): :bug: prevent duplicate transactions
-chore(ci): :wrench: configure checks
+feat(auth): :sparkles: add database-backed sign in
+test(auth): :white_check_mark: verify tenant scope
+fix(ui): :bug: correct dashboard layout
 ```
