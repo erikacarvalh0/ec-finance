@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaClient } from '@prisma/client';
 import { listUserTransactions } from './repository';
+import { createExpense, createIncome, createInvestment, addInvestmentSnapshot, listInvestments } from '@/modules/finance/service';
+import { markCardTransactionFixed, classifyImportedCardTransaction } from '@/modules/finance/fixed-expenses-service';
 import { createManualTransaction } from './create';
 import { createCategory } from '@/modules/categories/service';
 
@@ -211,6 +213,82 @@ describe('PostgreSQL tenant isolation', () => {
             amountInCents: '500',
             occurredAt: '2026-11-15T13:00:00.000Z',
         })).rejects.toThrow('Credit card not found');
+    });
+
+    it('persists expenses and incomes only for their owner', async () => {
+        const expense = await createExpense(prisma, ownerId, {
+            description: 'Electricity',
+            amountInCents: '15000',
+            type: 'FIXED',
+            paymentMethod: 'AUTOMATIC_DEBIT',
+            date: '2026-11-15',
+        });
+        const income = await createIncome(prisma, ownerId, {
+            type: 'RECURRING',
+            amountInCents: '250000',
+            responsible: 'Tenant',
+            description: 'Monthly rental payment',
+            date: '2026-11-15',
+        });
+
+        expect(expense.installments).toBe(1);
+        expect(income.responsible).toBe('Tenant');
+        expect(await prisma.expense.count({ where: { userId: otherUserId } })).toBe(0);
+        expect(await prisma.income.count({ where: { userId: otherUserId } })).toBe(0);
+    });
+
+    it('stores investment valuations chronologically and protects other owners', async () => {
+        const investment = await createInvestment(prisma, ownerId, {
+            name: 'Emergency caixinha',
+        });
+
+        await addInvestmentSnapshot(prisma, ownerId, investment.id, {
+            amountInCents: '100000',
+            recordedAt: '2026-11-10',
+        });
+        await addInvestmentSnapshot(prisma, ownerId, investment.id, {
+            amountInCents: '95000',
+            recordedAt: '2026-11-15',
+        });
+
+        const investments = await listInvestments(prisma, ownerId);
+        const owned = investments.find((item) => item.id === investment.id);
+
+        expect(owned?.snapshots.map((item) => item.amountInCents)).toEqual([
+            BigInt(100000),
+            BigInt(95000),
+        ]);
+        expect(await listInvestments(prisma, otherUserId)).toEqual([]);
+
+        await expect(addInvestmentSnapshot(prisma, otherUserId, investment.id, {
+            amountInCents: '500',
+            recordedAt: '2026-11-16',
+        })).rejects.toThrow('Investment not found');
+    });
+
+    it('reuses a manually fixed card merchant rule for a later import', async () => {
+        const original = await prisma.transaction.findFirstOrThrow({
+            where: {
+                userId: ownerId,
+                cardId: ownerCardId,
+            },
+        });
+
+        await markCardTransactionFixed(prisma, ownerId, original.id);
+
+        const fixed = await classifyImportedCardTransaction(prisma, {
+            userId: ownerId,
+            cardId: ownerCardId,
+            description: original.description,
+        });
+        const otherOwnerFixed = await classifyImportedCardTransaction(prisma, {
+            userId: otherUserId,
+            cardId: otherCardId,
+            description: original.description,
+        });
+
+        expect(fixed).toBe(true);
+        expect(otherOwnerFixed).toBe(false);
     });
 
 });
