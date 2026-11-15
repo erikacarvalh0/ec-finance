@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ExpenseForm, IncomeForm, InvestmentForm, MarkFixedButton } from './forms';
 
@@ -10,7 +10,9 @@ vi.mock('next/navigation', () => ({
 }));
 
 afterEach(() => {
+    cleanup();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
 });
 
 describe('finance forms', () => {
@@ -52,9 +54,10 @@ describe('finance forms', () => {
 
     it('marks a credit-card transaction as fixed through the API', async () => {
         const user = userEvent.setup();
-        const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+        const fetchMock = vi.fn().mockResolvedValue({
             ok: true,
         } as Response);
+        vi.stubGlobal('fetch', fetchMock);
 
         render(<MarkFixedButton transactionId="transaction-a" />);
 
