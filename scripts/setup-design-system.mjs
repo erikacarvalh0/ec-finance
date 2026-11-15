@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 
 const SOURCE = 'https://github.com/erikacarvalh0/erikacarvalho-ds.git';
 // Update only after reviewing the new upstream DS revision.
-const REVISION = 'af259336bf210728932dfc41a0a05c53e9ce1507';
+const REVISION = '0156312ca446cf536e7b52753241174f73e106ea';
 const root = process.cwd();
 const checkout = resolve(root, '.design-system');
 const library = resolve(checkout, 'packages/react');
