@@ -20,6 +20,10 @@ model User {
   connections   BankConnection[]
   categories    Category[]
   transactions  Transaction[]
+  expenses      Expense[]
+  incomes       Income[]
+  investments   Investment[]
+  fixedRules    FixedExpenseRule[]
 }
 
 model Account {
@@ -79,6 +83,7 @@ model CreditCard {
   name              String
   connection        BankConnection @relation(fields: [connectionId, userId], references: [id, userId], onDelete: Cascade)
   transactions      Transaction[]
+  fixedRules        FixedExpenseRule[]
 
   @@unique([connectionId, externalAccountId])
   @@unique([id, userId])
@@ -105,10 +110,97 @@ model Transaction {
   description           String
   amountInCents         BigInt
   occurredAt            DateTime
+  isFixed               Boolean    @default(false)
   user                  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   card                  CreditCard @relation(fields: [cardId, userId], references: [id, userId], onDelete: Cascade)
   category              Category?  @relation(fields: [categoryId, userId], references: [id, userId], onDelete: Restrict)
 
   @@unique([cardId, providerTransactionId])
   @@index([userId, occurredAt])
+}
+
+enum PaymentMethod {
+    PIX
+    CREDIT
+    DEBIT
+    AUTOMATIC_DEBIT
+    OTHER
+}
+
+enum ExpenseType {
+    FIXED
+    VARIABLE
+}
+
+enum IncomeType {
+    SALARY
+    RECURRING
+    OTHER
+}
+
+model Expense {
+    id            String        @id @default(cuid())
+    userId        String
+    description   String
+    amountInCents BigInt
+    paymentMethod PaymentMethod
+    type          ExpenseType
+    date          DateTime?     @db.Date
+    installments  Int           @default(1)
+    createdAt     DateTime      @default(now())
+    user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId, createdAt])
+}
+
+model Income {
+    id            String      @id @default(cuid())
+    userId        String
+    amountInCents BigInt
+    type          IncomeType
+    responsible   String?
+    description   String?
+    date          DateTime?   @db.Date
+    createdAt     DateTime    @default(now())
+    user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId, createdAt])
+}
+
+model Investment {
+    id        String               @id @default(cuid())
+    userId    String
+    name      String
+    createdAt DateTime             @default(now())
+    user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+    snapshots InvestmentSnapshot[]
+
+    @@unique([id, userId])
+    @@index([userId])
+}
+
+model InvestmentSnapshot {
+    id            String     @id @default(cuid())
+    investmentId  String
+    userId        String
+    amountInCents BigInt
+    recordedAt    DateTime   @db.Date
+    createdAt     DateTime   @default(now())
+    investment    Investment @relation(fields: [investmentId, userId], references: [id, userId], onDelete: Cascade)
+
+    @@index([investmentId, recordedAt, createdAt])
+    @@index([userId])
+}
+
+model FixedExpenseRule {
+    id          String     @id @default(cuid())
+    userId      String
+    cardId      String
+    merchantKey String
+    createdAt   DateTime   @default(now())
+    user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    card        CreditCard @relation(fields: [cardId, userId], references: [id, userId], onDelete: Cascade)
+
+    @@unique([userId, cardId, merchantKey])
+    @@index([userId])
 }

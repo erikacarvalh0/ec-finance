@@ -73,5 +73,6 @@ jobs:
             - name: Apply reviewed Prisma migrations
               run: npx prisma migrate deploy
 
+
             - name: Verify tenant isolation against PostgreSQL
               run: npm run test:integration

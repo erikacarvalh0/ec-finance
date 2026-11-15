@@ -48,6 +48,15 @@ Authenticated endpoints:
 
 Before first use, run `npm run db:deploy` against a new PostgreSQL database. Do not apply the initial migration to an already-populated database without an explicit baseline plan. See [database testing](docs/database-testing.md).
 
+## Finance tracking
+
+- `/expenses` — manual expenses with payment method, type, optional date and installments.
+- `/incomes` — salary, recurring or other income.
+- `/investments` — named investments, valuation history and a line chart.
+- Dashboard — current-month fixed expenses and explicit credit-card fixed classification.
+
+See [Finance tracking modules](docs/finance-tracking.md) for recurrence rules, valuation semantics, ownership boundaries and limitations.
+
 ## Design System
 
 The app consumes actual `Button` and `Card` components from [erikacarvalho-ds](https://github.com/erikacarvalh0/erikacarvalho-ds). The React package is built by `npm run setup:ds` using a pinned upstream Git commit. It has not been published to a package registry yet.
