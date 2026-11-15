@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import type { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import { classifyImportedCardTransaction } from '@/modules/finance/fixed-expenses-service';
 
-type TransactionDatabase = Pick<PrismaClient, 'transaction' | 'creditCard' | 'category'>;
+type TransactionDatabase = Pick<PrismaClient, 'transaction' | 'creditCard' | 'category' | 'fixedExpenseRule'>;
 
 export class MissingOwnedResourceError extends Error {
     constructor(message: string) {
@@ -67,6 +68,12 @@ export async function createManualTransaction(
         }
     }
 
+    const isFixed = await classifyImportedCardTransaction(database, {
+        userId,
+        cardId: parsed.cardId,
+        description: parsed.description,
+    });
+
     return database.transaction.create({
         data: {
             userId,
@@ -76,6 +83,7 @@ export async function createManualTransaction(
             amountInCents,
             occurredAt: new Date(parsed.occurredAt),
             providerTransactionId: `manual:${randomUUID()}`,
+            isFixed,
         },
         select: {
             id: true,
