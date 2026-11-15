@@ -1,3 +1,5 @@
+import { calculateValuationChange } from '@/modules/finance/valuation';
+
 type Valuation = {
     amountInCents: bigint;
     recordedAt: Date;
@@ -70,13 +72,30 @@ export function InvestmentChart({
                 ) / 100)}
             </p>
             <ul className="valuation-history">
-                {ordered.map((snapshot) => (
-                    <li key={snapshot.id}>
-                        {snapshot.recordedAt.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
-                        {' — '}
-                        {formatCurrency.format(Number(snapshot.amountInCents) / 100)}
-                    </li>
-                ))}
+                {ordered.map((snapshot, index) => {
+                    const change = index > 0
+                        ? calculateValuationChange(
+                            snapshot.amountInCents.toString(),
+                            ordered[index - 1].amountInCents.toString(),
+                        )
+                        : null;
+
+                    return (
+                        <li key={snapshot.id}>
+                            {snapshot.recordedAt.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                            {' — '}
+                            {formatCurrency.format(Number(snapshot.amountInCents) / 100)}
+                            {change !== null && (
+                                <span>
+                                    {' ('}
+                                    {change > 0 ? '+' : ''}
+                                    {formatCurrency.format(change / 100)}
+                                    {')'}
+                                </span>
+                            )}
+                        </li>
+                    );
+                })}
             </ul>
         </div>
     );
