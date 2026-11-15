@@ -4,6 +4,7 @@ import { Card } from '@erikacarvalho/react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getUserCashflowForecast } from '@/modules/forecast/repository';
+import { OccurrenceControl } from '@/components/finance/occurrence-control';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,6 +59,8 @@ export default async function ForecastPage() {
                         <p>
                             <strong>Saldo projetado: {formatCents(month.balanceInCents)}</strong>
                         </p>
+                        <p>Pagamentos realizados: {formatCents(month.settledExpenseInCents)} · Pendentes: {formatCents(month.pendingExpenseInCents)}</p>
+                        <p>Recebimentos realizados: {formatCents(month.settledIncomeInCents)} · Pendentes: {formatCents(month.pendingIncomeInCents)}</p>
                         <h3>Despesas</h3>
                         {month.expenses.length === 0 && <p>Nenhuma despesa prevista.</p>}
                         <ul className="valuation-history">
@@ -70,7 +73,9 @@ export default async function ForecastPage() {
                                         </span>
                                     )}
                                     {' — '}
-                                    {formatCents(expense.amountInCents)}
+                                    {formatCents(expense.effectiveAmountInCents)}
+                                    {' · '}{expense.status === 'SETTLED' ? 'Pago' : expense.status === 'CANCELED' ? 'Cancelado' : 'Pendente'}
+                                    <OccurrenceControl kind="expense" sourceId={expense.sourceId} month={`${month.year}-${String(month.month).padStart(2, '0')}`} initialStatus={expense.status} />
                                 </li>
                             ))}
                         </ul>
@@ -79,7 +84,9 @@ export default async function ForecastPage() {
                         <ul className="valuation-history">
                             {month.incomes.map((income) => (
                                 <li key={income.sourceId}>
-                                    {income.description} — {formatCents(income.amountInCents)}
+                                    {income.description} — {formatCents(income.effectiveAmountInCents)}
+                                    {' · '}{income.status === 'SETTLED' ? 'Recebido' : income.status === 'CANCELED' ? 'Cancelado' : 'Pendente'}
+                                    <OccurrenceControl kind="income" sourceId={income.sourceId} month={`${month.year}-${String(month.month).padStart(2, '0')}`} initialStatus={income.status} />
                                 </li>
                             ))}
                         </ul>

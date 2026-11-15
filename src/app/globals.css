@@ -162,3 +162,16 @@ th {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+.occurrence-control {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.occurrence-control select,
+.occurrence-control input {
+    max-width: 200px;
+}
