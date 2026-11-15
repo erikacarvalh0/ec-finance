@@ -13,12 +13,23 @@ export async function getUserCashflowForecast(
         throw new Error('Authenticated user ID is required');
     }
 
+    if (!Number.isInteger(months) || months < 1 || months > 24
+        || Number.isNaN(start.getTime())) {
+        throw new Error('Invalid forecast window');
+    }
+
+    const end = new Date(Date.UTC(
+        start.getUTCFullYear(),
+        start.getUTCMonth() + months,
+        1,
+    ));
+
     const [expenses, incomes] = await Promise.all([
         database.expense.findMany({
             where: {
                 userId,
                 OR: [
-                    { date: { lt: new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + months, 1)) } },
+                    { date: { lt: end } },
                     { date: null },
                 ],
             },
@@ -37,7 +48,7 @@ export async function getUserCashflowForecast(
             where: {
                 userId,
                 OR: [
-                    { date: { lt: new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + months, 1)) } },
+                    { date: { lt: end } },
                     { date: null },
                 ],
             },
