@@ -15,7 +15,7 @@ Do not change tests merely to hide implementation bugs. Never merge a failing wo
 
 - **Unit tests (Vitest):** money calculations, categorization, billing installments, authentication guards, domain services and edge cases.
 - **API / repository contract tests (Vitest):** HTTP response status, serialization, authorization and tenant filters.
-- **Database integration tests (planned):** PostgreSQL test database, Prisma migrations, true tenant isolation, foreign-key ownership and concurrency/idempotency.
+- **Database integration tests (implemented):** disposable PostgreSQL database, Prisma-backed user-scoped reads and database-level ownership constraints. Migration verification and concurrency/idempotency remain future work.
 - **UI / E2E tests (planned):** React Testing Library for component interactions and Playwright for Google sign-in redirect, dashboard protection and critical finance workflows. Actual Google OAuth handshake requires a dedicated test environment; do not place real Google credentials in CI.
 
 ## Commands
@@ -24,6 +24,7 @@ Do not change tests merely to hide implementation bugs. Never merge a failing wo
 npm test
 npm run test:watch
 npm run test:coverage
+npm run test:integration # requires a disposable ec_finance_test PostgreSQL database
 npm run typecheck
 npm run build
 ```
@@ -32,6 +33,6 @@ The initial coverage gate measures the security-sensitive authentication guard, 
 
 ## CI and PR checks
 
-The GitHub Actions pipeline installs dependencies, compiles the upstream Design System, generates Prisma Client, runs coverage checks, validates TypeScript and builds Next.js.
+The GitHub Actions pipeline installs dependencies, compiles the upstream Design System, generates Prisma Client, runs coverage checks, validates TypeScript and builds Next.js. A separate job starts PostgreSQL 16 and executes the database integration suite.
 
-Current unit tests use mocks rather than a live PostgreSQL database. Add real integration tests before handling production financial data.
+Unit tests still use mocks, while the integration job runs against a real disposable PostgreSQL instance. Review migration and deployment safeguards before handling production financial data. See [PostgreSQL integration tests](database-testing.md).
