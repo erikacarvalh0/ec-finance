@@ -1,19 +1,19 @@
 import { auth } from '@/lib/auth';
 
 export class UnauthorizedError extends Error {
-  constructor() {
-    super('Authentication required');
-    this.name = 'UnauthorizedError';
-  }
+    constructor() {
+        super('Authentication required');
+        this.name = 'UnauthorizedError';
+    }
 }
 
 export async function requireCurrentUserId(): Promise<string> {
-  const session = await auth();
-  const userId = session?.user?.id;
+    const session = await auth();
+    const userId = session?.user?.id;
 
-  if (!userId) {
-    throw new UnauthorizedError();
-  }
+    if (!userId?.trim()) {
+        throw new UnauthorizedError();
+    }
 
-  return userId;
+    return userId;
 }
