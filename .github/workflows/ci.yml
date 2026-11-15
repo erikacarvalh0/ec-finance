@@ -1,17 +1,37 @@
 name: CI
+
 on:
-  push:
-    branches: [main]
-  pull_request:
+    push:
+        branches: [main]
+    pull_request:
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - run: npm install
-      - run: npm run setup:ds
-      - run: npm run typecheck
-      - run: npm run build
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build Design System
+              run: npm run setup:ds
+
+            - name: Generate Prisma Client
+              run: npm run db:generate
+              env:
+                  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ec_finance
+
+            - name: Run automated tests and check coverage
+              run: npm run test:coverage
+
+            - name: Validate TypeScript
+              run: npm run typecheck
+
+            - name: Build Next.js application
+              run: npm run build
