@@ -70,8 +70,8 @@ jobs:
             - name: Generate Prisma Client
               run: npm run db:generate
 
-            - name: Apply schema to disposable integration database
-              run: npx prisma db push --skip-generate
+            - name: Apply reviewed Prisma migrations
+              run: npx prisma migrate deploy
 
             - name: Verify tenant isolation against PostgreSQL
               run: npm run test:integration
