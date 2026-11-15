@@ -21,7 +21,10 @@ export async function getMonthlyFixedExpenses(
             where: {
                 userId,
                 type: 'FIXED',
-                date: { gte: start, lt: end },
+                OR: [
+                    { date: { gte: start, lt: end } },
+                    { date: null, createdAt: { gte: start, lt: end } },
+                ],
             },
             select: {
                 id: true,
