@@ -7,17 +7,27 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "setup:ds": "node scripts/setup-design-system.mjs"
+    "setup:ds": "node scripts/setup-design-system.mjs",
+    "db:generate": "prisma generate",
+    "db:validate": "prisma validate",
+    "db:migrate": "prisma migrate dev",
+    "test": "vitest run"
   },
   "dependencies": {
     "next": "^15.5.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "@auth/prisma-adapter": "^2.10.0",
+    "@prisma/client": "^6.0.0",
+    "next-auth": "^5.0.0-beta.30",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "typescript": "^5.7.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/react-dom": "^19.0.0",
+    "prisma": "^6.0.0",
+    "vitest": "^3.0.0"
   }
 }
