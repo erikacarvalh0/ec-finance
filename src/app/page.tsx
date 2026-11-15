@@ -4,6 +4,7 @@ import { Button, Card } from '@erikacarvalho/react';
 import { auth, signOut } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getMonthlyFixedExpenses } from '@/modules/finance/monthly';
+import { getUserCashflowForecast } from '@/modules/forecast/repository';
 import { MarkFixedButton } from '@/components/finance/forms';
 
 export const dynamic = 'force-dynamic';
@@ -28,7 +29,7 @@ export default async function DashboardPage() {
     const now = new Date();
     const month = now.getUTCMonth() + 1;
     const year = now.getUTCFullYear();
-    const [fixed, transactions] = await Promise.all([
+    const [fixed, transactions, forecast] = await Promise.all([
         getMonthlyFixedExpenses(prisma, userId, year, month),
         prisma.transaction.findMany({
             where: {
@@ -48,6 +49,7 @@ export default async function DashboardPage() {
                 occurredAt: true,
             },
         }),
+        getUserCashflowForecast(prisma, userId, now, 6),
     ]);
 
     return (
@@ -59,6 +61,7 @@ export default async function DashboardPage() {
                     <Link href="/expenses">Despesas</Link>
                     <Link href="/incomes">Entradas</Link>
                     <Link href="/investments">Investimentos</Link>
+                    <Link href="/forecast">Planejamento</Link>
                 </nav>
                 <form
                     action={async () => {
@@ -89,6 +92,36 @@ export default async function DashboardPage() {
                         <p>Compras reconhecidas e disponíveis para classificação.</p>
                     </Card>
                 </div>
+                <Card padding="lg">
+                    <h2>Previsão dos próximos meses</h2>
+                    <p>
+                        Parcelas e recorrências calculadas a partir dos registros existentes.
+                        São previsões, não cobranças confirmadas.
+                    </p>
+                    <div className="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mês</th>
+                                    <th>Despesas previstas</th>
+                                    <th>Entradas previstas</th>
+                                    <th>Saldo projetado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {forecast.map((month) => (
+                                    <tr key={`${month.year}-${month.month}`}>
+                                        <td>{String(month.month).padStart(2, '0')}/{month.year}</td>
+                                        <td>{formatCents(month.expenseTotalInCents)}</td>
+                                        <td>{formatCents(month.incomeTotalInCents)}</td>
+                                        <td>{formatCents(month.balanceInCents)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <Link href="/forecast">Ver detalhes do planejamento</Link>
+                </Card>
                 <Card padding="lg">
                     <h2>Despesas fixas do mês</h2>
                     {fixed.expenses.length + fixed.cardTransactions.length === 0 ? (
