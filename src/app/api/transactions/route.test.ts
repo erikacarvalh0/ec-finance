@@ -56,7 +56,7 @@ describe('GET /api/transactions', () => {
             {
                 id: 'transaction-1',
                 description: 'Groceries',
-                amountInCents: 12345n,
+                amountInCents: BigInt(12345),
                 occurredAt: new Date('2026-11-15T12:00:00.000Z'),
                 categoryId: null,
             },

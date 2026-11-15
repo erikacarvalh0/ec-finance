@@ -9,7 +9,7 @@ vi.mock('@/lib/auth', () => ({
     auth: vi.fn(),
 }));
 
-const mockedAuth = vi.mocked(auth);
+const mockedAuth = auth as unknown as ReturnType<typeof vi.fn>;
 
 describe('requireCurrentUserId', () => {
     beforeEach(() => {
@@ -21,7 +21,7 @@ describe('requireCurrentUserId', () => {
             user: {
                 id: 'owner-123',
             },
-        } as Awaited<ReturnType<typeof auth>>);
+        });
 
         await expect(requireCurrentUserId()).resolves.toBe('owner-123');
     });
@@ -39,7 +39,7 @@ describe('requireCurrentUserId', () => {
             user: {
                 id: '',
             },
-        } as Awaited<ReturnType<typeof auth>>);
+        });
 
         await expect(requireCurrentUserId()).rejects.toBeInstanceOf(
             UnauthorizedError,
@@ -51,7 +51,7 @@ describe('requireCurrentUserId', () => {
             user: {
                 id: '   ',
             },
-        } as Awaited<ReturnType<typeof auth>>);
+        });
 
         await expect(requireCurrentUserId()).rejects.toBeInstanceOf(
             UnauthorizedError,
