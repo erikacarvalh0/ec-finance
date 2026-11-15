@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaClient } from '@prisma/client';
 import { listUserTransactions } from './repository';
+import { createManualTransaction } from './create';
+import { createCategory } from '@/modules/categories/service';
 
 const databaseUrl = process.env.DATABASE_URL ?? '';
 
@@ -176,4 +178,39 @@ describe('PostgreSQL tenant isolation', () => {
             },
         })).rejects.toThrow();
     });
+    it('persists category and manual transactions for the correct owner', async () => {
+        const category = await createCategory(
+            prisma,
+            ownerId,
+            ` Groceries ${runId} `,
+        );
+
+        const transaction = await createManualTransaction(prisma, ownerId, {
+            cardId: ownerCardId,
+            categoryId: category.id,
+            description: 'Manually added groceries',
+            amountInCents: '7500',
+            occurredAt: '2026-11-15T13:00:00.000Z',
+        });
+
+        expect(category.name).toBe(`Groceries ${runId}`);
+        expect(transaction.amountInCents).toBe(BigInt(7500));
+
+        const ownerRecords = await listUserTransactions(prisma, ownerId);
+        const otherRecords = await listUserTransactions(prisma, otherUserId);
+
+        expect(ownerRecords.some((record) => record.id === transaction.id)).toBe(true);
+        expect(otherRecords.some((record) => record.id === transaction.id)).toBe(false);
+    });
+
+    it('rejects cross-tenant manual writes before inserting records', async () => {
+        await expect(createManualTransaction(prisma, ownerId, {
+            cardId: otherCardId,
+            categoryId: null,
+            description: 'Forbidden transaction',
+            amountInCents: '500',
+            occurredAt: '2026-11-15T13:00:00.000Z',
+        })).rejects.toThrow('Credit card not found');
+    });
+
 });

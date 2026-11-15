@@ -19,7 +19,7 @@ Start a disposable PostgreSQL instance with a database named `ec_finance_test`, 
 export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ec_finance_test?schema=public"
 npm install
 npm run db:generate
-npx prisma db push --skip-generate
+npm run db:deploy
 npm run test:integration
 ```
 
@@ -27,10 +27,10 @@ npm run test:integration
 
 ## CI
 
-A separate GitHub Actions job provisions PostgreSQL 16, creates the test schema, and runs the integration tests. Unit tests and coverage remain a separate fast job, keeping the TDD feedback loop short.
+A separate GitHub Actions job provisions PostgreSQL 16, applies the reviewed SQL migrations with `prisma migrate deploy`, and runs the integration tests. Unit tests and coverage remain a separate fast job, keeping the TDD feedback loop short.
 
 ## Database migration limitation
 
-`prisma db push` in this job is **for disposable CI databases only**; it is not a production migration strategy. Before any production deployment, generate, review and commit SQL migrations with Prisma Migrate, test them against a disposable copy of the intended schema, and use `prisma migrate deploy` for deployment.
+The initial migration is committed in `prisma/migrations`. Integration CI runs `prisma migrate deploy` on a disposable database, instead of `db push`. Production deployments must also use `prisma migrate deploy` with reviewed credentials and backups. **Do not run the initial migration against a populated preexisting database:** coordinate a baseline migration or data-preserving upgrade first.
 
 This suite does not yet exercise Google OAuth end-to-end, bank webhooks, or concurrency/idempotency.

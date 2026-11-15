@@ -14,7 +14,7 @@ npm run setup:ds
 cp .env.example .env
 # Set DATABASE_URL, AUTH_SECRET, AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET.
 npm run db:generate
-npm run db:migrate
+npm run db:deploy
 npm run dev
 ```
 
@@ -36,6 +36,17 @@ CI generates Prisma Client and runs tests, typecheck and Next.js build. CI does 
 ## Test-driven development
 
 All new features and bug fixes must follow **red → green → refactor**. See [Testing strategy](docs/testing.md). Run `npm run test:watch` while developing and `npm run test:coverage` before opening a PR. The CI enforces coverage thresholds for security-sensitive modules.
+
+## Persisted finance APIs
+
+Authenticated endpoints:
+
+- `GET /api/categories` — list your own categories.
+- `POST /api/categories` — create a category with JSON body `{ "name": "Groceries" }`.
+- `GET /api/transactions` — list your own recent transactions.
+- `POST /api/transactions` — create a manual transaction with a card you own, using a positive string `amountInCents`, an ISO timestamp and optional `categoryId`.
+
+Before first use, run `npm run db:deploy` against a new PostgreSQL database. Do not apply the initial migration to an already-populated database without an explicit baseline plan. See [database testing](docs/database-testing.md).
 
 ## Design System
 
