@@ -67,18 +67,22 @@ model BankConnection {
   cards          CreditCard[]
 
   @@unique([userId, provider, externalItemId])
+  @@unique([id, userId])
   @@index([userId])
 }
 
 model CreditCard {
   id                String         @id @default(cuid())
+  userId            String
   connectionId      String
   externalAccountId String
   name              String
-  connection        BankConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  connection        BankConnection @relation(fields: [connectionId, userId], references: [id, userId], onDelete: Cascade)
   transactions      Transaction[]
 
   @@unique([connectionId, externalAccountId])
+  @@unique([id, userId])
+  @@index([userId])
 }
 
 model Category {
@@ -89,6 +93,7 @@ model Category {
   transactions Transaction[]
 
   @@unique([userId, name])
+  @@unique([id, userId])
 }
 
 model Transaction {
@@ -101,8 +106,8 @@ model Transaction {
   amountInCents         BigInt
   occurredAt            DateTime
   user                  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  card                  CreditCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
-  category              Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  card                  CreditCard @relation(fields: [cardId, userId], references: [id, userId], onDelete: Cascade)
+  category              Category?  @relation(fields: [categoryId, userId], references: [id, userId], onDelete: Restrict)
 
   @@unique([cardId, providerTransactionId])
   @@index([userId, occurredAt])

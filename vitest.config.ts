@@ -11,6 +11,7 @@ export default defineConfig({
         environment: 'node',
         clearMocks: true,
         include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+        exclude: ['src/**/*.integration.test.ts'],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'lcov'],
