@@ -24,12 +24,16 @@ In the Google OAuth app, use `http://localhost:3000/api/auth/callback/google` as
 
 ```bash
 npm run db:generate
-npm test
+npm run test:coverage
 npm run typecheck
 npm run build
 ```
 
 CI generates Prisma Client and runs tests, typecheck and Next.js build. CI does not connect to a live database or test the OAuth handshake.
+
+## Test-driven development
+
+All new features and bug fixes must follow **red → green → refactor**. See [Testing strategy](docs/testing.md). Run `npm run test:watch` while developing and `npm run test:coverage` before opening a PR. The CI enforces coverage thresholds for security-sensitive modules.
 
 ## Design System
 
