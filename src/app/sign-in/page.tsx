@@ -25,13 +25,13 @@ export default async function SignInPage() {
                     action={async () => {
                         'use server';
 
-                        await signIn('github', {
+                        await signIn('google', {
                             redirectTo: '/',
                         });
                     }}
                 >
                     <Button type="submit">
-                        Continue with GitHub
+                        Continue with Google
                     </Button>
                 </form>
             </Card>

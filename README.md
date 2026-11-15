@@ -2,23 +2,23 @@
 
 Next.js + TypeScript personal finance product designed for multiple users.
 
-> **Current status:** GitHub OAuth and database-backed sessions are implemented in code but require a configured PostgreSQL database and OAuth application to run. The dashboard uses fictional financial data only. Open Finance is not connected.
+> **Current status:** Google OAuth and database-backed sessions are implemented in code but require a configured PostgreSQL database and OAuth application to run. The dashboard uses fictional financial data only. Open Finance is not connected.
 
 ## Run locally
 
-Requirements: Node.js 22+, npm, Git, PostgreSQL, and a GitHub OAuth application.
+Requirements: Node.js 22+, npm, Git, PostgreSQL, and a Google OAuth application.
 
 ```bash
 npm install
 npm run setup:ds
 cp .env.example .env
-# Set DATABASE_URL, AUTH_SECRET, AUTH_GITHUB_ID and AUTH_GITHUB_SECRET.
+# Set DATABASE_URL, AUTH_SECRET, AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET.
 npm run db:generate
 npm run db:migrate
 npm run dev
 ```
 
-In the GitHub OAuth app, use `http://localhost:3000/api/auth/callback/github` as the development callback URL.
+In the Google OAuth app, use `http://localhost:3000/api/auth/callback/google` as the development callback URL.
 
 ## Validate
 

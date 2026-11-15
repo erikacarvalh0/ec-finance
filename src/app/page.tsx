@@ -66,7 +66,7 @@ export default async function DashboardPage() {
                 <small>DEMONSTRAÇÃO · DADOS FICTÍCIOS</small>
                 <h1>Visão geral</h1>
                 <p>Seu dinheiro, com clareza.</p>
-                <p>Signed in as {session.user.email ?? 'GitHub user'}</p>
+                <p>Signed in as {session.user.email ?? 'Google user'}</p>
 
                 <Button disabled>
                     Conectar banco (em breve)
