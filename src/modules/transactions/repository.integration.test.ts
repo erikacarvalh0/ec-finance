@@ -6,6 +6,7 @@ import { createExpense, createIncome, createInvestment, addInvestmentSnapshot, l
 import { markCardTransactionFixed, classifyImportedCardTransaction } from '@/modules/finance/fixed-expenses-service';
 import { createManualTransaction } from './create';
 import { createCategory } from '@/modules/categories/service';
+import { getUserCashflowForecast } from '@/modules/forecast/repository';
 
 const databaseUrl = process.env.DATABASE_URL ?? '';
 
@@ -289,6 +290,52 @@ describe('PostgreSQL tenant isolation', () => {
 
         expect(fixed).toBe(true);
         expect(otherOwnerFixed).toBe(false);
+    });
+
+    it('forecasts installments and recurring income without leaking tenant data', async () => {
+        const installment = await createExpense(prisma, ownerId, {
+            description: `Planned purchase ${runId}`,
+            amountInCents: '10001',
+            type: 'VARIABLE',
+            paymentMethod: 'CREDIT',
+            installments: 3,
+            date: '2026-11-15',
+        });
+        const recurring = await createIncome(prisma, ownerId, {
+            type: 'RECURRING',
+            amountInCents: '25000',
+            responsible: 'Tenant',
+            description: `Recurring payment ${runId}`,
+            date: '2026-12-10',
+        });
+        await createExpense(prisma, otherUserId, {
+            description: 'Other user private expense',
+            amountInCents: '90000',
+            type: 'VARIABLE',
+            paymentMethod: 'PIX',
+            date: '2026-11-15',
+        });
+
+        const start = new Date('2026-11-01T00:00:00.000Z');
+        const ownerMonths = await getUserCashflowForecast(prisma, ownerId, start, 3);
+        const otherMonths = await getUserCashflowForecast(prisma, otherUserId, start, 3);
+
+        expect(ownerMonths.map((month) => month.expenses.find(
+            (item) => item.sourceId === installment.id,
+        )?.amountInCents)).toEqual([
+            BigInt(3334),
+            BigInt(3334),
+            BigInt(3333),
+        ]);
+        expect(ownerMonths.map((month) => month.incomes.some(
+            (item) => item.sourceId === recurring.id,
+        ))).toEqual([false, true, true]);
+        expect(ownerMonths.every((month) => month.expenses.every(
+            (item) => item.description !== 'Other user private expense',
+        ))).toBe(true);
+        expect(otherMonths.every((month) => month.expenses.every(
+            (item) => item.sourceId !== installment.id,
+        ))).toBe(true);
     });
 
 });

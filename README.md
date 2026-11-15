@@ -57,6 +57,10 @@ Before first use, run `npm run db:deploy` against a new PostgreSQL database. Do 
 
 See [Finance tracking modules](docs/finance-tracking.md) for recurrence rules, valuation semantics, ownership boundaries and limitations.
 
+## Forward-looking cashflow
+
+The dashboard and `/forecast` show six months of projected installments, fixed expenses and recurring income. Projections are not confirmed charges or bank balances. See [Monthly cashflow forecast](docs/cashflow-forecast.md).
+
 ## Design System
 
 The app consumes actual `Button` and `Card` components from [erikacarvalho-ds](https://github.com/erikacarvalh0/erikacarvalho-ds). The React package is built by `npm run setup:ds` using a pinned upstream Git commit. It has not been published to a package registry yet.
