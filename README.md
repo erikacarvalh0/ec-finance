@@ -25,6 +25,8 @@ In the Google OAuth app, use `http://localhost:3000/api/auth/callback/google` as
 ```bash
 npm run db:generate
 npm run test:coverage
+# Integration tests require a separate ec_finance_test PostgreSQL database.
+# See docs/database-testing.md for configuration.
 npm run typecheck
 npm run build
 ```
@@ -42,6 +44,7 @@ The app consumes actual `Button` and `Card` components from [erikacarvalho-ds](h
 ## Architecture and security
 
 - [Authentication and tenant isolation](docs/authentication.md)
+- [PostgreSQL integration tests](docs/database-testing.md)
 - [Security baseline](docs/security.md)
 - [Design System integration](docs/design-system.md)
 
