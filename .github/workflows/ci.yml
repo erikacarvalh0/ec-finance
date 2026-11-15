@@ -73,8 +73,6 @@ jobs:
             - name: Apply reviewed Prisma migrations
               run: npx prisma migrate deploy
 
-            - name: Preview finance schema changes from migrated database
-              run: npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma --script
 
             - name: Verify tenant isolation against PostgreSQL
               run: npm run test:integration
