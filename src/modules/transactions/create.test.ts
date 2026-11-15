@@ -3,12 +3,14 @@ import { createManualTransaction } from './create';
 
 const findCard = vi.fn();
 const findCategory = vi.fn();
+const findFixedRule = vi.fn();
 const create = vi.fn();
 
 const database = {
     creditCard: { findFirst: findCard },
     category: { findFirst: findCategory },
     transaction: { create },
+    fixedExpenseRule: { findUnique: findFixedRule },
 } as unknown as Parameters<typeof createManualTransaction>[0];
 
 const input = {
@@ -23,6 +25,7 @@ describe('manual transaction creation', () => {
     beforeEach(() => {
         findCard.mockReset().mockResolvedValue({ id: 'card-a' });
         findCategory.mockReset().mockResolvedValue({ id: 'category-a' });
+        findFixedRule.mockReset().mockResolvedValue(null);
         create.mockReset().mockResolvedValue({ id: 'transaction-a', amountInCents: BigInt(1250) });
     });
 
@@ -86,4 +89,37 @@ describe('manual transaction creation', () => {
             data: expect.objectContaining({ categoryId: null }),
         }));
     });
+    it('automatically marks a repeated merchant on the same card as fixed', async () => {
+        findFixedRule.mockResolvedValue({ id: 'rule-a' });
+
+        await createManualTransaction(database, 'owner-a', {
+            ...input,
+            description: 'SPOTIFY',
+        });
+
+        expect(findFixedRule).toHaveBeenCalledWith({
+            where: {
+                userId_cardId_merchantKey: {
+                    userId: 'owner-a',
+                    cardId: 'card-a',
+                    merchantKey: 'spotify',
+                },
+            },
+            select: { id: true },
+        });
+        expect(create).toHaveBeenCalledWith(expect.objectContaining({
+            data: expect.objectContaining({
+                isFixed: true,
+            }),
+        }));
+    });
+
+    it('keeps unrecognized purchases variable', async () => {
+        await createManualTransaction(database, 'owner-a', input);
+
+        expect(create).toHaveBeenCalledWith(expect.objectContaining({
+            data: expect.objectContaining({ isFixed: false }),
+        }));
+    });
+
 });
