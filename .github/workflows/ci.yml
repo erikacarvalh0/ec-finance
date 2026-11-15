@@ -70,6 +70,9 @@ jobs:
             - name: Generate Prisma Client
               run: npm run db:generate
 
+            - name: Preview initial Prisma migration SQL
+              run: npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script
+
             - name: Apply schema to disposable integration database
               run: npx prisma db push --skip-generate
 
