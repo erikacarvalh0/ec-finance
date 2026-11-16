@@ -74,8 +74,5 @@ jobs:
               run: npx prisma migrate deploy
 
 
-            - name: Preview generated recurrence cutoff migration
-              run: npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma --script
-
             - name: Verify tenant isolation against PostgreSQL
               run: npm run test:integration
