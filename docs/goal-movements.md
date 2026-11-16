@@ -1,0 +1,3 @@
+# Financial goal movements
+
+Users can record deposits and withdrawals against their own financial goals. The movement and the reserved balance change are committed in a single Prisma transaction. A conditional update prevents concurrent withdrawals from taking the balance below zero; deposits are guarded against PostgreSQL bigint overflow. Movement amounts are positive integer cents, and the operation type determines the direction. The latest 100 movements are displayed for each goal; historical movements before this feature do not exist, so the initial reserved balance remains a manual starting snapshot. These records are not verified bank transactions and do not transfer money between accounts.
