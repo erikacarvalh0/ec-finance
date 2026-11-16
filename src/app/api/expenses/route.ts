@@ -43,7 +43,7 @@ export async function POST(request: Request) {
         }
 
         if (error instanceof Error && (error.message === 'Card not found' || error.message === 'Category not found')) {
-            return Response.json({ error: 'Card not found' }, { status: 404 });
+            return Response.json({ error: error.message }, { status: 404 });
         }
 
         if (error instanceof z.ZodError || error instanceof SyntaxError
