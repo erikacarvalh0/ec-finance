@@ -43,6 +43,7 @@ export default async function ReportsPage() {
             <p>Receitas e despesas registradas nos últimos seis meses, sem projeções futuras.</p>
             <Card padding="lg">
                 <h2>Receitas versus despesas</h2>
+                <p><Link href={`/api/reports/cashflow?period=${period}`}>Exportar mês atual em CSV</Link></p>
                 <div className="cashflow-chart" role="img" aria-label="Gráfico comparativo mensal de receitas e despesas">
                     {months.map((item) => (
                         <div key={item.period} className="cashflow-chart-month">
