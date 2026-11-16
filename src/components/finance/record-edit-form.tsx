@@ -14,6 +14,7 @@ type ExpenseRecord = {
     date: string;
     installments: number;
     endsOn: string;
+    categoryId?: string;
 };
 
 type IncomeRecord = {
@@ -38,7 +39,13 @@ function parseCurrency(value: string): string {
         + BigInt((match[2] ?? '').padEnd(2, '0') || '0')).toString();
 }
 
-export function RecordEditForm({ record }: { record: ExpenseRecord | IncomeRecord }) {
+export function RecordEditForm({
+    record,
+    categories = [],
+}: {
+    record: ExpenseRecord | IncomeRecord;
+    categories?: Array<{ id: string; name: string }>;
+}) {
     const router = useRouter();
     const [expanded, setExpanded] = useState(false);
     const [type, setType] = useState<string>(record.type);
@@ -59,6 +66,7 @@ export function RecordEditForm({ record }: { record: ExpenseRecord | IncomeRecor
             paymentMethod: String(values.get('paymentMethod')),
             type,
             installments: Number(values.get('installments')),
+            ...(values.get('categoryId') ? { categoryId: String(values.get('categoryId')) } : {}),
             ...(values.get('date') ? { date: String(values.get('date')) } : {}),
             endsOn: type === 'FIXED' && Number(values.get('installments')) === 1
                 ? String(values.get('endsOn')) || null
@@ -145,6 +153,17 @@ export function RecordEditForm({ record }: { record: ExpenseRecord | IncomeRecor
                     </label>
                     {record.kind === 'expense' && (
                         <>
+                            <label>
+                                Categoria (opcional)
+                                <Select name="categoryId" defaultValue={record.categoryId ?? ''}>
+                                    <option value="">Sem categoria</option>
+                                    {categories.map((category) => (
+                                        <option key={category.id} value={category.id}>
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </label>
                             <label>
                                 Forma de pagamento
                                 <Select name="paymentMethod" defaultValue={record.paymentMethod}>

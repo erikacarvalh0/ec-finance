@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { listExpenses } from '@/modules/finance/service';
 import { listUserCards } from '@/modules/cards/service';
+import { listCategories } from '@/modules/categories/service';
 import { LinkImportedTransactionForm } from '@/components/cards/card-forms';
 import { ExpenseForm } from '@/components/finance/forms';
 import { RecordEditForm } from '@/components/finance/record-edit-form';
@@ -24,7 +25,7 @@ export default async function ExpensesPage() {
         redirect('/sign-in');
     }
 
-    const [expenses, cards, transactions] = await Promise.all([
+    const [expenses, cards, transactions, categories] = await Promise.all([
         listExpenses(prisma, session.user.id),
         listUserCards(prisma, session.user.id),
         prisma.transaction.findMany({
@@ -38,13 +39,14 @@ export default async function ExpensesPage() {
             orderBy: { occurredAt: 'desc' },
             take: 100,
         }),
+        listCategories(prisma, session.user.id),
     ]);
 
     return (
         <main className="finance-page">
             <Link href="/">← Voltar ao dashboard</Link>
             <h1>Despesas</h1>
-            <ExpenseForm cards={cards} />
+            <ExpenseForm cards={cards} categories={categories} />
             <Card padding="lg">
                 <h2>Histórico de despesas</h2>
                 {expenses.length === 0 && <p>Nenhuma despesa registrada.</p>}
@@ -82,7 +84,7 @@ export default async function ExpensesPage() {
                             {expense.linkedTransactionId && (
                                 <small>Vinculada à compra importada</small>
                             )}
-                            <RecordEditForm record={{
+                            <RecordEditForm categories={categories} record={{
                                 kind: 'expense',
                                 id: expense.id,
                                 description: expense.description,
@@ -92,6 +94,7 @@ export default async function ExpensesPage() {
                                 date: expense.date?.toISOString().slice(0, 10) ?? '',
                                 installments: expense.installments,
                                 endsOn: expense.endsOn?.toISOString().slice(0, 10) ?? '',
+                                categoryId: expense.categoryId ?? '',
                             }} />
                         </li>
                     ))}

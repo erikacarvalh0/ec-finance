@@ -77,6 +77,10 @@ Visit `/cards` to register credit cards, configure closing and due days and insp
 
 Card invoice detail pages support manual full or partial payments, invoice status and the remaining balance. Payments are guarded by user ownership, idempotency keys and serialized PostgreSQL transactions. See [Invoice payment tracking](docs/invoice-payments.md).
 
+## Monthly budgets and categories
+
+Use `/budgets` to create categories, configure monthly category limits and view spending thresholds. Manual expenses can be assigned to an owned category. See [Monthly budgets](docs/monthly-budgets.md) for calculation rules and limitations.
+
 ## Design System
 
 The app consumes actual `Button` and `Card` components from [erikacarvalho-ds](https://github.com/erikacarvalh0/erikacarvalho-ds). The React package is built by `npm run setup:ds` using a pinned upstream Git commit. It has not been published to a package registry yet.

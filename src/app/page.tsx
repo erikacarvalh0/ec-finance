@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { getMonthlyFixedExpenses } from '@/modules/finance/monthly';
 import { getUserCashflowForecast } from '@/modules/forecast/repository';
 import { getOverdueExpenseTotals } from '@/modules/forecast/overdue';
+import { getCategoryBudgetReport } from '@/modules/budgets/service';
 import { MarkFixedButton } from '@/components/finance/forms';
 
 export const dynamic = 'force-dynamic';
@@ -30,7 +31,7 @@ export default async function DashboardPage() {
     const now = new Date();
     const month = now.getUTCMonth() + 1;
     const year = now.getUTCFullYear();
-    const [fixed, transactions, forecast, recentMonths] = await Promise.all([
+    const [fixed, transactions, forecast, recentMonths, budgetReport] = await Promise.all([
         getMonthlyFixedExpenses(prisma, userId, year, month),
         prisma.transaction.findMany({
             where: {
@@ -57,6 +58,7 @@ export default async function DashboardPage() {
             new Date(Date.UTC(year, month - 7, 1)),
             7,
         ),
+        getCategoryBudgetReport(prisma, userId, `${year}-${String(month).padStart(2, '0')}`),
     ]);
     const overdue = getOverdueExpenseTotals(
         recentMonths.flatMap((item) => item.expenses),
@@ -74,6 +76,7 @@ export default async function DashboardPage() {
                     <Link href="/investments">Investimentos</Link>
                     <Link href="/forecast">Planejamento</Link>
                     <Link href="/cards">Cartões e faturas</Link>
+                    <Link href="/budgets">Orçamentos</Link>
                 </nav>
                 <form
                     action={async () => {
@@ -110,6 +113,30 @@ export default async function DashboardPage() {
                         <p>Compras reconhecidas e disponíveis para classificação.</p>
                     </Card>
                 </div>
+                <Card padding="lg">
+                    <h2>Orçamentos deste mês</h2>
+                    {budgetReport.categories.length === 0 ? (
+                        <p>Nenhuma categoria cadastrada.</p>
+                    ) : (
+                        <ul>
+                            {budgetReport.categories.map((category) => (
+                                <li key={category.categoryId}>
+                                    <strong>{category.name}</strong>
+                                    {': '}
+                                    {formatCents(category.spentInCents)}
+                                    {' / '}
+                                    {category.limitInCents === null
+                                        ? 'Sem limite'
+                                        : formatCents(category.limitInCents)}
+                                    {category.status === 'OVER_LIMIT' && ' · Acima do limite'}
+                                    {category.status === 'AT_LIMIT' && ' · Limite atingido'}
+                                    {category.status === 'NEAR_LIMIT' && ' · Próximo do limite'}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    <Link href="/budgets">Gerenciar limites e categorias</Link>
+                </Card>
                 <Card padding="lg">
                     <h2>Previsão dos próximos meses</h2>
                     <p>

@@ -42,7 +42,7 @@ export async function POST(request: Request) {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        if (error instanceof Error && error.message === 'Card not found') {
+        if (error instanceof Error && (error.message === 'Card not found' || error.message === 'Category not found')) {
             return Response.json({ error: 'Card not found' }, { status: 404 });
         }
 
