@@ -26,6 +26,7 @@ model User {
   fixedRules    FixedExpenseRule[]
   expenseOccurrences ExpenseOccurrence[]
   incomeOccurrences  IncomeOccurrence[]
+  invoicePayments    InvoicePayment[]
 }
 
 model Account {
@@ -89,6 +90,7 @@ model CreditCard {
   closingDay        Int?
   dueDay            Int?
   expenses          Expense[]
+  invoicePayments   InvoicePayment[]
 
   @@unique([connectionId, externalAccountId])
   @@unique([id, userId])
@@ -259,4 +261,20 @@ model IncomeOccurrence {
 
     @@unique([incomeId, dueMonth])
     @@index([userId, dueMonth])
+}
+
+model InvoicePayment {
+    id              String     @id @default(cuid())
+    userId          String
+    cardId          String
+    period          String
+    idempotencyKey  String
+    amountInCents   BigInt
+    paidAt          DateTime   @db.Date
+    createdAt       DateTime   @default(now())
+    user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    card            CreditCard @relation(fields: [cardId, userId], references: [id, userId], onDelete: Restrict)
+
+    @@unique([userId, cardId, idempotencyKey])
+    @@index([userId, cardId, period])
 }

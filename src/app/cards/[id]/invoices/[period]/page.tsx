@@ -3,7 +3,8 @@ import { notFound, redirect } from 'next/navigation';
 import { Card } from '@erikacarvalho/react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { getUserCardInvoice } from '@/modules/cards/service';
+import { getInvoicePaymentSummary } from '@/modules/cards/payment-service';
+import { InvoicePaymentForm } from '@/components/cards/invoice-payment-form';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,10 +29,10 @@ export default async function InvoicePage({
     }
 
     const { id, period } = await params;
-    let invoice: Awaited<ReturnType<typeof getUserCardInvoice>>;
+    let record: Awaited<ReturnType<typeof getInvoicePaymentSummary>>;
 
     try {
-        invoice = await getUserCardInvoice(prisma, session.user.id, id, period);
+        record = await getInvoicePaymentSummary(prisma, session.user.id, id, period);
     } catch (error) {
         if (error instanceof Error && error.message === 'Card not found') {
             notFound();
@@ -53,6 +54,14 @@ export default async function InvoicePage({
         throw error;
     }
 
+    const { invoice, payments, summary } = record;
+    const statusLabels = {
+        OPEN: 'Aberta',
+        CLOSED: 'Fechada',
+        PARTIALLY_PAID: 'Parcialmente paga',
+        PAID: 'Quitada',
+    };
+
     return (
         <main className="finance-page">
             <Link href="/cards">← Voltar aos cartões</Link>
@@ -60,6 +69,9 @@ export default async function InvoicePage({
             <Card padding="lg">
                 <h2>Total previsto e registrado</h2>
                 <p className="metric">{money(invoice.totalInCents)}</p>
+                <p><strong>Status: {statusLabels[summary.status]}</strong></p>
+                <p>Total pago: {money(summary.paidInCents)}</p>
+                <p><strong>Saldo devedor: {money(summary.balanceInCents)}</strong></p>
                 <p>
                     Vencimento: {invoice.dueDate.toLocaleDateString('pt-BR', {
                         timeZone: 'UTC',
@@ -69,6 +81,27 @@ export default async function InvoicePage({
                     Essa é uma visão calculada. Não significa que o banco confirmou
                     o fechamento ou o pagamento da fatura.
                 </p>
+            </Card>
+            <Card padding="lg">
+                <h2>Pagamentos registrados manualmente</h2>
+                {summary.balanceInCents > BigInt(0) && (
+                    <InvoicePaymentForm
+                        cardId={id}
+                        period={period}
+                        remainingInCents={summary.balanceInCents.toString()}
+                    />
+                )}
+                {payments.length === 0 && <p>Nenhum pagamento registrado.</p>}
+                <ul className="valuation-history">
+                    {payments.map((payment) => (
+                        <li key={payment.id}>
+                            {payment.paidAt.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                            {' — '}
+                            {money(payment.amountInCents)}
+                        </li>
+                    ))}
+                </ul>
+                <p>Esses pagamentos são declarações manuais, não confirmações bancárias.</p>
             </Card>
             <Card padding="lg">
                 <h2>Compras e parcelas</h2>
