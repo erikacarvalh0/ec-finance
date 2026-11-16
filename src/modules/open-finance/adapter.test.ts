@@ -59,6 +59,51 @@ describe('provider-neutral card import contract', () => {
         },
     );
 
+    it('accepts the signed 64-bit maximum and rejects the first overflowing cent', () => {
+        const max = normalizeCardImportBatch({
+            ...sample,
+            transactions: [{
+                ...sample.transactions[0],
+                amountInCents: '9223372036854775807',
+            }],
+        });
+        expect(max.transactions[0].amountInCents).toBe(BigInt('9223372036854775807'));
+        expect(() => normalizeCardImportBatch({
+            ...sample,
+            transactions: [{
+                ...sample.transactions[0],
+                amountInCents: '9223372036854775808',
+            }],
+        })).toThrow('Provider transaction amount is out of range');
+    });
+
+    it('deduplicates equal instants across timezone offsets', () => {
+        const result = normalizeCardImportBatch({
+            ...sample,
+            transactions: [
+                sample.transactions[0],
+                { ...sample.transactions[0], occurredAt: '2026-11-12T11:30:00-03:00' },
+            ],
+        });
+        expect(result.transactions).toHaveLength(1);
+        expect(result.duplicateExternalIds).toEqual(['purchase-a']);
+    });
+
+    it('rejects unknown fields and oversized provider identifiers', () => {
+        expect(() => normalizeCardImportBatch({
+            ...sample,
+            unexpectedField: 'not allowed',
+        } as typeof sample)).toThrow();
+        expect(() => normalizeCardImportBatch({
+            ...sample,
+            cardExternalId: 'x'.repeat(201),
+        })).toThrow();
+        expect(() => normalizeCardImportBatch({
+            ...sample,
+            transactions: [{ ...sample.transactions[0], description: 'x'.repeat(256) }],
+        })).toThrow();
+    });
+
     it('rejects empty IDs, invalid timestamps, and excessive batches', () => {
         expect(() => normalizeCardImportBatch({
             ...sample,
