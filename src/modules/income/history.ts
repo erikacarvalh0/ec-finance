@@ -6,6 +6,7 @@ type Database = Pick<PrismaClient, 'income'>;
 const filtersSchema = z.object({
     type: z.enum(['SALARY', 'RECURRING', 'OTHER']).optional(),
     search: z.string().trim().max(100).optional(),
+    archived: z.boolean().optional(),
     cursor: z.string().min(1).max(200).optional(),
 });
 
@@ -17,6 +18,7 @@ export function parseIncomeHistoryFilters(input: IncomeHistoryFilters) {
     return {
         type: parsed.type,
         search: parsed.search || undefined,
+        archived: parsed.archived,
         cursor: parsed.cursor,
     };
 }
@@ -30,11 +32,11 @@ export async function listFilteredIncomes(
         throw new Error('Authenticated user ID is required');
     }
 
-    const { type, search, cursor } = parseIncomeHistoryFilters(filters);
+    const { type, search, cursor, archived } = parseIncomeHistoryFilters(filters);
     const rows = await database.income.findMany({
         where: {
             userId,
-            archivedAt: null,
+            archivedAt: archived ? { not: null } : null,
             ...(type ? { type } : {}),
             ...(search ? {
                 OR: [
