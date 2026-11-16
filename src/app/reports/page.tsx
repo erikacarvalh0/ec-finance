@@ -8,19 +8,29 @@ import { getCategoryBudgetReport } from '@/modules/budgets/service';
 import { summarizeCategorySpending } from '@/modules/reports/categories';
 import { summarizeAnnualCashflow } from '@/modules/reports/annual';
 import { formatReportCurrency as money } from '@/modules/reports/currency';
+import { parseReportMonthRange } from '@/modules/reports/filters';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ReportsPage() {
+export default async function ReportsPage({ searchParams }: {
+    searchParams: Promise<{ from?: string; to?: string }>;
+}) {
     const session = await auth();
     if (!session?.user?.id) redirect('/sign-in');
 
     const now = new Date();
-    const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1));
+    const filters = await searchParams;
+    let range: ReturnType<typeof parseReportMonthRange>;
+    try {
+        range = parseReportMonthRange(filters, now);
+    } catch {
+        range = parseReportMonthRange({}, now);
+    }
+    const { from, count } = range;
     const period = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
     const annualFrom = new Date(Date.UTC(now.getUTCFullYear() - 1, 0, 1));
     const [months, annualMonths, categoryReport] = await Promise.all([
-        getUserMonthlyCashflowReport(prisma, session.user.id, from, 6),
+        getUserMonthlyCashflowReport(prisma, session.user.id, from, count),
         getUserMonthlyCashflowReport(prisma, session.user.id, annualFrom, 24),
         getCategoryBudgetReport(prisma, session.user.id, period),
     ]);
@@ -38,7 +48,12 @@ export default async function ReportsPage() {
         <main className="finance-page">
             <Link href="/">← Voltar ao dashboard</Link>
             <h1>Relatórios financeiros</h1>
-            <p>Receitas e despesas registradas nos últimos seis meses, sem projeções futuras.</p>
+            <p>Receitas e despesas registradas no período selecionado, sem projeções futuras.</p>
+            <form method="get" action="/reports">
+                <label>De (AAAA-MM) <input name="from" type="month" defaultValue={range.from.toISOString().slice(0, 7)} required /></label>
+                <label>Até (AAAA-MM) <input name="to" type="month" defaultValue={range.lastPeriod} required /></label>
+                <button type="submit">Filtrar período (máximo 12 meses)</button>
+            </form>
             <Card padding="lg">
                 <h2>Receitas versus despesas</h2>
                 <p><Link href={`/api/reports/cashflow?period=${period}`}>Exportar mês atual em CSV</Link></p>
