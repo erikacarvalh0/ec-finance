@@ -69,6 +69,10 @@ The `/forecast` page lets authenticated users mark an individual installment or 
 
 Expenses and incomes support editing, and recurring records can be ended on a chosen date without deleting prior payments. The dashboard highlights overdue pending expenses. See [editing and overdue tracking](docs/record-editing.md).
 
+## Credit card invoices
+
+Visit `/cards` to register credit cards, configure closing and due days and inspect monthly invoices. Card invoices include recorded purchases and installments from manual credit expenses attached to a card, with explicit manual-import duplicate linking. See [Credit card invoices](docs/credit-card-invoices.md).
+
 ## Design System
 
 The app consumes actual `Button` and `Card` components from [erikacarvalho-ds](https://github.com/erikacarvalh0/erikacarvalho-ds). The React package is built by `npm run setup:ds` using a pinned upstream Git commit. It has not been published to a package registry yet.
