@@ -11,6 +11,6 @@ describe('HTTP security headers', () => {
     });
 
     it('does not impose a speculative CSP on OAuth or design-system resources', () => {
-        expect(securityHeaders.some(({ key }) => key === 'Content-Security-Policy')).toBe(false);
+        expect(Object.keys(Object.fromEntries(securityHeaders.map(({ key, value }) => [key, value])))).not.toContain('Content-Security-Policy');
     });
 });
