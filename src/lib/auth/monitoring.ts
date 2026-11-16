@@ -12,8 +12,8 @@ export function logAuthFailure(): void {
     }));
 }
 
-export function withAuthMonitoring(handler: (request: Request) => Promise<Response>) {
-    return (request: Request): Promise<Response> => {
+export function withAuthMonitoring<TRequest extends Request>(handler: (request: TRequest) => Promise<Response>) {
+    return (request: TRequest): Promise<Response> => {
         const correlationId = randomUUID();
 
         return correlation.run(correlationId, async () => {
