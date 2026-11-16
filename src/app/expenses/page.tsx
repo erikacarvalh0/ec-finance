@@ -10,6 +10,8 @@ import { LinkImportedTransactionForm } from '@/components/cards/card-forms';
 import { ExpenseForm } from '@/components/finance/forms';
 import { RecordEditForm } from '@/components/finance/record-edit-form';
 import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
+import { ExpenseArchiveButton } from '@/components/finance/expense-archive-button';
+import { parseExpenseArchiveView } from '@/modules/expenses/archive-view';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +23,7 @@ const currency = new Intl.NumberFormat('pt-BR', {
 export default async function ExpensesPage({
     searchParams,
 }: {
-    searchParams: Promise<{ type?: string; paymentMethod?: string; search?: string; cursor?: string }>;
+    searchParams: Promise<{ type?: string; paymentMethod?: string; search?: string; cursor?: string; view?: string }>;
 }) {
     const session = await auth();
 
@@ -38,6 +40,7 @@ export default async function ExpensesPage({
         ? query.paymentMethod as 'PIX' | 'CREDIT' | 'DEBIT' | 'AUTOMATIC_DEBIT' | 'OTHER'
         : undefined;
     const search = (query.search ?? '').trim().slice(0, 100);
+    const archived = parseExpenseArchiveView(query.view);
     const [history, cards, transactions, categories] = await Promise.all([
 
         listFilteredExpenses(prisma, session.user.id, {
@@ -45,6 +48,7 @@ export default async function ExpensesPage({
             paymentMethod,
             search,
             cursor: query.cursor,
+            archived,
         }),
         listUserCards(prisma, session.user.id),
         prisma.transaction.findMany({
@@ -67,6 +71,7 @@ export default async function ExpensesPage({
     if (paymentMethod) nextQuery.set('paymentMethod', paymentMethod);
     if (search) nextQuery.set('search', search);
     if (nextCursor) nextQuery.set('cursor', nextCursor);
+    if (archived) nextQuery.set('view', 'archived');
 
     return (
         <main className="finance-page">
@@ -75,7 +80,9 @@ export default async function ExpensesPage({
             <ExpenseForm cards={cards} categories={categories} />
             <Card padding="lg">
                 <h2>Histórico de despesas</h2>
+                <p><Link href={archived ? '/expenses' : '/expenses?view=archived'}>{archived ? 'Ver despesas ativas' : 'Ver despesas arquivadas'}</Link></p>
                 <form action="/expenses" className="finance-form">
+                    {archived && <input type="hidden" name="view" value="archived" />}
                     <label>
                         Pesquisar descrição
                         <input
@@ -118,14 +125,14 @@ export default async function ExpensesPage({
                                 {' · '}
                                 {expense.installments} parcela(s)
                             </small>
-                            {expense.type === 'FIXED' && expense.installments === 1 && (
+                            {!archived && expense.type === 'FIXED' && expense.installments === 1 && (
                                 <EndRecurrenceForm
                                     kind="expense"
                                     id={expense.id}
                                     currentDate={expense.endsOn?.toISOString().slice(0, 10) ?? ''}
                                 />
                             )}
-                            {expense.paymentMethod === 'CREDIT'
+                            {!archived && expense.paymentMethod === 'CREDIT'
                                 && expense.cardId
                                 && !expense.linkedTransactionId && (
                                 <LinkImportedTransactionForm
@@ -142,7 +149,7 @@ export default async function ExpensesPage({
                             {expense.linkedTransactionId && (
                                 <small>Vinculada à compra importada</small>
                             )}
-                            <RecordEditForm categories={categories} record={{
+                            {!archived && <RecordEditForm categories={categories} record={{
                                 kind: 'expense',
                                 id: expense.id,
                                 description: expense.description,
@@ -153,7 +160,8 @@ export default async function ExpensesPage({
                                 installments: expense.installments,
                                 endsOn: expense.endsOn?.toISOString().slice(0, 10) ?? '',
                                 categoryId: expense.categoryId ?? '',
-                            }} />
+                            }} />}
+                            <ExpenseArchiveButton id={expense.id} archived={archived} />
                         </li>
                     ))}
                 </ul>
