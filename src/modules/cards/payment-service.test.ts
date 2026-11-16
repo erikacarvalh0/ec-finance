@@ -5,6 +5,7 @@ const findCard = vi.fn();
 const findPurchases = vi.fn();
 const findExpenses = vi.fn();
 const listPayments = vi.fn();
+const findCardForSummary = vi.fn();
 const insertPayment = vi.fn();
 const findExisting = vi.fn();
 const db = {
@@ -30,7 +31,7 @@ describe('recording manual invoice payments', () => {
         insertPayment.mockResolvedValue({
             id: 'payment-a',
             amountInCents: BigInt(3000),
-            paidAt: new Date('2026-11-16T12:00:00.000Z'),
+            paidAt: new Date('2026-11-16T00:00:00.000Z'),
         });
     });
 
