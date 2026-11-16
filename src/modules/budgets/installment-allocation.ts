@@ -33,3 +33,23 @@ export function allocateInstallmentToMonth(
     const remainder = expense.amountInCents % count;
     return base + (BigInt(offset) < remainder ? BigInt(1) : BigInt(0));
 }
+
+/**
+ * Projects one fixed recurring charge into each calendar month from its start
+ * until its optional end date, inclusive of both boundary months.
+ */
+export function allocateRecurringExpenseToMonth(
+    expense: { amountInCents: bigint; date: Date; endsOn: Date | null },
+    period: string,
+): bigint {
+    const { start, end } = monthBounds(period);
+    if (expense.amountInCents < BigInt(0)
+        || !Number.isFinite(expense.date.getTime())
+        || (expense.endsOn !== null && !Number.isFinite(expense.endsOn.getTime()))) {
+        throw new Error('Invalid recurring expense');
+    }
+    if (expense.date >= end || (expense.endsOn !== null && expense.endsOn < start)) {
+        return BigInt(0);
+    }
+    return expense.amountInCents;
+}
