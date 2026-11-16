@@ -31,6 +31,31 @@ npm run build
 
 The initial coverage gate measures the security-sensitive authentication guard, transaction repository and transactions GET route only. Thresholds: **85% lines, functions and statements; 75% branches**. Expand to all domain modules as production functionality is added. Coverage percentage alone cannot prove security.
 
+## Card invoice E2E
+
+`e2e/cards-invoice.spec.ts` exercises a real database session, invoice pages and
+payment/reconciliation APIs without performing Google OAuth. It covers imported
+credits, explicit manual/import duplicate linking, purchases on either side of
+closing day, open/closed invoices, partial payment, overpayment rejection, full
+settlement and the resulting estimated card limit.
+
+Start a disposable PostgreSQL database as described in [database testing](database-testing.md).
+The fixture and Playwright server both use
+`postgresql://postgres:postgres@127.0.0.1:5432/ec_finance_test?schema=public`.
+After installing dependencies and the Design System with `npm run setup:ds`, run:
+
+```bash
+DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:5432/ec_finance_test?schema=public" npm run db:generate
+DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:5432/ec_finance_test?schema=public" npm run db:deploy
+npx playwright install chromium
+npm run test:e2e -- e2e/cards-invoice.spec.ts
+```
+
+Use the Playwright-managed server, or an existing server configured with that same
+database. Each execution creates its own user, session and card records and removes
+them afterward. Historical and future invoice periods keep status assertions
+independent of the current month.
+
 ## CI and PR checks
 
 The GitHub Actions pipeline installs dependencies, compiles the upstream Design System, generates Prisma Client, runs coverage checks, validates TypeScript and builds Next.js. A separate job starts PostgreSQL 16 and executes the database integration suite.
