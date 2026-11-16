@@ -36,6 +36,7 @@ export async function listFilteredExpenses(
     const rows = await database.expense.findMany({
         where: {
             userId,
+            archivedAt: null,
             ...(type ? { type } : {}),
             ...(paymentMethod ? { paymentMethod } : {}),
             ...(search ? {
