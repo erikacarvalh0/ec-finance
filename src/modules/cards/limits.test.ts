@@ -5,10 +5,12 @@ const cardFind = vi.fn();
 const cardUpdate = vi.fn();
 const transactionFind = vi.fn();
 const expenseFind = vi.fn();
+const paymentFind = vi.fn();
 const db = {
     creditCard: { findFirst: cardFind, update: cardUpdate },
     transaction: { findMany: transactionFind },
     expense: { findMany: expenseFind },
+    invoicePayment: { findMany: paymentFind },
 } as unknown as Parameters<typeof configureCardLimit>[0];
 
 describe('card spending limit', () => {
@@ -17,6 +19,7 @@ describe('card spending limit', () => {
         cardFind.mockResolvedValue({ id: 'card-a', creditLimitInCents: BigInt(200000) });
         transactionFind.mockResolvedValue([]);
         expenseFind.mockResolvedValue([]);
+        paymentFind.mockResolvedValue([]);
     });
 
     it('tracks estimated amount used and available without treating it as bank balance', () => {
@@ -36,6 +39,17 @@ describe('card spending limit', () => {
             { amountInCents: BigInt(12000), linkedTransactionId: 'imported-a' },
         ], [{ id: 'imported-a', amountInCents: BigInt(12000) }]);
         expect(result.estimatedUsedInCents).toBe(BigInt(42000));
+    });
+
+    it('subtracts registered card invoice payments from the estimate without negative debt', async () => {
+        transactionFind.mockResolvedValue([{
+            id: 'charge-a',
+            amountInCents: BigInt(90000),
+        }]);
+        paymentFind.mockResolvedValue([{ amountInCents: BigInt(40000) }]);
+        const result = await getCardLimitOverview(db, 'owner-a', 'card-a');
+        expect(result?.estimatedUsedInCents).toBe(BigInt(50000));
+        expect(result?.estimatedAvailableInCents).toBe(BigInt(150000));
     });
 
     it('updates only a card owned by the authenticated user', async () => {
