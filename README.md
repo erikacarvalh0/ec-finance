@@ -65,6 +65,10 @@ The dashboard and `/forecast` show six months of projected installments, fixed e
 
 The `/forecast` page lets authenticated users mark an individual installment or recurring income as pending, paid/received or canceled. Settled occurrences can record their actual amount, and the dashboard distinguishes realized from pending totals. Original schedules remain unchanged. See [Forecast reconciliation](docs/forecast-reconciliation.md).
 
+## Record editing and overdue tracking
+
+Expenses and incomes support editing, and recurring records can be ended on a chosen date without deleting prior payments. The dashboard highlights overdue pending expenses. See [editing and overdue tracking](docs/record-editing.md).
+
 ## Design System
 
 The app consumes actual `Button` and `Card` components from [erikacarvalho-ds](https://github.com/erikacarvalh0/erikacarvalho-ds). The React package is built by `npm run setup:ds` using a pinned upstream Git commit. It has not been published to a package registry yet.

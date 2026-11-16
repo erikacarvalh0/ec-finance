@@ -5,6 +5,8 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { listExpenses } from '@/modules/finance/service';
 import { ExpenseForm } from '@/components/finance/forms';
+import { RecordEditForm } from '@/components/finance/record-edit-form';
+import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,6 +42,24 @@ export default async function ExpensesPage() {
                                 {' · '}
                                 {expense.installments} parcela(s)
                             </small>
+                            {expense.type === 'FIXED' && expense.installments === 1 && (
+                                <EndRecurrenceForm
+                                    kind="expense"
+                                    id={expense.id}
+                                    currentDate={expense.endsOn?.toISOString().slice(0, 10) ?? ''}
+                                />
+                            )}
+                            <RecordEditForm record={{
+                                kind: 'expense',
+                                id: expense.id,
+                                description: expense.description,
+                                amountInCents: expense.amountInCents.toString(),
+                                type: expense.type,
+                                paymentMethod: expense.paymentMethod,
+                                date: expense.date?.toISOString().slice(0, 10) ?? '',
+                                installments: expense.installments,
+                                endsOn: expense.endsOn?.toISOString().slice(0, 10) ?? '',
+                            }} />
                         </li>
                     ))}
                 </ul>

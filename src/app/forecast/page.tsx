@@ -4,6 +4,7 @@ import { Card } from '@erikacarvalho/react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getUserCashflowForecast } from '@/modules/forecast/repository';
+import { isOccurrenceOverdue } from '@/modules/forecast/overdue';
 import { OccurrenceControl } from '@/components/finance/occurrence-control';
 
 export const dynamic = 'force-dynamic';
@@ -24,11 +25,17 @@ export default async function ForecastPage() {
         redirect('/sign-in');
     }
 
+    const today = new Date();
+    const start = new Date(Date.UTC(
+        today.getUTCFullYear(),
+        today.getUTCMonth() - 6,
+        1,
+    ));
     const months = await getUserCashflowForecast(
         prisma,
         session.user.id,
-        new Date(),
-        6,
+        start,
+        12,
     );
 
     return (
@@ -36,7 +43,7 @@ export default async function ForecastPage() {
             <Link href="/">← Voltar ao dashboard</Link>
             <h1>Planejamento financeiro</h1>
             <p>
-                Próximos seis meses com parcelas, despesas fixas e entradas recorrentes.
+                Histórico dos últimos seis meses e planejamento dos próximos seis meses,
                 Valores previstos não representam pagamentos ou recebimentos confirmados.
             </p>
 
@@ -75,6 +82,9 @@ export default async function ForecastPage() {
                                     {' — '}
                                     {formatCents(expense.effectiveAmountInCents)}
                                     {' · '}{expense.status === 'SETTLED' ? 'Pago' : expense.status === 'CANCELED' ? 'Cancelado' : 'Pendente'}
+                                    {isOccurrenceOverdue(expense.status, expense.dueDate, new Date()) && (
+                                        <strong className="overdue-label"> · Atrasada</strong>
+                                    )}
                                     <OccurrenceControl kind="expense" sourceId={expense.sourceId} month={`${month.year}-${String(month.month).padStart(2, '0')}`} initialStatus={expense.status} />
                                 </li>
                             ))}
