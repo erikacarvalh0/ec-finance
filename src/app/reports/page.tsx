@@ -7,11 +7,9 @@ import { getUserMonthlyCashflowReport } from '@/modules/reports/monthly';
 import { getCategoryBudgetReport } from '@/modules/budgets/service';
 import { summarizeCategorySpending } from '@/modules/reports/categories';
 import { summarizeAnnualCashflow } from '@/modules/reports/annual';
+import { formatReportCurrency as money } from '@/modules/reports/currency';
 
 export const dynamic = 'force-dynamic';
-
-const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-function money(cents: bigint) { return formatter.format(Number(cents) / 100); }
 
 export default async function ReportsPage() {
     const session = await auth();
