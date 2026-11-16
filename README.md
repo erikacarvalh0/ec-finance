@@ -73,6 +73,10 @@ Expenses and incomes support editing, and recurring records can be ended on a ch
 
 Visit `/cards` to register credit cards, configure closing and due days and inspect monthly invoices. Card invoices include recorded purchases and installments from manual credit expenses attached to a card, with explicit manual-import duplicate linking. See [Credit card invoices](docs/credit-card-invoices.md).
 
+## Invoice payments
+
+Card invoice detail pages support manual full or partial payments, invoice status and the remaining balance. Payments are guarded by user ownership, idempotency keys and serialized PostgreSQL transactions. See [Invoice payment tracking](docs/invoice-payments.md).
+
 ## Design System
 
 The app consumes actual `Button` and `Card` components from [erikacarvalho-ds](https://github.com/erikacarvalh0/erikacarvalho-ds). The React package is built by `npm run setup:ds` using a pinned upstream Git commit. It has not been published to a package registry yet.
