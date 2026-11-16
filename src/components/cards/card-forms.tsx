@@ -18,7 +18,8 @@ export function CardSettingsForm({ card }: { card?: CardSettings }) {
 
     async function onSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const values = new FormData(event.currentTarget);
+        const targetForm = event.currentTarget;
+        const values = new FormData(targetForm);
         const payload = {
             ...(card ? {} : { name: String(values.get('name')) }),
             closingDay: Number(values.get('closingDay')),
@@ -43,7 +44,7 @@ export function CardSettingsForm({ card }: { card?: CardSettings }) {
 
             setMessage('Configurações salvas.');
             if (!card) {
-                event.currentTarget.reset();
+                targetForm.reset();
             }
 
             router.refresh();
