@@ -23,6 +23,7 @@ model User {
   expenses      Expense[]
   incomes       Income[]
   investments   Investment[]
+  investmentCashflows InvestmentCashflow[]
   fixedRules    FixedExpenseRule[]
   expenseOccurrences ExpenseOccurrence[]
   incomeOccurrences  IncomeOccurrence[]
@@ -199,6 +200,7 @@ model Investment {
     createdAt DateTime             @default(now())
     user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
     snapshots InvestmentSnapshot[]
+    cashflows InvestmentCashflow[]
 
     @@unique([id, userId])
     @@index([userId])
@@ -297,4 +299,24 @@ model CategoryBudget {
 
     @@unique([userId, categoryId, period])
     @@index([userId, period])
+}
+
+enum InvestmentCashflowType {
+    DEPOSIT
+    WITHDRAWAL
+}
+
+model InvestmentCashflow {
+    id              String                 @id @default(cuid())
+    investmentId    String
+    userId          String
+    type            InvestmentCashflowType
+    amountInCents   BigInt
+    occurredAt      DateTime               @db.Date
+    createdAt       DateTime               @default(now())
+    investment      Investment             @relation(fields: [investmentId, userId], references: [id, userId], onDelete: Cascade)
+    user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([investmentId, occurredAt, createdAt])
+    @@index([userId, occurredAt])
 }
