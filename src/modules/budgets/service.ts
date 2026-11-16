@@ -88,6 +88,7 @@ export async function getCategoryBudgetReport(
                         { endsOn: null }, { endsOn: { gte: start } },
                     ] },
                     { installments: { gt: 1 }, date: { lt: end } },
+                    { paymentMethod: 'CREDIT', date: { lt: end } },
                 ],
             },
             select: {
