@@ -47,8 +47,11 @@ export function reconcileImportedTransactions(candidates: Candidate[], existing:
         if (!previous) {
             toImport.push(candidate);
             known.set(key, candidate);
-        } else if (previous.amountInCents !== undefined
-            && previous.amountInCents !== candidate.amountInCents) {
+        } else if ((previous.amountInCents !== undefined
+            && previous.amountInCents !== candidate.amountInCents)
+            || ('description' in previous && 'occurredAt' in previous
+                && (previous.description !== candidate.description
+                    || previous.occurredAt.getTime() !== candidate.occurredAt.getTime()))) {
             conflicts.push({ candidate, existing: previous });
         } else {
             duplicates.push(candidate);
