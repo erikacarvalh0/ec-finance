@@ -13,3 +13,7 @@ It reuses the owner-scoped budget expense and transaction aggregation, including
 manual/imported card purchase deduplication. The chart shows accessible progress bars and
 exact currency amounts; uncategorized spending is excluded, so percentages reflect
 **categorized expenses**, not all expenses. Categories without a positive total are omitted.
+
+## Annual comparison
+
+The reports page also compares the previous and current UTC calendar year. It queries 24 monthly recorded cashflow periods from the same authenticated user-scoped read path as the monthly comparison, and sums income, expenses and net cashflow using exact integer cents. The current year is year-to-date, not an annualized projection; a year with no records displays zero. Linked manual expenses remain excluded to prevent double-counting imported card purchases. Recurring future charges, installments projected to other months and investment transfers are not included.

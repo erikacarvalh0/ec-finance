@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { getUserMonthlyCashflowReport } from '@/modules/reports/monthly';
 import { getCategoryBudgetReport } from '@/modules/budgets/service';
 import { summarizeCategorySpending } from '@/modules/reports/categories';
+import { summarizeAnnualCashflow } from '@/modules/reports/annual';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,11 +20,16 @@ export default async function ReportsPage() {
     const now = new Date();
     const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1));
     const period = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
-    const [months, categoryReport] = await Promise.all([
+    const annualFrom = new Date(Date.UTC(now.getUTCFullYear() - 1, 0, 1));
+    const [months, annualMonths, categoryReport] = await Promise.all([
         getUserMonthlyCashflowReport(prisma, session.user.id, from, 6),
+        getUserMonthlyCashflowReport(prisma, session.user.id, annualFrom, 24),
         getCategoryBudgetReport(prisma, session.user.id, period),
     ]);
     const breakdown = summarizeCategorySpending(categoryReport.categories);
+    const annual = [now.getUTCFullYear() - 1, now.getUTCFullYear()].map((year) =>
+        summarizeAnnualCashflow(year, annualMonths.filter((month) => month.period.startsWith(`${year}-`))),
+    );
     const maximum = months.reduce((max, item) => {
         const value = item.incomeInCents > item.expenseInCents
             ? item.incomeInCents : item.expenseInCents;
@@ -66,6 +72,27 @@ export default async function ReportsPage() {
                             {months.map((item) => (
                                 <tr key={item.period}>
                                     <td>{item.period}</td>
+                                    <td>{money(item.incomeInCents)}</td>
+                                    <td>{money(item.expenseInCents)}</td>
+                                    <td>{money(item.netInCents)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </Card>
+            <Card padding="lg">
+                <h2>Comparativo anual</h2>
+                <p>Valores registrados por ano, sem projeções e sem considerar investimentos como renda.</p>
+                <div className="table-scroll">
+                    <table>
+                        <thead>
+                            <tr><th>Ano</th><th>Receitas</th><th>Despesas</th><th>Saldo</th></tr>
+                        </thead>
+                        <tbody>
+                            {annual.map((item) => (
+                                <tr key={item.year}>
+                                    <td>{item.year}</td>
                                     <td>{money(item.incomeInCents)}</td>
                                     <td>{money(item.expenseInCents)}</td>
                                     <td>{money(item.netInCents)}</td>
