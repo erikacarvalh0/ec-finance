@@ -6,6 +6,8 @@ import { createExpense, createIncome, createInvestment, addInvestmentSnapshot, l
 import { markCardTransactionFixed, classifyImportedCardTransaction } from '@/modules/finance/fixed-expenses-service';
 import { createManualTransaction } from './create';
 import { createCategory } from '@/modules/categories/service';
+import { endOwnedRecurrence } from '@/modules/finance/end-recurrence';
+import { updateOwnedExpense } from '@/modules/finance/edit-record';
 import { getUserCashflowForecast } from '@/modules/forecast/repository';
 
 const databaseUrl = process.env.DATABASE_URL ?? '';
@@ -336,6 +338,67 @@ describe('PostgreSQL tenant isolation', () => {
         expect(otherMonths.every((month) => month.expenses.every(
             (item) => item.sourceId !== installment.id,
         ))).toBe(true);
+    });
+
+    it('ends recurring expenses without removing existing source records', async () => {
+        const fixed = await prisma.expense.create({
+            data: {
+                userId: ownerId,
+                description: 'Monthly internet',
+                amountInCents: BigInt(9900),
+                paymentMethod: 'AUTOMATIC_DEBIT',
+                type: 'FIXED',
+                date: new Date('2026-11-10T00:00:00.000Z'),
+            },
+        });
+
+        await endOwnedRecurrence(
+            prisma,
+            ownerId,
+            'expense',
+            fixed.id,
+            '2026-12-31',
+        );
+
+        const months = await getUserCashflowForecast(
+            prisma,
+            ownerId,
+            new Date('2026-11-01T00:00:00.000Z'),
+            4,
+        );
+
+        expect(months.map((month) => month.expenses.some(
+            (expense) => expense.sourceId === fixed.id,
+        ))).toEqual([true, true, false, false]);
+
+        expect(await prisma.expense.findUnique({ where: { id: fixed.id } }))
+            .not.toBeNull();
+    });
+
+    it('blocks editing another user records through the service', async () => {
+        const expense = await prisma.expense.create({
+            data: {
+                userId: otherUserId,
+                description: 'Private expense',
+                amountInCents: BigInt(10000),
+                paymentMethod: 'PIX',
+                type: 'VARIABLE',
+            },
+        });
+
+        await expect(updateOwnedExpense(prisma, ownerId, expense.id, {
+            description: 'Modified',
+            amountInCents: '200',
+            paymentMethod: 'PIX',
+            type: 'VARIABLE',
+            installments: 1,
+        })).rejects.toThrow('Record not found');
+
+        const actual = await prisma.expense.findUniqueOrThrow({
+            where: { id: expense.id },
+        });
+
+        expect(actual.amountInCents).toBe(BigInt(10000));
     });
 
 });
