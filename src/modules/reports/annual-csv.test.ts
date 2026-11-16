@@ -22,10 +22,27 @@ describe('annual cashflow CSV export', () => {
         );
     });
 
-    it('rejects invalid aggregate year and counts', () => {
+    it.each([999, 10000, 2026.5, NaN, Infinity])('rejects invalid aggregate year %s', (year) => {
+        expect(() => formatAnnualCashflowCsv([{
+            year, incomeInCents: BigInt(0), expenseInCents: BigInt(0),
+            netInCents: BigInt(0), monthsWithRecords: 1,
+        }])).toThrow('Invalid annual export year');
+    });
+
+    it.each([-1, 13, 1.5, NaN, Infinity])('rejects invalid aggregate record count %s', (monthsWithRecords) => {
         expect(() => formatAnnualCashflowCsv([{
             year: 2026, incomeInCents: BigInt(0), expenseInCents: BigInt(0),
-            netInCents: BigInt(0), monthsWithRecords: 13,
-        }])).toThrow();
+            netInCents: BigInt(0), monthsWithRecords,
+        }])).toThrow('Invalid annual record count');
+    });
+
+    it.each([0, 12])('accepts aggregate record count boundary %s', (monthsWithRecords) => {
+        expect(formatAnnualCashflowCsv([{
+            year: 2026, incomeInCents: BigInt(0), expenseInCents: BigInt(0),
+            netInCents: BigInt(0), monthsWithRecords,
+        }])).toBe(
+            'year,income_in_cents,expense_in_cents,net_in_cents,months_with_records\r\n'
+            + `2026,0,0,0,${monthsWithRecords}\r\n`,
+        );
     });
 });
