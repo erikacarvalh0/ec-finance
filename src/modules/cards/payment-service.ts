@@ -5,7 +5,7 @@ import { summarizeInvoicePayments } from './payments';
 
 export type PaymentDatabase = Pick<
     PrismaClient,
-    'creditCard' | 'transaction' | 'expense' | 'invoicePayment'
+    'creditCard' | 'transaction' | 'expense' | 'bankConnection' | 'invoicePayment'
 >;
 
 const paymentSchema = z.object({
