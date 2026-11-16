@@ -8,7 +8,7 @@ import {
 
 export const runtime = 'nodejs';
 
-type Params = { params: Promise<{ investmentId: string; snapshotId: string }> };
+type Params = { params: Promise<{ id: string; snapshotId: string }> };
 
 function handleError(error: unknown): Response {
     if (error instanceof UnauthorizedError) {
@@ -33,10 +33,10 @@ function handleError(error: unknown): Response {
 export async function PATCH(request: Request, { params }: Params) {
     try {
         const userId = await requireCurrentUserId();
-        const { investmentId, snapshotId } = await params;
+        const { id, snapshotId } = await params;
 
         const snapshot = await correctInvestmentSnapshot(
-            prisma, userId, investmentId, snapshotId, await request.json(),
+            prisma, userId, id, snapshotId, await request.json(),
         );
 
         return Response.json({
@@ -54,8 +54,8 @@ export async function PATCH(request: Request, { params }: Params) {
 export async function DELETE(_request: Request, { params }: Params) {
     try {
         const userId = await requireCurrentUserId();
-        const { investmentId, snapshotId } = await params;
-        await deleteInvestmentSnapshot(prisma, userId, investmentId, snapshotId);
+        const { id, snapshotId } = await params;
+        await deleteInvestmentSnapshot(prisma, userId, id, snapshotId);
 
         return new Response(null, { status: 204 });
     } catch (error) {
