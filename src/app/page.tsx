@@ -73,6 +73,7 @@ export default async function DashboardPage() {
                     <Link href="/incomes">Entradas</Link>
                     <Link href="/investments">Investimentos</Link>
                     <Link href="/forecast">Planejamento</Link>
+                    <Link href="/cards">Cartões e faturas</Link>
                 </nav>
                 <form
                     action={async () => {

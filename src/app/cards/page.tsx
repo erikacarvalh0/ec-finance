@@ -1,0 +1,65 @@
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { Card } from '@erikacarvalho/react';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { listUserCards } from '@/modules/cards/service';
+import { CardSettingsForm } from '@/components/cards/card-forms';
+
+export const dynamic = 'force-dynamic';
+
+export default async function CardsPage() {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        redirect('/sign-in');
+    }
+
+    const cards = await listUserCards(prisma, session.user.id);
+    const current = new Date();
+    const periods = Array.from({ length: 4 }, (_, index) => {
+        const period = new Date(Date.UTC(
+            current.getUTCFullYear(),
+            current.getUTCMonth() + index,
+            1,
+        ));
+
+        return `${period.getUTCFullYear()}-${String(period.getUTCMonth() + 1).padStart(2, '0')}`;
+    });
+
+    return (
+        <main className="finance-page">
+            <Link href="/">← Voltar ao dashboard</Link>
+            <h1>Cartões e faturas</h1>
+            <p>
+                Configure as datas de fechamento e vencimento. O valor da fatura é calculado
+                a partir das compras registradas e das parcelas manuais vinculadas ao cartão.
+            </p>
+            <Card padding="lg">
+                <h2>Adicionar cartão manualmente</h2>
+                <CardSettingsForm />
+            </Card>
+            {cards.length === 0 && (
+                <p>Nenhum cartão cadastrado. Adicione um cartão para visualizar faturas.</p>
+            )}
+            <div className="investment-grid">
+                {cards.map((card) => (
+                    <Card key={card.id} padding="lg">
+                        <h2>{card.name}</h2>
+                        <CardSettingsForm card={card} />
+                        <h3>Faturas</h3>
+                        <ul className="valuation-history">
+                            {periods.map((period) => (
+                                <li key={period}>
+                                    <Link href={`/cards/${card.id}/invoices/${period}`}>
+                                        Fatura {period}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </Card>
+                ))}
+            </div>
+        </main>
+    );
+}
