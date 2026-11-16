@@ -21,8 +21,7 @@ describe('PostgreSQL card due-month category spending', () => {
         const category = await prisma.category.create({ data: { userId: ownerId, name: 'Transport' } });
         categoryId = category.id;
         const connection = await prisma.bankConnection.create({ data: {
-            userId: ownerId, provider: 'MANUAL', externalId: `card-budget-${id}`,
-            name: 'Test bank',
+            userId: ownerId, provider: 'MANUAL', externalItemId: `card-budget-${id}`,
         } });
         const card = await prisma.creditCard.create({ data: {
             userId: ownerId, connectionId: connection.id,
