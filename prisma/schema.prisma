@@ -168,6 +168,7 @@ model Expense {
     card          CreditCard?   @relation(fields: [cardId, userId], references: [id, userId], onDelete: Restrict)
     linkedTransaction Transaction? @relation("LinkedManualExpense", fields: [linkedTransactionId, userId], references: [id, userId], onDelete: Restrict)
     endsOn        DateTime?     @db.Date
+    archivedAt    DateTime?
     createdAt     DateTime      @default(now())
     user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
     occurrences   ExpenseOccurrence[]
