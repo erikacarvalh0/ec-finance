@@ -85,6 +85,7 @@ export default async function ReportsPage() {
             <Card padding="lg">
                 <h2>Comparativo anual</h2>
                 <p>Valores registrados por ano, sem projeções e sem considerar investimentos como renda.</p>
+                <p><Link href={`/api/reports/annual?year=${now.getUTCFullYear()}`}>Exportar ano atual em CSV</Link></p>
                 <div className="table-scroll">
                     <table>
                         <thead>
