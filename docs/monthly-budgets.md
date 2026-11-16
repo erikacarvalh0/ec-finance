@@ -29,3 +29,7 @@ All reads, writes and category assignment checks are restricted to the authentic
 ## Tests
 
 Vitest covers percentages and threshold boundaries, deduplication, validation and tenant-safe queries. Integration tests run against disposable PostgreSQL 16 with reviewed Prisma migrations and verify ownership, monthly budget upserts and real spending calculations.
+
+## Previous-month balance preview
+
+For each category with a current monthly budget, the budget page displays a read-only **one-month** carryover preview. It adds the previous month's unspent positive budget balance to the current month's remaining amount. If the previous month has no budget, no amount carries forward. Overspending in the previous month does not become a negative carryover; current overspending remains visible as a negative combined balance. The preview is not a persisted budget, does not accumulate over multiple prior months, and does not change the monthly limit, alerts, or actual cash balances. The same authenticated user-scoped reporting query is used for both months.
