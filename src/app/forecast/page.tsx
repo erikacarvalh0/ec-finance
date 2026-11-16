@@ -25,11 +25,17 @@ export default async function ForecastPage() {
         redirect('/sign-in');
     }
 
+    const today = new Date();
+    const start = new Date(Date.UTC(
+        today.getUTCFullYear(),
+        today.getUTCMonth() - 6,
+        1,
+    ));
     const months = await getUserCashflowForecast(
         prisma,
         session.user.id,
-        new Date(),
-        6,
+        start,
+        12,
     );
 
     return (
@@ -37,7 +43,7 @@ export default async function ForecastPage() {
             <Link href="/">← Voltar ao dashboard</Link>
             <h1>Planejamento financeiro</h1>
             <p>
-                Próximos seis meses com parcelas, despesas fixas e entradas recorrentes.
+                Histórico dos últimos seis meses e planejamento dos próximos seis meses,
                 Valores previstos não representam pagamentos ou recebimentos confirmados.
             </p>
 

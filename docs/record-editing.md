@@ -14,7 +14,7 @@ An end date is inclusive by calendar month. Future months after the selected end
 
 ## Overdue payments
 
-A scheduled expense becomes overdue only if it is pending and its scheduled calendar date precedes today's UTC calendar date. Settled and canceled occurrences are never marked overdue. The forecast page highlights overdue expenses. The dashboard displays an overdue count and total for the previous six calendar months plus the current month; this is a bounded lookback, not an all-time debt balance.
+A scheduled expense becomes overdue only if it is pending and its scheduled calendar date precedes today's UTC calendar date. Settled and canceled occurrences are never marked overdue. The forecast page includes six past calendar months and the current month, so users can review and reconcile recently overdue expenses. The dashboard displays an overdue count and total for the previous six calendar months plus the current month; this is a bounded lookback, not an all-time debt balance.
 
 Overdue indicators are based on user-entered reconciliation status, not banking confirmation. They do not automatically change payments to settled.
 
