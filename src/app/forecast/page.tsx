@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { getUserCashflowForecast } from '@/modules/forecast/repository';
 import { isOccurrenceOverdue } from '@/modules/forecast/overdue';
 import { OccurrenceControl } from '@/components/finance/occurrence-control';
+import { ForecastScenario } from '@/components/finance/forecast-scenario';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,6 +47,14 @@ export default async function ForecastPage() {
                 Histórico dos últimos seis meses e planejamento dos próximos seis meses,
                 Valores previstos não representam pagamentos ou recebimentos confirmados.
             </p>
+
+            <Card padding="lg">
+                <ForecastScenario months={months.map(month => ({
+                    period: `${month.year}-${String(month.month).padStart(2, '0')}`,
+                    incomeInCents: month.incomeTotalInCents.toString(),
+                    expenseInCents: month.expenseTotalInCents.toString(),
+                }))} />
+            </Card>
 
             <div className="investment-grid">
                 {months.map((month) => (
