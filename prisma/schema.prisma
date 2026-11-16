@@ -29,6 +29,7 @@ model User {
   incomeOccurrences  IncomeOccurrence[]
   invoicePayments    InvoicePayment[]
   categoryBudgets    CategoryBudget[]
+  financialGoals     FinancialGoal[]
 }
 
 model Account {
@@ -322,4 +323,19 @@ model InvestmentCashflow {
 
     @@index([investmentId, occurredAt, createdAt])
     @@index([userId, occurredAt])
+}
+
+model FinancialGoal {
+    id              String   @id @default(cuid())
+    userId          String
+    name            String
+    targetInCents   BigInt
+    savedInCents    BigInt   @default(0)
+    deadline        DateTime? @db.Date
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+    user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([id, userId])
+    @@index([userId, createdAt])
 }
