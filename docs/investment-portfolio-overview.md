@@ -1,0 +1,3 @@
+# Investment portfolio overview
+
+The investments page now shows a consolidated estimate using the most recent valuation snapshot for each owned investment. Each investment contributes at most one balance, preventing historical snapshots from being summed repeatedly. Investments without a snapshot are excluded and counted explicitly rather than silently treated as zero. The latest date shown is the newest snapshot across the portfolio, **not** a common valuation date for all investments. Cashflows are already reflected in manually entered snapshots when the user updates valuations; the summary does not add deposits or subtract withdrawals again. This is not a live synchronized banking balance or a complete net-worth statement.
