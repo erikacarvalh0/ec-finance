@@ -9,7 +9,7 @@ import {
 
 export type FinanceDatabase = Pick<
     PrismaClient,
-    'expense' | 'income' | 'investment' | 'investmentSnapshot'
+    'expense' | 'income' | 'investment' | 'investmentSnapshot' | 'creditCard'
 >;
 
 function requireOwner(userId: string): void {
@@ -40,6 +40,17 @@ export async function createExpense(
     requireOwner(userId);
     const data = expenseInputSchema.parse(input);
 
+    if (data.cardId) {
+        const card = await database.creditCard.findFirst({
+            where: { id: data.cardId, userId },
+            select: { id: true },
+        });
+
+        if (!card) {
+            throw new Error('Card not found');
+        }
+    }
+
     return database.expense.create({
         data: {
             userId,
@@ -49,6 +60,7 @@ export async function createExpense(
             type: data.type,
             date: data.date ? toDate(data.date) : null,
             installments: data.installments,
+            ...(data.cardId ? { cardId: data.cardId } : {}),
         },
     });
 }

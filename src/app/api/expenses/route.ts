@@ -42,6 +42,10 @@ export async function POST(request: Request) {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        if (error instanceof Error && error.message === 'Card not found') {
+            return Response.json({ error: 'Card not found' }, { status: 404 });
+        }
+
         if (error instanceof z.ZodError || error instanceof SyntaxError
             || (error instanceof Error && error.message.startsWith('Amount exceeds'))) {
             return Response.json({ error: 'Invalid expense' }, { status: 400 });
