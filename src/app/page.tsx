@@ -5,6 +5,7 @@ import { auth, signOut } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getMonthlyFixedExpenses } from '@/modules/finance/monthly';
 import { getUserCashflowForecast } from '@/modules/forecast/repository';
+import { getOverdueExpenseTotals } from '@/modules/forecast/overdue';
 import { MarkFixedButton } from '@/components/finance/forms';
 
 export const dynamic = 'force-dynamic';
@@ -29,7 +30,7 @@ export default async function DashboardPage() {
     const now = new Date();
     const month = now.getUTCMonth() + 1;
     const year = now.getUTCFullYear();
-    const [fixed, transactions, forecast] = await Promise.all([
+    const [fixed, transactions, forecast, recentMonths] = await Promise.all([
         getMonthlyFixedExpenses(prisma, userId, year, month),
         prisma.transaction.findMany({
             where: {
@@ -50,7 +51,17 @@ export default async function DashboardPage() {
             },
         }),
         getUserCashflowForecast(prisma, userId, now, 6),
+        getUserCashflowForecast(
+            prisma,
+            userId,
+            new Date(Date.UTC(year, month - 7, 1)),
+            7,
+        ),
     ]);
+    const overdue = getOverdueExpenseTotals(
+        recentMonths.flatMap((item) => item.expenses),
+        now,
+    );
 
     return (
         <div className="layout">
@@ -85,6 +96,12 @@ export default async function DashboardPage() {
                         <h2>Despesas fixas deste mês</h2>
                         <p className="metric">{formatCents(fixed.totalInCents)}</p>
                         <p>Despesas com data e compras de cartão marcadas como fixas.</p>
+                    </Card>
+                    <Card padding="lg">
+                        <h2>Despesas atrasadas</h2>
+                        <p className="metric">{formatCents(overdue.totalInCents)}</p>
+                        <p>{overdue.count} ocorrência(s) pendente(s) dos últimos sete meses.</p>
+                        <Link href="/forecast">Revisar pagamentos</Link>
                     </Card>
                     <Card padding="lg">
                         <h2>Lançamentos de cartão do mês</h2>
