@@ -57,4 +57,15 @@ describe('requireCurrentUserId', () => {
             UnauthorizedError,
         );
     });
+
+    it.each([undefined, null, 123, true, {}, []])(
+        'rejects a non-string session ID: %j',
+        async (id) => {
+            mockedAuth.mockResolvedValue({ user: { id } });
+
+            await expect(requireCurrentUserId()).rejects.toBeInstanceOf(
+                UnauthorizedError,
+            );
+        },
+    );
 });

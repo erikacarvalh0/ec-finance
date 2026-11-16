@@ -11,7 +11,7 @@ export async function requireCurrentUserId(): Promise<string> {
     const session = await auth();
     const userId = session?.user?.id;
 
-    if (!userId?.trim()) {
+    if (typeof userId !== 'string' || !userId.trim()) {
         throw new UnauthorizedError();
     }
 
