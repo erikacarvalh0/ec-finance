@@ -4,6 +4,7 @@ import { Card } from '@erikacarvalho/react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getUserCashflowForecast } from '@/modules/forecast/repository';
+import { isOccurrenceOverdue } from '@/modules/forecast/overdue';
 import { OccurrenceControl } from '@/components/finance/occurrence-control';
 
 export const dynamic = 'force-dynamic';
@@ -75,6 +76,9 @@ export default async function ForecastPage() {
                                     {' — '}
                                     {formatCents(expense.effectiveAmountInCents)}
                                     {' · '}{expense.status === 'SETTLED' ? 'Pago' : expense.status === 'CANCELED' ? 'Cancelado' : 'Pendente'}
+                                    {isOccurrenceOverdue(expense.status, expense.dueDate, new Date()) && (
+                                        <strong className="overdue-label"> · Atrasada</strong>
+                                    )}
                                     <OccurrenceControl kind="expense" sourceId={expense.sourceId} month={`${month.year}-${String(month.month).padStart(2, '0')}`} initialStatus={expense.status} />
                                 </li>
                             ))}

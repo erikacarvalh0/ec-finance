@@ -175,3 +175,12 @@ th {
 .occurrence-control input {
     max-width: 200px;
 }
+
+.overdue-label {
+    color: #b42318;
+    font-weight: 700;
+}
+
+.record-editor {
+    flex-basis: 100%;
+}
