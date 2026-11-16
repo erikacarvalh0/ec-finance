@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import { monthBounds, summarizeCategoryBudgets } from './calculations';
-import { allocateInstallmentToMonth, allocateRecurringExpenseToMonth } from './installment-allocation';
+import { calculateBudgetExpenseAmount } from './expense-allocation';
 
 export type BudgetDatabase = Pick<
     PrismaClient,
@@ -88,6 +88,7 @@ export async function getCategoryBudgetReport(
                         { endsOn: null }, { endsOn: { gte: start } },
                     ] },
                     { installments: { gt: 1 }, date: { lt: end } },
+                    { paymentMethod: 'CREDIT', date: { lt: end } },
                 ],
             },
             select: {
@@ -100,6 +101,8 @@ export async function getCategoryBudgetReport(
                 date: true,
                 createdAt: true,
                 endsOn: true,
+                paymentMethod: true,
+                card: { select: { closingDay: true, dueDay: true } },
             },
         }),
         database.transaction.findMany({
@@ -120,17 +123,15 @@ export async function getCategoryBudgetReport(
                 id: expense.id,
                 categoryId: expense.categoryId,
                 linkedTransactionId: expense.linkedTransactionId,
-                amountInCents: expense.type === 'FIXED'
-                    ? allocateRecurringExpenseToMonth({
-                        amountInCents: expense.amountInCents,
-                        date: expense.date ?? expense.createdAt ?? start,
-                        endsOn: expense.endsOn ?? null,
-                    }, period)
-                    : allocateInstallmentToMonth({
-                        amountInCents: expense.amountInCents,
-                        installments: expense.installments ?? 1,
-                        date: expense.date ?? expense.createdAt ?? start,
-                    }, period),
+                amountInCents: calculateBudgetExpenseAmount({
+                    amountInCents: expense.amountInCents,
+                    type: expense.type ?? 'VARIABLE',
+                    paymentMethod: expense.paymentMethod ?? 'PIX',
+                    card: expense.card ?? null,
+                    installments: expense.installments ?? 1,
+                    date: expense.date ?? expense.createdAt ?? start,
+                    endsOn: expense.endsOn ?? null,
+                }, period),
             })).filter(expense => expense.amountInCents > BigInt(0)),
             transactions,
         }).map(row => ({
