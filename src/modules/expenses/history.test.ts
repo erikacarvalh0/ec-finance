@@ -36,6 +36,7 @@ describe('expense history filters', () => {
         expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
             where: {
                 userId: 'owner-a',
+                archivedAt: null,
                 type: 'VARIABLE',
                 paymentMethod: 'CREDIT',
                 description: { contains: 'market', mode: 'insensitive' },
