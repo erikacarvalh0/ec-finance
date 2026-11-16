@@ -86,6 +86,9 @@ model CreditCard {
   connection        BankConnection @relation(fields: [connectionId, userId], references: [id, userId], onDelete: Cascade)
   transactions      Transaction[]
   fixedRules        FixedExpenseRule[]
+  closingDay        Int?
+  dueDay            Int?
+  expenses          Expense[]
 
   @@unique([connectionId, externalAccountId])
   @@unique([id, userId])
@@ -116,7 +119,9 @@ model Transaction {
   user                  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   card                  CreditCard @relation(fields: [cardId, userId], references: [id, userId], onDelete: Cascade)
   category              Category?  @relation(fields: [categoryId, userId], references: [id, userId], onDelete: Restrict)
+  linkedExpense         Expense?    @relation("LinkedManualExpense")
 
+  @@unique([id, userId])
   @@unique([cardId, providerTransactionId])
   @@index([userId, occurredAt])
 }
@@ -149,6 +154,10 @@ model Expense {
     type          ExpenseType
     date          DateTime?     @db.Date
     installments  Int           @default(1)
+    cardId        String?
+    linkedTransactionId String? @unique
+    card          CreditCard?   @relation(fields: [cardId, userId], references: [id, userId], onDelete: Restrict)
+    linkedTransaction Transaction? @relation("LinkedManualExpense", fields: [linkedTransactionId, userId], references: [id, userId], onDelete: Restrict)
     endsOn        DateTime?     @db.Date
     createdAt     DateTime      @default(now())
     user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
