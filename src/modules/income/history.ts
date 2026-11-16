@@ -34,6 +34,7 @@ export async function listFilteredIncomes(
     const rows = await database.income.findMany({
         where: {
             userId,
+            archivedAt: null,
             ...(type ? { type } : {}),
             ...(search ? {
                 OR: [
