@@ -10,6 +10,8 @@ import { InvestmentSnapshotEditor } from '@/components/finance/investment-snapsh
 import { InvestmentCashflowForm } from '@/components/finance/investment-cashflow-form';
 import { summarizeInvestmentPerformance } from '@/modules/investments/performance';
 import { calculateInvestmentSimpleReturn } from '@/modules/investments/percentage-return';
+import { calculateTimeWeightedReturn } from '@/modules/investments/time-weighted-return';
+import { calculateMoneyWeightedReturn } from '@/modules/investments/money-weighted-return';
 import { summarizeInvestmentPortfolio } from '@/modules/investments/portfolio';
 import { summarizePortfolioMonthlyHistory } from '@/modules/investments/portfolio-history';
 
@@ -125,6 +127,14 @@ export default async function InvestmentsPage() {
                                 investment.snapshots,
                                 investment.cashflows,
                             );
+                            const twr = calculateTimeWeightedReturn(
+                                investment.snapshots,
+                                investment.cashflows,
+                            );
+                            const mwr = calculateMoneyWeightedReturn(
+                                investment.snapshots,
+                                investment.cashflows,
+                            );
                             return (
                                 <div>
                                     <h3>Resultado estimado desde o primeiro saldo</h3>
@@ -137,6 +147,13 @@ export default async function InvestmentsPage() {
                                     <p>Rentabilidade percentual: {percentageReturn.percentage === null
                                         ? 'Indisponível'
                                         : `${percentageReturn.percentage.toFixed(2)}%`}</p>
+                                    <p>Rentabilidade TWR: {twr.percentage === null
+                                        ? 'Indisponível (faltam avaliações nas datas dos aportes/resgates ou dados válidos)'
+                                        : `${twr.percentage.toFixed(2)}%`}</p>
+                                    <p>Rentabilidade MWR/XIRR anualizada: {mwr.percentage === null
+                                        ? 'Indisponível (datas, saldos ou fluxo sem solução válida)'
+                                        : `${mwr.percentage.toFixed(2)}%`}</p>
+                                    <p>TWR encadeia os retornos entre fluxos externos; MWR considera as datas e valores dos aportes e resgates. Avaliações são manuais e não representam rentabilidade garantida.</p>
                                     {percentageReturn.method === 'UNAVAILABLE_EXTERNAL_CASHFLOWS' && (
                                         <p>Há aportes ou resgates no período. O percentual exige cálculo por TWR ou MWR.</p>
                                     )}
