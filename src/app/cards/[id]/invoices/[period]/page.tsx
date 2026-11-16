@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getInvoicePaymentSummary } from '@/modules/cards/payment-service';
 import { InvoicePaymentForm } from '@/components/cards/invoice-payment-form';
+import { summarizeInvoiceAdjustments } from '@/modules/cards/adjustments';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,6 +56,7 @@ export default async function InvoicePage({
     }
 
     const { invoice, payments, summary } = record;
+    const adjustments = summarizeInvoiceAdjustments(invoice.lines);
     const statusLabels = {
         OPEN: 'Aberta',
         CLOSED: 'Fechada',
@@ -69,6 +71,11 @@ export default async function InvoicePage({
             <Card padding="lg">
                 <h2>Total previsto e registrado</h2>
                 <p className="metric">{money(invoice.totalInCents)}</p>
+                <p>Compras e parcelas: {money(adjustments.chargesInCents)}</p>
+                <p>Créditos e estornos importados: {money(adjustments.creditsInCents)}</p>
+                {adjustments.creditCount > 0 && (
+                    <p>{adjustments.creditCount} lançamento(s) de crédito identificado(s) pelo valor negativo.</p>
+                )}
                 <p><strong>Status: {statusLabels[summary.status]}</strong></p>
                 <p>Total pago: {money(summary.paidInCents)}</p>
                 <p><strong>Saldo devedor: {money(summary.balanceInCents)}</strong></p>
@@ -114,7 +121,7 @@ export default async function InvoicePage({
                             <small>
                                 {line.installmentLabel
                                     ? `Parcela ${line.installmentLabel}`
-                                    : 'Compra registrada'}
+                                    : line.amountInCents < BigInt(0) ? 'Crédito ou estorno importado' : 'Compra registrada'}
                                 {' · '}
                                 {line.source === 'MANUAL' ? 'Manual' : 'Transação do cartão'}
                             </small>
