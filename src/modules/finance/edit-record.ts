@@ -4,7 +4,7 @@ import { expenseInputSchema, incomeInputSchema } from './validation';
 
 type Database = Pick<
     PrismaClient,
-    'expense' | 'income' | 'expenseOccurrence' | 'incomeOccurrence'
+    'expense' | 'income' | 'expenseOccurrence' | 'incomeOccurrence' | 'category'
 >;
 
 const optionalEndDate = z.iso.date().nullable().optional();
@@ -100,6 +100,17 @@ export async function updateOwnedExpense(
         throw new Error('Settled occurrences prevent editing');
     }
 
+    if (data.categoryId) {
+        const category = await database.category.findFirst({
+            where: { id: data.categoryId, userId },
+            select: { id: true },
+        });
+
+        if (!category) {
+            throw new Error('Category not found');
+        }
+    }
+
     return database.expense.update({
         where: { id: expenseId, userId },
         data: {
@@ -109,6 +120,7 @@ export async function updateOwnedExpense(
             type: data.type,
             date: toDate(data.date),
             installments: data.installments,
+            categoryId: data.categoryId ?? null,
             endsOn: toDate(data.endsOn),
         },
     });

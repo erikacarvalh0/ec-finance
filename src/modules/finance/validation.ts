@@ -18,6 +18,7 @@ export const expenseInputSchema = z.object({
     date: dateSchema.optional(),
     installments: z.number().int().min(1).max(120).default(1),
     cardId: z.string().trim().min(1).optional(),
+    categoryId: z.string().trim().min(1).optional(),
 }).refine((data) => !data.cardId || data.paymentMethod === 'CREDIT', {
     path: ['cardId'],
     message: 'Only credit purchases can be assigned to a card',

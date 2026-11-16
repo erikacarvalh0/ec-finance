@@ -9,7 +9,7 @@ import {
 
 export type FinanceDatabase = Pick<
     PrismaClient,
-    'expense' | 'income' | 'investment' | 'investmentSnapshot' | 'creditCard'
+    'expense' | 'income' | 'investment' | 'investmentSnapshot' | 'creditCard' | 'category'
 >;
 
 function requireOwner(userId: string): void {
@@ -51,6 +51,17 @@ export async function createExpense(
         }
     }
 
+    if (data.categoryId) {
+        const category = await database.category.findFirst({
+            where: { id: data.categoryId, userId },
+            select: { id: true },
+        });
+
+        if (!category) {
+            throw new Error('Category not found');
+        }
+    }
+
     return database.expense.create({
         data: {
             userId,
@@ -61,6 +72,7 @@ export async function createExpense(
             date: data.date ? toDate(data.date) : null,
             installments: data.installments,
             ...(data.cardId ? { cardId: data.cardId } : {}),
+            ...(data.categoryId ? { categoryId: data.categoryId } : {}),
         },
     });
 }
