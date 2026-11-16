@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { Card } from '@erikacarvalho/react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { listExpenses } from '@/modules/finance/service';
+import { listFilteredExpenses } from '@/modules/expenses/history';
 import { listUserCards } from '@/modules/cards/service';
 import { listCategories } from '@/modules/categories/service';
 import { LinkImportedTransactionForm } from '@/components/cards/card-forms';
@@ -18,15 +18,34 @@ const currency = new Intl.NumberFormat('pt-BR', {
     currency: 'BRL',
 });
 
-export default async function ExpensesPage() {
+export default async function ExpensesPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ type?: string; paymentMethod?: string; search?: string; cursor?: string }>;
+}) {
     const session = await auth();
 
     if (!session?.user?.id) {
         redirect('/sign-in');
     }
 
-    const [expenses, cards, transactions, categories] = await Promise.all([
-        listExpenses(prisma, session.user.id),
+    const query = await searchParams;
+    const type = ['FIXED', 'VARIABLE'].includes(query.type ?? '')
+        ? query.type as 'FIXED' | 'VARIABLE'
+        : undefined;
+    const paymentMethod = ['PIX', 'CREDIT', 'DEBIT', 'AUTOMATIC_DEBIT', 'OTHER']
+        .includes(query.paymentMethod ?? '')
+        ? query.paymentMethod as 'PIX' | 'CREDIT' | 'DEBIT' | 'AUTOMATIC_DEBIT' | 'OTHER'
+        : undefined;
+    const search = (query.search ?? '').trim().slice(0, 100);
+    const [history, cards, transactions, categories] = await Promise.all([
+
+        listFilteredExpenses(prisma, session.user.id, {
+            type,
+            paymentMethod,
+            search,
+            cursor: query.cursor,
+        }),
         listUserCards(prisma, session.user.id),
         prisma.transaction.findMany({
             where: { userId: session.user.id },
@@ -42,6 +61,13 @@ export default async function ExpensesPage() {
         listCategories(prisma, session.user.id),
     ]);
 
+    const { expenses, nextCursor } = history;
+    const nextQuery = new URLSearchParams();
+    if (type) nextQuery.set('type', type);
+    if (paymentMethod) nextQuery.set('paymentMethod', paymentMethod);
+    if (search) nextQuery.set('search', search);
+    if (nextCursor) nextQuery.set('cursor', nextCursor);
+
     return (
         <main className="finance-page">
             <Link href="/">← Voltar ao dashboard</Link>
@@ -49,6 +75,38 @@ export default async function ExpensesPage() {
             <ExpenseForm cards={cards} categories={categories} />
             <Card padding="lg">
                 <h2>Histórico de despesas</h2>
+                <form action="/expenses" className="finance-form">
+                    <label>
+                        Pesquisar descrição
+                        <input
+                            name="search"
+                            type="search"
+                            maxLength={100}
+                            defaultValue={search}
+                            placeholder="Ex.: mercado"
+                        />
+                    </label>
+                    <label>
+                        Tipo de despesa
+                        <select name="type" defaultValue={type ?? ''}>
+                            <option value="">Todos os tipos</option>
+                            <option value="FIXED">Fixa</option>
+                            <option value="VARIABLE">Variável</option>
+                        </select>
+                    </label>
+                    <label>
+                        Forma de pagamento
+                        <select name="paymentMethod" defaultValue={paymentMethod ?? ''}>
+                            <option value="">Todas</option>
+                            <option value="PIX">Pix</option>
+                            <option value="CREDIT">Crédito</option>
+                            <option value="DEBIT">Débito</option>
+                            <option value="AUTOMATIC_DEBIT">Débito automático</option>
+                            <option value="OTHER">Outros</option>
+                        </select>
+                    </label>
+                    <button type="submit">Aplicar filtros</button>
+                </form>
                 {expenses.length === 0 && <p>Nenhuma despesa registrada.</p>}
                 <ul className="record-list">
                     {expenses.map((expense) => (
@@ -99,6 +157,11 @@ export default async function ExpensesPage() {
                         </li>
                     ))}
                 </ul>
+                {nextCursor && (
+                    <Link href={`/expenses?${nextQuery.toString()}`}>
+                        Carregar próximas 20 despesas
+                    </Link>
+                )}
             </Card>
         </main>
     );
