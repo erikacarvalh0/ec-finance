@@ -123,13 +123,13 @@ export async function getCategoryBudgetReport(
                 amountInCents: expense.type === 'FIXED'
                     ? allocateRecurringExpenseToMonth({
                         amountInCents: expense.amountInCents,
-                        date: expense.date ?? expense.createdAt,
-                        endsOn: expense.endsOn,
+                        date: expense.date ?? expense.createdAt ?? start,
+                        endsOn: expense.endsOn ?? null,
                     }, period)
                     : allocateInstallmentToMonth({
                         amountInCents: expense.amountInCents,
-                        installments: expense.installments,
-                        date: expense.date ?? expense.createdAt,
+                        installments: expense.installments ?? 1,
+                        date: expense.date ?? expense.createdAt ?? start,
                     }, period),
             })).filter(expense => expense.amountInCents > BigInt(0)),
             transactions,
