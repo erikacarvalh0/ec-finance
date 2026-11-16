@@ -8,6 +8,8 @@ import { getUserCashflowForecast } from '@/modules/forecast/repository';
 import { getOverdueExpenseTotals } from '@/modules/forecast/overdue';
 import { getCategoryBudgetReport } from '@/modules/budgets/service';
 import { MarkFixedButton } from '@/components/finance/forms';
+import { getUserMonthlyCashflowReport } from '@/modules/reports/monthly';
+import { summarizeDashboardRecordedCashflow } from '@/modules/reports/dashboard-cashflow';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,7 +33,7 @@ export default async function DashboardPage() {
     const now = new Date();
     const month = now.getUTCMonth() + 1;
     const year = now.getUTCFullYear();
-    const [fixed, transactions, forecast, recentMonths, budgetReport] = await Promise.all([
+    const [fixed, transactions, forecast, recentMonths, budgetReport, recordedMonths] = await Promise.all([
         getMonthlyFixedExpenses(prisma, userId, year, month),
         prisma.transaction.findMany({
             where: {
@@ -59,7 +61,9 @@ export default async function DashboardPage() {
             7,
         ),
         getCategoryBudgetReport(prisma, userId, `${year}-${String(month).padStart(2, '0')}`),
+        getUserMonthlyCashflowReport(prisma, userId, new Date(Date.UTC(year, month - 1, 1)), 1),
     ]);
+    const recorded = summarizeDashboardRecordedCashflow(recordedMonths);
     const overdue = getOverdueExpenseTotals(
         recentMonths.flatMap((item) => item.expenses),
         now,
@@ -96,6 +100,29 @@ export default async function DashboardPage() {
                 <h1>Visão geral</h1>
                 <p>Olá, {session.user.name ?? session.user.email ?? 'bem-vindo'}.</p>
                 <p>Seus lançamentos ficam associados à sua conta.</p>
+                <Card padding="lg">
+                    <h2>Fluxo de caixa registrado neste mês</h2>
+                    {!recorded.hasRecords ? (
+                        <p>Nenhuma receita ou despesa registrada neste mês.</p>
+                    ) : (
+                        <div className="grid">
+                            <div>
+                                <strong>Receitas registradas</strong>
+                                <p className="metric">{formatCents(recorded.incomeInCents)}</p>
+                            </div>
+                            <div>
+                                <strong>Despesas registradas</strong>
+                                <p className="metric">{formatCents(recorded.expenseInCents)}</p>
+                            </div>
+                            <div>
+                                <strong>Saldo registrado</strong>
+                                <p className="metric">{formatCents(recorded.netInCents)}</p>
+                            </div>
+                        </div>
+                    )}
+                    <p>Valores registrados na sua conta; não incluem projeções futuras.</p>
+                    <Link href="/reports">Ver relatórios detalhados</Link>
+                </Card>
                 <div className="grid">
                     <Card padding="lg">
                         <h2>Despesas fixas deste mês</h2>
