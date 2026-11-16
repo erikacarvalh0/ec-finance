@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { getCategoryBudgetReport } from '@/modules/budgets/service';
 import { NewCategoryForm, BudgetLimitForm } from '@/components/budgets/forms';
 import { CopyPreviousMonthBudgets } from '@/components/budgets/copy-previous';
+import { calculateBudgetCarryover, previousBudgetPeriod } from '@/modules/budgets/carryover';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,7 +40,13 @@ export default async function BudgetsPage({
     const period = requested && /^\d{4}-(0[1-9]|1[0-2])$/.test(requested)
         ? requested
         : currentPeriod;
-    const report = await getCategoryBudgetReport(prisma, session.user.id, period);
+    const [report, previousReport] = await Promise.all([
+        getCategoryBudgetReport(prisma, session.user.id, period),
+        getCategoryBudgetReport(prisma, session.user.id, previousBudgetPeriod(period)),
+    ]);
+    const previousCategories = new Map(previousReport.categories.map((category) => [
+        category.categoryId, category,
+    ]));
 
     return (
         <main className="finance-page">
@@ -48,6 +55,8 @@ export default async function BudgetsPage({
             <p>
                 Acompanhe os gastos registrados em cada categoria no mês escolhido.
                 Os alertas começam em 80% do limite.
+                A simulação de saldo acumulado considera apenas a sobra do mês anterior,
+                sem alterar os limites ou os alertas cadastrados.
             </p>
             <Card padding="lg">
                 <h2>Selecionar período</h2>
@@ -90,6 +99,22 @@ export default async function BudgetsPage({
                                         ? category.remainingInCents!
                                         : -category.remainingInCents!)}
                                 </p>
+                                {(() => {
+                                    const previous = previousCategories.get(category.categoryId);
+                                    const carryover = calculateBudgetCarryover({
+                                        previousLimitInCents: previous?.limitInCents ?? null,
+                                        previousSpentInCents: previous?.spentInCents ?? BigInt(0),
+                                        currentLimitInCents: category.limitInCents!,
+                                        currentSpentInCents: category.spentInCents,
+                                    });
+                                    return (
+                                        <p>
+                                            Saldo com sobra do mês anterior (simulação):{' '}
+                                            {money(carryover.combinedAvailableInCents)}
+                                            {' '}— sobra anterior: {money(carryover.previousUnusedInCents)}
+                                        </p>
+                                    );
+                                })()}
                                 <progress
                                     max={100}
                                     value={Math.max(0, Math.min(category.percentage ?? 0, 100))}
