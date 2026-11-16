@@ -297,6 +297,9 @@ model CategoryBudget {
     categoryId      String
     period          String
     limitInCents    BigInt
+    rolloverInCents BigInt   @default(0)
+    rolloverCapInCents BigInt?
+    rolloverAppliedAt DateTime?
     createdAt       DateTime @default(now())
     updatedAt       DateTime @updatedAt
     user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)

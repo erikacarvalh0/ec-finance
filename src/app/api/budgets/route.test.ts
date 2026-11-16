@@ -68,6 +68,20 @@ describe('budget API authorization and output', () => {
         expect(payload.categories[0].limitInCents).toBe('10000');
     });
 
+    it('serializes persisted rollover amounts when saving a base limit', async () => {
+        mocks.requireCurrentUserId.mockResolvedValue('owner-a');
+        mocks.setCategoryBudget.mockResolvedValue({
+            limitInCents: BigInt(10000), rolloverInCents: BigInt(3000),
+            rolloverCapInCents: BigInt(5000),
+        });
+        const response = await PUT(new Request('http://localhost/api/budgets', {
+            method: 'PUT', body: '{}',
+        }));
+        expect(await response.json()).toEqual({ budget: {
+            limitInCents: '10000', rolloverInCents: '3000', rolloverCapInCents: '5000',
+        } });
+    });
+
     it('does not allow writing to someone else category', async () => {
         mocks.requireCurrentUserId.mockResolvedValue('owner-a');
         mocks.setCategoryBudget.mockRejectedValue(new Error('Category not found'));
