@@ -10,6 +10,7 @@ import { InvestmentSnapshotEditor } from '@/components/finance/investment-snapsh
 import { InvestmentCashflowForm } from '@/components/finance/investment-cashflow-form';
 import { summarizeInvestmentPerformance } from '@/modules/investments/performance';
 import { calculateInvestmentSimpleReturn } from '@/modules/investments/percentage-return';
+import { summarizeInvestmentPortfolio } from '@/modules/investments/portfolio';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,11 +22,24 @@ export default async function InvestmentsPage() {
     }
 
     const investments = await listInvestments(prisma, session.user.id);
+    const portfolio = summarizeInvestmentPortfolio(investments);
 
     return (
         <main className="finance-page">
             <Link href="/">← Voltar ao dashboard</Link>
             <h1>Investimentos</h1>
+            <Card padding="lg">
+                <h2>Patrimônio investido estimado</h2>
+                <p className="metric">R$ {(Number(portfolio.totalInCents) / 100).toFixed(2)}</p>
+                <p>{portfolio.valuedCount} investimento(s) com avaliação registrada.</p>
+                {portfolio.unvaluedCount > 0 && (
+                    <p>{portfolio.unvaluedCount} investimento(s) sem avaliação não entram no total.</p>
+                )}
+                {portfolio.latestValuationAt && (
+                    <p>Última avaliação registrada: {portfolio.latestValuationAt.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
+                )}
+                <p>Estimativa baseada no saldo mais recente de cada investimento. As avaliações podem ter datas diferentes e não são saldos bancários sincronizados.</p>
+            </Card>
             <Card padding="lg">
                 <h2>Adicionar investimento</h2>
                 <InvestmentForm />
