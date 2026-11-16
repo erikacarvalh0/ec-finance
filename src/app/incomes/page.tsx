@@ -7,6 +7,8 @@ import { listFilteredIncomes } from '@/modules/income/history';
 import { IncomeForm } from '@/components/finance/forms';
 import { RecordEditForm } from '@/components/finance/record-edit-form';
 import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
+import { IncomeArchiveButton } from '@/components/finance/income-archive-button';
+import { parseIncomeArchiveView } from '@/modules/income/archive-view';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +20,7 @@ const currency = new Intl.NumberFormat('pt-BR', {
 export default async function IncomesPage({
     searchParams,
 }: {
-    searchParams: Promise<{ type?: string; search?: string; cursor?: string }>;
+    searchParams: Promise<{ type?: string; search?: string; cursor?: string; view?: string }>;
 }) {
     const session = await auth();
 
@@ -31,16 +33,19 @@ export default async function IncomesPage({
         ? params.type as 'SALARY' | 'RECURRING' | 'OTHER'
         : undefined;
     const search = (params.search ?? '').slice(0, 100).trim();
+    const archived = parseIncomeArchiveView(params.view);
     const { incomes, nextCursor } = await listFilteredIncomes(prisma, session.user.id, {
         type: validType,
         search,
         cursor: params.cursor,
+        archived,
     });
 
     const nextQuery = new URLSearchParams();
     if (validType) nextQuery.set('type', validType);
     if (search) nextQuery.set('search', search);
     if (nextCursor) nextQuery.set('cursor', nextCursor);
+    if (archived) nextQuery.set('view', 'archived');
 
     return (
         <main className="finance-page">
@@ -49,7 +54,9 @@ export default async function IncomesPage({
             <IncomeForm />
             <Card padding="lg">
                 <h2>Histórico de entradas</h2>
+                <p><Link href={archived ? '/incomes' : '/incomes?view=archived'}>{archived ? 'Ver entradas ativas' : 'Ver entradas arquivadas'}</Link></p>
                 <form action="/incomes" className="finance-form">
+                    {archived && <input type="hidden" name="view" value="archived" />}
                     <label>
                         Pesquisar por responsável ou descrição
                         <input
@@ -80,14 +87,14 @@ export default async function IncomesPage({
                             )}</strong>
                             <span>{currency.format(Number(income.amountInCents) / 100)}</span>
                             <small>{income.type === 'RECURRING' ? 'Recorrente' : income.type}</small>
-                            {income.type === 'RECURRING' && (
+                            {!archived && income.type === 'RECURRING' && (
                                 <EndRecurrenceForm
                                     kind="income"
                                     id={income.id}
                                     currentDate={income.endsOn?.toISOString().slice(0, 10) ?? ''}
                                 />
                             )}
-                            <RecordEditForm record={{
+                            {!archived && <RecordEditForm record={{
                                 kind: 'income',
                                 id: income.id,
                                 amountInCents: income.amountInCents.toString(),
@@ -96,7 +103,8 @@ export default async function IncomesPage({
                                 description: income.description ?? '',
                                 date: income.date?.toISOString().slice(0, 10) ?? '',
                                 endsOn: income.endsOn?.toISOString().slice(0, 10) ?? '',
-                            }} />
+                            }} />}
+                            <IncomeArchiveButton id={income.id} archived={archived} />
                         </li>
                     ))}
                 </ul>
