@@ -54,7 +54,11 @@ function useFeedback() {
     return { message, saving, save };
 }
 
-export function ExpenseForm() {
+export function ExpenseForm({
+    cards = [],
+}: {
+    cards?: Array<{ id: string; name: string }>;
+}) {
     const feedback = useFeedback();
     const [paymentMethod, setPaymentMethod] = useState('PIX');
     const [type, setType] = useState('VARIABLE');
@@ -71,6 +75,9 @@ export function ExpenseForm() {
                 paymentMethod,
                 type,
                 installments: Number(data.get('installments') || 1),
+                ...(paymentMethod === 'CREDIT' && data.get('cardId')
+                    ? { cardId: String(data.get('cardId')) }
+                    : {}),
                 ...(data.get('date') ? { date: String(data.get('date')) } : {}),
             });
 
@@ -97,6 +104,17 @@ export function ExpenseForm() {
                         <option value="OTHER">Outros</option>
                     </Select>
                 </label>
+                {paymentMethod === 'CREDIT' && (
+                    <label>
+                        Cartão (opcional)
+                        <Select name="cardId" defaultValue="">
+                            <option value="">Sem cartão associado</option>
+                            {cards.map((card) => (
+                                <option key={card.id} value={card.id}>{card.name}</option>
+                            ))}
+                        </Select>
+                    </label>
+                )}
                 <label>Tipo
                     <Select value={type} onChange={(event) => setType(event.target.value)}>
                         <option value="VARIABLE">Variável</option>

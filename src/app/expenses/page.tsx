@@ -4,6 +4,8 @@ import { Card } from '@erikacarvalho/react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { listExpenses } from '@/modules/finance/service';
+import { listUserCards } from '@/modules/cards/service';
+import { LinkImportedTransactionForm } from '@/components/cards/card-forms';
 import { ExpenseForm } from '@/components/finance/forms';
 import { RecordEditForm } from '@/components/finance/record-edit-form';
 import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
@@ -22,13 +24,27 @@ export default async function ExpensesPage() {
         redirect('/sign-in');
     }
 
-    const expenses = await listExpenses(prisma, session.user.id);
+    const [expenses, cards, transactions] = await Promise.all([
+        listExpenses(prisma, session.user.id),
+        listUserCards(prisma, session.user.id),
+        prisma.transaction.findMany({
+            where: { userId: session.user.id },
+            select: {
+                id: true,
+                cardId: true,
+                description: true,
+                amountInCents: true,
+            },
+            orderBy: { occurredAt: 'desc' },
+            take: 100,
+        }),
+    ]);
 
     return (
         <main className="finance-page">
             <Link href="/">← Voltar ao dashboard</Link>
             <h1>Despesas</h1>
-            <ExpenseForm />
+            <ExpenseForm cards={cards} />
             <Card padding="lg">
                 <h2>Histórico de despesas</h2>
                 {expenses.length === 0 && <p>Nenhuma despesa registrada.</p>}
@@ -48,6 +64,23 @@ export default async function ExpensesPage() {
                                     id={expense.id}
                                     currentDate={expense.endsOn?.toISOString().slice(0, 10) ?? ''}
                                 />
+                            )}
+                            {expense.paymentMethod === 'CREDIT'
+                                && expense.cardId
+                                && !expense.linkedTransactionId && (
+                                <LinkImportedTransactionForm
+                                    expenseId={expense.id}
+                                    transactions={transactions
+                                        .filter((transaction) => transaction.cardId === expense.cardId)
+                                        .map((transaction) => ({
+                                            id: transaction.id,
+                                            description: transaction.description,
+                                            amountInCents: transaction.amountInCents.toString(),
+                                        }))}
+                                />
+                            )}
+                            {expense.linkedTransactionId && (
+                                <small>Vinculada à compra importada</small>
                             )}
                             <RecordEditForm record={{
                                 kind: 'expense',
