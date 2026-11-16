@@ -8,6 +8,6 @@ export function summarizeDashboardRecordedCashflow(months: MonthlyRecordedCashfl
     const month = months[0];
     return {
         ...month,
-        hasRecords: month.incomeInCents !== 0n || month.expenseInCents !== 0n,
+        hasRecords: month.incomeInCents !== BigInt(0) || month.expenseInCents !== BigInt(0),
     };
 }
