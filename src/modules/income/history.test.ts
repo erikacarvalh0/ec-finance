@@ -15,7 +15,7 @@ describe('income history filters and pagination', () => {
     it('only accepts supported income types and short search queries', () => {
         expect(parseIncomeHistoryFilters({ type: 'SALARY', search: '  salary  ' }))
             .toEqual({ type: 'SALARY', search: 'salary', cursor: undefined });
-        expect(() => parseIncomeHistoryFilters({ type: 'INVALID' })).toThrow();
+        expect(() => parseIncomeHistoryFilters({ type: 'INVALID' } as unknown as Parameters<typeof parseIncomeHistoryFilters>[0])).toThrow();
         expect(() => parseIncomeHistoryFilters({ search: 'x'.repeat(101) })).toThrow();
     });
 
