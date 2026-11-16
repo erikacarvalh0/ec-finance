@@ -34,7 +34,7 @@ export function summarizeInvestmentPerformance(
         depositedInCents,
         withdrawnInCents,
         netCashflowInCents,
-        estimatedGainInCents: first && last
+        estimatedGainInCents: first && last && first.recordedAt.getTime() < last.recordedAt.getTime()
             ? last.amountInCents - first.amountInCents - netCashflowInCents
             : null,
     };
