@@ -68,6 +68,21 @@ describe('import reconciliation preview', () => {
         expect(result.conflicts).toHaveLength(0);
     });
 
+    it('detects persisted description and timestamp mismatches even when cents match', () => {
+        const candidate = {
+            providerTransactionId: 'p-1', cardId: 'card-a',
+            amountInCents: BigInt(100), occurredAt: date('2026-11-01'),
+            description: 'Coffee',
+        };
+        const result = reconcileImportedTransactions([candidate], [{
+            providerTransactionId: 'p-1', cardId: 'card-a',
+            amountInCents: BigInt(100), occurredAt: date('2026-11-02'),
+            description: 'Changed merchant',
+        }]);
+        expect(result.conflicts).toHaveLength(1);
+        expect(result.duplicates).toHaveLength(0);
+    });
+
     it('never guesses duplicates from similar merchant and amount', () => {
         const result = reconcileImportedTransactions([{
             providerTransactionId: 'new-id', cardId: 'card-a',
