@@ -9,6 +9,7 @@ import { createCategory } from '@/modules/categories/service';
 import { endOwnedRecurrence } from '@/modules/finance/end-recurrence';
 import { updateOwnedExpense } from '@/modules/finance/edit-record';
 import { getUserCashflowForecast } from '@/modules/forecast/repository';
+import { configureCardCycle, getUserCardInvoice, linkManualCardExpense, createManualCard } from '@/modules/cards/service';
 
 const databaseUrl = process.env.DATABASE_URL ?? '';
 
@@ -399,6 +400,77 @@ describe('PostgreSQL tenant isolation', () => {
         });
 
         expect(actual.amountInCents).toBe(BigInt(10000));
+    });
+
+    it('creates an owner-scoped manual card and assigns installment expenses to invoice months', async () => {
+        const card = await createManualCard(prisma, ownerId, {
+            name: 'Manual test card',
+            closingDay: 10,
+            dueDay: 20,
+        });
+
+        expect(card.name).toBe('Manual test card');
+
+        const expense = await createExpense(prisma, ownerId, {
+            description: 'Three installment laptop',
+            amountInCents: '10001',
+            paymentMethod: 'CREDIT',
+            type: 'VARIABLE',
+            installments: 3,
+            date: '2026-11-10',
+            cardId: card.id,
+        });
+
+        const invoice = await getUserCardInvoice(prisma, ownerId, card.id, '2026-12');
+
+        expect(invoice.lines.find((line) => line.id === `${expense.id}:2`))
+            ?.toEqual(expect.objectContaining({
+                amountInCents: BigInt(3334),
+                installmentLabel: '2/3',
+            }));
+
+        await expect(getUserCardInvoice(prisma, otherUserId, card.id, '2026-12'))
+            .rejects.toThrow('Card not found');
+    });
+
+    it('does not duplicate explicitly linked transactions in the same card invoice', async () => {
+        await configureCardCycle(prisma, ownerId, ownerCardId, {
+            closingDay: 10,
+            dueDay: 20,
+        });
+
+        const expense = await createExpense(prisma, ownerId, {
+            description: 'Owner groceries',
+            amountInCents: '12900',
+            paymentMethod: 'CREDIT',
+            type: 'VARIABLE',
+            installments: 1,
+            date: '2026-11-10',
+            cardId: ownerCardId,
+        });
+
+        const transaction = await prisma.transaction.findFirstOrThrow({
+            where: {
+                userId: ownerId,
+                cardId: ownerCardId,
+                description: 'Owner groceries',
+            },
+        });
+
+        await linkManualCardExpense(prisma, ownerId, expense.id, transaction.id);
+
+        const invoice = await getUserCardInvoice(prisma, ownerId, ownerCardId, '2026-11');
+
+        expect(invoice.lines.filter((line) =>
+            line.id === expense.id + ':1' || line.id === transaction.id,
+        )).toHaveLength(1);
+
+        await expect(linkManualCardExpense(
+            prisma,
+            otherUserId,
+            expense.id,
+            transaction.id,
+        )).rejects.toThrow('Record not found');
     });
 
 });
