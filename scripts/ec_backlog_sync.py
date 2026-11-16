@@ -3,7 +3,7 @@
 import json, os, re, urllib.request, urllib.parse, pathlib, datetime
 REPOS=["erikacarvalh0/ec-finance","erikacarvalh0/ec-viagens","erikacarvalh0/ec-insurance"]
 TOKEN=os.environ["EC_BACKLOG_READ_TOKEN"]
-MARKER=re.compile(r"(?im)^\\s*Backlog-ID:\\s*([\\w.-]+:[\\w.-]+)\\s*$")
+MARKER=re.compile(r"(?im)^\s*Backlog-ID:\s*([\w.-]+:[\w.-]+)\s*$")
 def get(path, **params):
     url="https://api.github.com/"+path
     if params: url+="?"+urllib.parse.urlencode(params)
@@ -38,6 +38,6 @@ def run():
             open_prs.append({"number":pr["number"],"url":pr["html_url"],"sha":sha,"ci":"failing" if failure else "observed_green" if green else "pending_or_unknown","backlog_ids":MARKER.findall(pr.get("body") or "")})
         result["projects"][repo]={"issues":len(issues),"open_prs":open_prs,"linked_evidence":linked,"unlinked_prs":sum(not MARKER.search(p.get("body") or "") for p in prs),"note":"CI green is not proof of acceptance or required branch protection."}
     pathlib.Path("reports").mkdir(exist_ok=True)
-    pathlib.Path("reports/github-sync.json").write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\\n")
+    pathlib.Path("reports/github-sync.json").write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n")
     print(json.dumps({"repositories":list(result["projects"]),"report":"reports/github-sync.json"}))
 if __name__=="__main__":run()
