@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { listInvestments } from '@/modules/finance/service';
 import { InvestmentForm } from '@/components/finance/forms';
 import { InvestmentChart } from '@/components/finance/investment-chart';
+import { InvestmentSnapshotEditor } from '@/components/finance/investment-snapshot-editor';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +38,24 @@ export default async function InvestmentsPage() {
                             name={investment.name}
                             snapshots={investment.snapshots}
                         />
+                        <h3>Histórico e correções</h3>
+                        <ul className="valuation-history">
+                            {investment.snapshots.map((snapshot) => (
+                                <li key={snapshot.id}>
+                                    {snapshot.recordedAt.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                                    {' — R$ '}
+                                    {(Number(snapshot.amountInCents) / 100).toFixed(2)}
+                                    <InvestmentSnapshotEditor
+                                        investmentId={investment.id}
+                                        snapshot={{
+                                            id: snapshot.id,
+                                            amountInCents: snapshot.amountInCents.toString(),
+                                            recordedAt: snapshot.recordedAt.toISOString().slice(0, 10),
+                                        }}
+                                    />
+                                </li>
+                            ))}
+                        </ul>
                         <h3>Atualizar valor</h3>
                         <InvestmentForm investmentId={investment.id} />
                     </Card>
