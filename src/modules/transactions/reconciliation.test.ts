@@ -38,6 +38,36 @@ describe('import reconciliation preview', () => {
         expect(result.duplicates).toHaveLength(0);
     });
 
+    it('flags same-ID batch conflicts when descriptions or timestamps differ', () => {
+        const original = {
+            providerTransactionId: 'p-1', cardId: 'card-a',
+            amountInCents: BigInt(100), occurredAt: date('2026-11-01'),
+            description: 'Coffee',
+        };
+        const result = reconcileImportedTransactions([
+            original,
+            { ...original, description: 'Different merchant' },
+            { ...original, occurredAt: date('2026-11-02') },
+        ], []);
+        expect(result.toImport).toHaveLength(1);
+        expect(result.conflicts).toHaveLength(2);
+        expect(result.duplicates).toHaveLength(0);
+    });
+
+    it('treats equal timestamps from distinct Date instances as identical', () => {
+        const original = {
+            providerTransactionId: 'p-1', cardId: 'card-a',
+            amountInCents: BigInt(100), occurredAt: date('2026-11-01'),
+            description: 'Coffee',
+        };
+        const result = reconcileImportedTransactions([
+            original, { ...original, occurredAt: date('2026-11-01') },
+        ], []);
+        expect(result.toImport).toHaveLength(1);
+        expect(result.duplicates).toHaveLength(1);
+        expect(result.conflicts).toHaveLength(0);
+    });
+
     it('never guesses duplicates from similar merchant and amount', () => {
         const result = reconcileImportedTransactions([{
             providerTransactionId: 'new-id', cardId: 'card-a',
