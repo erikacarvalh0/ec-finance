@@ -11,6 +11,7 @@ import { InvestmentCashflowForm } from '@/components/finance/investment-cashflow
 import { summarizeInvestmentPerformance } from '@/modules/investments/performance';
 import { calculateInvestmentSimpleReturn } from '@/modules/investments/percentage-return';
 import { summarizeInvestmentPortfolio } from '@/modules/investments/portfolio';
+import { summarizePortfolioMonthlyHistory } from '@/modules/investments/portfolio-history';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +24,11 @@ export default async function InvestmentsPage() {
 
     const investments = await listInvestments(prisma, session.user.id);
     const portfolio = summarizeInvestmentPortfolio(investments);
+    const now = new Date();
+    const historyStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1));
+    const portfolioHistory = summarizePortfolioMonthlyHistory(
+        investments, historyStart.getUTCFullYear(), historyStart.getUTCMonth() + 1, 6,
+    );
 
     return (
         <main className="finance-page">
@@ -39,6 +45,30 @@ export default async function InvestmentsPage() {
                     <p>Última avaliação registrada: {portfolio.latestValuationAt.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
                 )}
                 <p>Estimativa baseada no saldo mais recente de cada investimento. As avaliações podem ter datas diferentes e não são saldos bancários sincronizados.</p>
+            </Card>
+            <Card padding="lg">
+                <h2>Evolução patrimonial estimada</h2>
+                <p>Última avaliação disponível até o fim de cada mês. Meses sem nova avaliação reutilizam o último saldo conhecido.</p>
+                <div className="table-scroll">
+                    <table>
+                        <thead>
+                            <tr><th>Mês</th><th>Patrimônio estimado</th><th>Com avaliação</th><th>Sem avaliação</th></tr>
+                        </thead>
+                        <tbody>
+                            {portfolioHistory.map((month) => (
+                                <tr key={month.period}>
+                                    <td>{month.period}</td>
+                                    <td>{month.valuedCount > 0
+                                        ? `R$ ${(Number(month.totalInCents) / 100).toFixed(2)}`
+                                        : 'Sem dados'}</td>
+                                    <td>{month.valuedCount}</td>
+                                    <td>{month.unvaluedCount}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <p>Valores estimados com avaliações manuais; não representam cotações históricas sincronizadas.</p>
             </Card>
             <Card padding="lg">
                 <h2>Adicionar investimento</h2>
