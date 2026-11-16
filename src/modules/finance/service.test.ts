@@ -2,12 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createExpense, createIncome, addInvestmentSnapshot } from './service';
 
 const expenseCreate = vi.fn();
+const cardFind = vi.fn();
 const incomeCreate = vi.fn();
 const investmentFind = vi.fn();
 const snapshotCreate = vi.fn();
 
 const database = {
     expense: { create: expenseCreate },
+    creditCard: { findFirst: cardFind },
     income: { create: incomeCreate },
     investment: { findFirst: investmentFind },
     investmentSnapshot: { create: snapshotCreate },
@@ -16,6 +18,7 @@ const database = {
 describe('finance records ownership', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        cardFind.mockResolvedValue({ id: 'card-a' });
     });
 
     it('persists an expense under the authenticated owner', async () => {
@@ -86,4 +89,48 @@ describe('finance records ownership', () => {
             }),
         });
     });
+    it('only associates a credit expense with a card owned by the session user', async () => {
+        await createExpense(database, 'owner-a', {
+            description: 'Laptop',
+            amountInCents: '120000',
+            paymentMethod: 'CREDIT',
+            type: 'VARIABLE',
+            cardId: 'card-a',
+        });
+
+        expect(cardFind).toHaveBeenCalledWith({
+            where: { id: 'card-a', userId: 'owner-a' },
+            select: { id: true },
+        });
+        expect(expenseCreate).toHaveBeenCalledWith({
+            data: expect.objectContaining({ userId: 'owner-a', cardId: 'card-a' }),
+        });
+    });
+
+    it('rejects associating an expense with another user card', async () => {
+        cardFind.mockResolvedValue(null);
+
+        await expect(createExpense(database, 'owner-a', {
+            description: 'Laptop',
+            amountInCents: '120000',
+            paymentMethod: 'CREDIT',
+            type: 'VARIABLE',
+            cardId: 'card-b',
+        })).rejects.toThrow('Card not found');
+
+        expect(expenseCreate).not.toHaveBeenCalled();
+    });
+
+    it('rejects assigning a card to non-credit purchases', async () => {
+        await expect(createExpense(database, 'owner-a', {
+            description: 'Taxi',
+            amountInCents: '2000',
+            paymentMethod: 'PIX',
+            type: 'VARIABLE',
+            cardId: 'card-a',
+        })).rejects.toThrow();
+
+        expect(expenseCreate).not.toHaveBeenCalled();
+    });
+
 });
