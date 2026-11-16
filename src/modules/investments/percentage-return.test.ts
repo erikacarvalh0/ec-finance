@@ -12,6 +12,20 @@ const flow = (type: 'DEPOSIT' | 'WITHDRAWAL', amount: number, date: string) => (
 });
 
 describe('investment percentage return', () => {
+    it.each([
+        [20011, 0.06],
+        [19989, -0.06],
+        [20001, 0.01],
+        [19999, -0.01],
+        [20008, 0.04],
+        [20000, 0],
+    ])('rounds the return for a closing balance of %i to %s percent', (closing, percentage) => {
+        expect(calculateInvestmentSimpleReturn([
+            valuation(20000, '2026-01-01'),
+            valuation(closing, '2026-02-01'),
+        ], [])).toEqual({ percentage, method: 'SIMPLE_RETURN' });
+    });
+
     it('calculates a simple return without external cash flows', () => {
         expect(calculateInvestmentSimpleReturn([
             valuation(10000, '2026-01-01'),
