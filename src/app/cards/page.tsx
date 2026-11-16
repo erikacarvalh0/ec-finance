@@ -5,6 +5,8 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { listUserCards } from '@/modules/cards/service';
 import { CardSettingsForm } from '@/components/cards/card-forms';
+import { CardLimitForm } from '@/components/cards/card-limit-form';
+import { getCardLimitOverview } from '@/modules/cards/limits';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +18,9 @@ export default async function CardsPage() {
     }
 
     const cards = await listUserCards(prisma, session.user.id);
+    const limitEstimates = await Promise.all(cards.map(card =>
+        getCardLimitOverview(prisma, session.user.id, card.id),
+    ));
     const current = new Date();
     const periods = Array.from({ length: 4 }, (_, index) => {
         const period = new Date(Date.UTC(
@@ -43,10 +48,21 @@ export default async function CardsPage() {
                 <p>Nenhum cartão cadastrado. Adicione um cartão para visualizar faturas.</p>
             )}
             <div className="investment-grid">
-                {cards.map((card) => (
+                {cards.map((card, index) => (
                     <Card key={card.id} padding="lg">
                         <h2>{card.name}</h2>
                         <CardSettingsForm card={card} />
+                        <h3>Limite e utilização estimada</h3>
+                        <CardLimitForm cardId={card.id}
+                            currentLimit={limitEstimates[index]?.creditLimitInCents.toString() ?? null} />
+                        {limitEstimates[index] && (
+                            <div>
+                                <p>Limite informado: R$ {(Number(limitEstimates[index].creditLimitInCents) / 100).toFixed(2)}</p>
+                                <p>Uso estimado: R$ {(Number(limitEstimates[index].estimatedUsedInCents) / 100).toFixed(2)}</p>
+                                <p>Disponível estimado: R$ {(Number(limitEstimates[index].estimatedAvailableInCents) / 100).toFixed(2)}</p>
+                                <p>O banco pode informar valores diferentes, pois este cálculo usa apenas registros da aplicação.</p>
+                            </div>
+                        )}
                         <h3>Faturas</h3>
                         <ul className="valuation-history">
                             {periods.map((period) => (

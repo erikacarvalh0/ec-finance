@@ -91,6 +91,7 @@ model CreditCard {
   fixedRules        FixedExpenseRule[]
   closingDay        Int?
   dueDay            Int?
+  creditLimitInCents BigInt?
   expenses          Expense[]
   invoicePayments   InvoicePayment[]
 
