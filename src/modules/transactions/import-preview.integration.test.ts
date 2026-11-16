@@ -31,11 +31,23 @@ describe('PostgreSQL card import preview ownership and reconciliation', () => {
         });
         ownerId = owner.id;
         otherId = other.id;
+        const connection = await prisma.bankConnection.create({
+            data: { userId: ownerId, provider: 'test', externalItemId: `owner-${unique}` },
+        });
+        const otherConnection = await prisma.bankConnection.create({
+            data: { userId: otherId, provider: 'test', externalItemId: `other-${unique}` },
+        });
         const card = await prisma.creditCard.create({
-            data: { userId: ownerId, name: 'Primary card' },
+            data: {
+                userId: ownerId, connectionId: connection.id,
+                externalAccountId: 'card-primary', name: 'Primary card',
+            },
         });
         const otherCard = await prisma.creditCard.create({
-            data: { userId: otherId, name: 'Other card' },
+            data: {
+                userId: otherId, connectionId: otherConnection.id,
+                externalAccountId: 'card-other', name: 'Other card',
+            },
         });
         ownerCardId = card.id;
         otherCardId = otherCard.id;
