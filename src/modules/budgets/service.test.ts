@@ -60,6 +60,22 @@ describe('owner-scoped budget service', () => {
         expect(budgetUpsert).not.toHaveBeenCalled();
     });
 
+    it('applies persisted rollover to limits, remaining balance and thresholds', async () => {
+        budgetList.mockResolvedValue([{
+            categoryId: 'category-a', limitInCents: BigInt(10000),
+            rolloverInCents: BigInt(5000), rolloverAppliedAt: new Date(),
+        }]);
+        expenseList.mockResolvedValue([{
+            id: 'expense', categoryId: 'category-a', amountInCents: BigInt(11000),
+            linkedTransactionId: null,
+        }]);
+        const report = await getCategoryBudgetReport(database, 'owner-a', '2026-11');
+        expect(report.categories[0]).toMatchObject({
+            limitInCents: BigInt(15000), remainingInCents: BigInt(4000),
+            status: 'ON_TRACK', rolloverApplied: true,
+        });
+    });
+
     it('scopes all report reads to the authenticated owner and month', async () => {
         await getCategoryBudgetReport(database, 'owner-a', '2026-11');
         for (const query of [categoryList, budgetList, expenseList, transactionList]) {

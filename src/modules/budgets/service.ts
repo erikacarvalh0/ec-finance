@@ -75,7 +75,7 @@ export async function getCategoryBudgetReport(
         }),
         database.categoryBudget.findMany({
             where: { userId, period },
-            select: { categoryId: true, limitInCents: true },
+            select: { categoryId: true, limitInCents: true, rolloverInCents: true, rolloverAppliedAt: true },
         }),
         database.expense.findMany({
             where: {
@@ -101,7 +101,16 @@ export async function getCategoryBudgetReport(
     return {
         period,
         categories: summarizeCategoryBudgets({
-            categories, budgets, expenses, transactions,
-        }),
+            categories,
+            budgets: budgets.map(budget => ({
+                ...budget,
+                limitInCents: budget.limitInCents + (budget.rolloverInCents ?? BigInt(0)),
+            })),
+            expenses, transactions,
+        }).map(row => ({
+            ...row,
+            rolloverApplied: budgets.some(budget => budget.categoryId === row.categoryId
+                && budget.rolloverAppliedAt != null),
+        })),
     };
 }

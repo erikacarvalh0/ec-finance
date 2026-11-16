@@ -99,7 +99,7 @@ export default async function BudgetsPage({
                                         ? category.remainingInCents!
                                         : -category.remainingInCents!)}
                                 </p>
-                                {(() => {
+                                {!category.rolloverApplied && (() => {
                                     const previous = previousCategories.get(category.categoryId);
                                     const carryover = calculateBudgetCarryover({
                                         previousLimitInCents: previous?.limitInCents ?? null,

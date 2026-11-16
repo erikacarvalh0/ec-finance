@@ -42,6 +42,8 @@ export async function PUT(request: Request) {
             budget: {
                 ...budget,
                 limitInCents: budget.limitInCents.toString(),
+                rolloverInCents: budget.rolloverInCents.toString(),
+                rolloverCapInCents: budget.rolloverCapInCents?.toString() ?? null,
             },
         }, { headers: { 'Cache-Control': 'no-store' } });
     } catch (error) {
