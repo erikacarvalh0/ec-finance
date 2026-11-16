@@ -17,3 +17,7 @@ exact currency amounts; uncategorized spending is excluded, so percentages refle
 ## Annual comparison
 
 The reports page also compares the previous and current UTC calendar year. It queries 24 monthly recorded cashflow periods from the same authenticated user-scoped read path as the monthly comparison, and sums income, expenses and net cashflow using exact integer cents. The current year is year-to-date, not an annualized projection; a year with no records displays zero. Linked manual expenses remain excluded to prevent double-counting imported card purchases. Recurring future charges, installments projected to other months and investment transfers are not included.
+
+## CSV export
+
+The reports page offers a CSV download of the current UTC calendar month's recorded cashflow through `/api/reports/cashflow?period=YYYY-MM`. The route requires authentication and uses the existing owner-scoped report query, including linked expense deduplication. CSV values are exact integer cents (not formatted floating-point currency), with a UTF-8 BOM and CRLF line endings for spreadsheet compatibility. Exported data is private and not cached. This first export covers one month at a time; annual exports and category-level data are not yet included.
