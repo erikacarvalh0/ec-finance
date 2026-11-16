@@ -77,6 +77,7 @@ export default async function DashboardPage() {
                     <Link href="/forecast">Planejamento</Link>
                     <Link href="/cards">Cartões e faturas</Link>
                     <Link href="/budgets">Orçamentos</Link>
+                    <Link href="/reports">Relatórios</Link>
                 </nav>
                 <form
                     action={async () => {
