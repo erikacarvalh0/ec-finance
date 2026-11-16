@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import { monthBounds, summarizeCategoryBudgets } from './calculations';
+import { allocateInstallmentToMonth, allocateRecurringExpenseToMonth } from './installment-allocation';
 
 export type BudgetDatabase = Pick<
     PrismaClient,
@@ -83,6 +84,10 @@ export async function getCategoryBudgetReport(
                 OR: [
                     { date: { gte: start, lt: end } },
                     { date: null, createdAt: { gte: start, lt: end } },
+                    { type: 'FIXED', date: { lt: end }, OR: [
+                        { endsOn: null }, { endsOn: { gte: start } },
+                    ] },
+                    { installments: { gt: 1 }, date: { lt: end } },
                 ],
             },
             select: {
@@ -90,6 +95,11 @@ export async function getCategoryBudgetReport(
                 categoryId: true,
                 amountInCents: true,
                 linkedTransactionId: true,
+                type: true,
+                installments: true,
+                date: true,
+                createdAt: true,
+                endsOn: true,
             },
         }),
         database.transaction.findMany({
@@ -106,7 +116,23 @@ export async function getCategoryBudgetReport(
                 ...budget,
                 limitInCents: budget.limitInCents + (budget.rolloverInCents ?? BigInt(0)),
             })),
-            expenses, transactions,
+            expenses: expenses.map(expense => ({
+                id: expense.id,
+                categoryId: expense.categoryId,
+                linkedTransactionId: expense.linkedTransactionId,
+                amountInCents: expense.type === 'FIXED'
+                    ? allocateRecurringExpenseToMonth({
+                        amountInCents: expense.amountInCents,
+                        date: expense.date ?? expense.createdAt ?? start,
+                        endsOn: expense.endsOn ?? null,
+                    }, period)
+                    : allocateInstallmentToMonth({
+                        amountInCents: expense.amountInCents,
+                        installments: expense.installments ?? 1,
+                        date: expense.date ?? expense.createdAt ?? start,
+                    }, period),
+            })).filter(expense => expense.amountInCents > BigInt(0)),
+            transactions,
         }).map(row => ({
             ...row,
             rolloverApplied: budgets.some(budget => budget.categoryId === row.categoryId
