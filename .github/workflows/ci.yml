@@ -76,3 +76,59 @@ jobs:
 
             - name: Verify tenant isolation against PostgreSQL
               run: npm run test:integration
+
+    browser-smoke:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:16
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: ec_finance_test
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd "pg_isready -U postgres -d ec_finance_test"
+                    --health-interval 5s
+                    --health-timeout 5s
+                    --health-retries 10
+
+        env:
+            CI: 'true'
+            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ec_finance_test?schema=public
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build Design System
+              run: npm run setup:ds
+
+            - name: Generate Prisma Client
+              run: npm run db:generate
+
+            - name: Apply test database migrations
+              run: npx prisma migrate deploy
+
+            - name: Install Chromium browser
+              run: npx playwright install --with-deps chromium
+
+            - name: Verify anonymous route protection in browser
+              run: npm run test:e2e
+
+            - name: Upload browser traces on failure
+              if: failure()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-traces
+                  path: test-results/
+                  if-no-files-found: ignore
+                  retention-days: 7
