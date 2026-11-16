@@ -20,6 +20,7 @@ describe('expense history filters', () => {
             paymentMethod: 'PIX',
             search: 'groceries',
             cursor: undefined,
+            archived: undefined,
         });
         expect(() => parseExpenseHistoryFilters({
             paymentMethod: 'UNKNOWN',
