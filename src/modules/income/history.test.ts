@@ -27,6 +27,7 @@ describe('income history filters and pagination', () => {
         expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
             where: {
                 userId: 'owner-a',
+                archivedAt: null,
                 type: 'RECURRING',
                 OR: [
                     { description: { contains: 'rent', mode: 'insensitive' } },
