@@ -155,7 +155,7 @@ model Expense {
     date          DateTime?     @db.Date
     installments  Int           @default(1)
     cardId        String?
-    linkedTransactionId String? @unique
+    linkedTransactionId String?
     card          CreditCard?   @relation(fields: [cardId, userId], references: [id, userId], onDelete: Restrict)
     linkedTransaction Transaction? @relation("LinkedManualExpense", fields: [linkedTransactionId, userId], references: [id, userId], onDelete: Restrict)
     endsOn        DateTime?     @db.Date
@@ -164,6 +164,7 @@ model Expense {
     occurrences   ExpenseOccurrence[]
 
     @@unique([id, userId])
+    @@unique([linkedTransactionId, userId])
     @@index([userId, createdAt])
 }
 

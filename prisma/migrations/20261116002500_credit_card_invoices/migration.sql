@@ -7,7 +7,7 @@ ALTER TABLE "Expense" ADD COLUMN "cardId" TEXT,
 ADD COLUMN "linkedTransactionId" TEXT;
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Expense_linkedTransactionId_key" ON "Expense"("linkedTransactionId");
+CREATE UNIQUE INDEX "Expense_linkedTransactionId_userId_key" ON "Expense"("linkedTransactionId","userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Transaction_id_userId_key" ON "Transaction"("id","userId");
