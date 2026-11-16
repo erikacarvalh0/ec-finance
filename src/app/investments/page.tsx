@@ -132,7 +132,7 @@ export default async function InvestmentsPage() {
                                         ? 'Sem avaliação'
                                         : `R$ ${(Number(performance.currentBalanceInCents) / 100).toFixed(2)}`}</p>
                                     <p>Ganho ou perda estimado: {performance.estimatedGainInCents === null
-                                        ? 'Informe ao menos um saldo'
+                                        ? 'Informe saldos em ao menos duas datas diferentes'
                                         : `R$ ${(Number(performance.estimatedGainInCents) / 100).toFixed(2)}`}</p>
                                     <p>Rentabilidade percentual: {percentageReturn.percentage === null
                                         ? 'Indisponível'

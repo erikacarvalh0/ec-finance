@@ -13,6 +13,8 @@ The application reports the change in value between the **first and latest valua
 
 `Estimated gain = latest valuation - first valuation - deposits + withdrawals`.
 
+The estimated gain is unavailable until there are valuations on at least two distinct dates. A single valuation still provides the latest balance, but cannot establish a change in value.
+
 This is an *absolute-money* estimate, not a time-weighted or money-weighted percentage return. Transactions before the first snapshot or after the latest snapshot do not enter the estimate. Deposits and withdrawals are shown in a separate history regardless of whether they fall inside the valuation interval.
 
 Cash flows dated on the same day as a snapshot can be ambiguous if the valuation timing is unknown; users should use consistent end-of-day snapshots. For a reliable percentage return or benchmark comparison, future work must support accurate cash-flow timing and the relevant return methodology.

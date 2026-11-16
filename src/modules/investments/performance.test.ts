@@ -2,6 +2,25 @@ import { describe, expect, it } from 'vitest';
 import { summarizeInvestmentPerformance } from './performance';
 
 describe('investment performance with external cash flows', () => {
+    it.each([1, 2])('requires distinct valuation dates to estimate gain with %i snapshots', (count) => {
+        const recordedAt = new Date('2026-11-01T00:00:00.000Z');
+        const result = summarizeInvestmentPerformance(
+            Array.from({ length: count }, (_, index) => ({
+                amountInCents: BigInt(10000 + index * 1000),
+                recordedAt,
+            })),
+            [{ type: 'DEPOSIT', amountInCents: BigInt(5000), occurredAt: recordedAt }],
+        );
+
+        expect(result).toEqual({
+            currentBalanceInCents: BigInt(10000 + (count - 1) * 1000),
+            depositedInCents: BigInt(5000),
+            withdrawnInCents: BigInt(0),
+            netCashflowInCents: BigInt(5000),
+            estimatedGainInCents: null,
+        });
+    });
+
     it('separates deposits from valuation increases', () => {
         const result = summarizeInvestmentPerformance(
             [
