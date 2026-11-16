@@ -9,7 +9,7 @@ import {
 
 export type FinanceDatabase = Pick<
     PrismaClient,
-    'expense' | 'income' | 'investment' | 'investmentSnapshot' | 'creditCard' | 'category'
+    'expense' | 'income' | 'investment' | 'investmentSnapshot' | 'investmentCashflow' | 'creditCard' | 'category'
 >;
 
 function requireOwner(userId: string): void {
@@ -174,6 +174,9 @@ export async function listInvestments(database: FinanceDatabase, userId: string)
         include: {
             snapshots: {
                 orderBy: [{ recordedAt: 'asc' }, { createdAt: 'asc' }],
+            },
+            cashflows: {
+                orderBy: [{ occurredAt: 'asc' }, { createdAt: 'asc' }],
             },
         },
     });

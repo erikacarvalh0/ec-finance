@@ -7,6 +7,8 @@ import { listInvestments } from '@/modules/finance/service';
 import { InvestmentForm } from '@/components/finance/forms';
 import { InvestmentChart } from '@/components/finance/investment-chart';
 import { InvestmentSnapshotEditor } from '@/components/finance/investment-snapshot-editor';
+import { InvestmentCashflowForm } from '@/components/finance/investment-cashflow-form';
+import { summarizeInvestmentPerformance } from '@/modules/investments/performance';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,6 +58,36 @@ export default async function InvestmentsPage() {
                                 </li>
                             ))}
                         </ul>
+                        <h3>Aportes e resgates</h3>
+                        <InvestmentCashflowForm investmentId={investment.id} />
+                        <ul className="valuation-history">
+                            {investment.cashflows.map((cashflow) => (
+                                <li key={cashflow.id}>
+                                    {cashflow.occurredAt.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                                    {' — '}
+                                    {cashflow.type === 'DEPOSIT' ? 'Aporte' : 'Resgate'}
+                                    {': R$ '}
+                                    {(Number(cashflow.amountInCents) / 100).toFixed(2)}
+                                </li>
+                            ))}
+                        </ul>
+                        {(() => {
+                            const performance = summarizeInvestmentPerformance(
+                                investment.snapshots,
+                                investment.cashflows,
+                            );
+                            return (
+                                <div>
+                                    <h3>Resultado estimado desde o primeiro saldo</h3>
+                                    <p>Saldo mais recente: {performance.currentBalanceInCents === null
+                                        ? 'Sem avaliação'
+                                        : `R$ ${(Number(performance.currentBalanceInCents) / 100).toFixed(2)}`}</p>
+                                    <p>Ganho ou perda estimado: {performance.estimatedGainInCents === null
+                                        ? 'Informe ao menos um saldo'
+                                        : `R$ ${(Number(performance.estimatedGainInCents) / 100).toFixed(2)}`}</p>
+                                </div>
+                            );
+                        })()}
                         <h3>Atualizar valor</h3>
                         <InvestmentForm investmentId={investment.id} />
                     </Card>
