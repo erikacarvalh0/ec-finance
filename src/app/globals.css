@@ -191,3 +191,13 @@ th {
 .cashflow-bar-income, .cashflow-bar-expense { min-height:1px; width:34%; border-radius:4px 4px 0 0; }
 .cashflow-bar-income { background:#15803d; }
 .cashflow-bar-expense { background:#ea580c; }
+
+.category-spending-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+.category-spending-row progress {
+    width: 100%;
+}

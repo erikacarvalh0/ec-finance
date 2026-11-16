@@ -4,6 +4,8 @@ import { Card } from '@erikacarvalho/react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getUserMonthlyCashflowReport } from '@/modules/reports/monthly';
+import { getCategoryBudgetReport } from '@/modules/budgets/service';
+import { summarizeCategorySpending } from '@/modules/reports/categories';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +18,12 @@ export default async function ReportsPage() {
 
     const now = new Date();
     const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1));
-    const months = await getUserMonthlyCashflowReport(prisma, session.user.id, from, 6);
+    const period = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+    const [months, categoryReport] = await Promise.all([
+        getUserMonthlyCashflowReport(prisma, session.user.id, from, 6),
+        getCategoryBudgetReport(prisma, session.user.id, period),
+    ]);
+    const breakdown = summarizeCategorySpending(categoryReport.categories);
     const maximum = months.reduce((max, item) => {
         const value = item.incomeInCents > item.expenseInCents
             ? item.incomeInCents : item.expenseInCents;
@@ -67,6 +74,28 @@ export default async function ReportsPage() {
                         </tbody>
                     </table>
                 </div>
+            </Card>
+            <Card padding="lg">
+                <h2>Despesas por categoria — {period}</h2>
+                {breakdown.categories.length === 0 ? (
+                    <p>Nenhum gasto categorizado registrado neste mês.</p>
+                ) : (
+                    <>
+                        <p><strong>Total categorizado: {money(breakdown.totalInCents)}</strong></p>
+                        {breakdown.categories.map((category) => (
+                            <div key={category.categoryId} className="category-spending-row">
+                                <strong>{category.name}</strong>
+                                <span>{money(category.spentInCents)} — {category.percentage}%</span>
+                                <progress
+                                    max={100}
+                                    value={category.percentage}
+                                    aria-label={`Participação de ${category.name} nos gastos categorizados`}
+                                />
+                            </div>
+                        ))}
+                    </>
+                )}
+                <p>Gastos sem categoria não entram nesta distribuição.</p>
             </Card>
         </main>
     );
