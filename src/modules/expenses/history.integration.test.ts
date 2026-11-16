@@ -61,7 +61,7 @@ describe('PostgreSQL expense history', () => {
     });
 
     it('paginates nonoverlapping owner-scoped results with filters', async () => {
-        const criteria = { type: 'VARIABLE' as const, paymentMethod: 'PIX' as const, search: 'grocery' };
+        const criteria = { type: 'VARIABLE' as const, paymentMethod: 'PIX' as const, search: 'grocer' };
         const first = await listFilteredExpenses(prisma, ownerId, criteria);
         const second = await listFilteredExpenses(prisma, ownerId, {
             ...criteria,
