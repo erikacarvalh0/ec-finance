@@ -5,6 +5,8 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { listFinancialGoals, calculateGoalProgress } from '@/modules/goals/service';
 import { FinancialGoalForm } from '@/components/goals/financial-goal-form';
+import { GoalMovementForm } from '@/components/goals/goal-movement-form';
+import { listGoalMovements } from '@/modules/goals/movements';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +17,9 @@ export default async function GoalsPage() {
     const session = await auth();
     if (!session?.user?.id) redirect('/sign-in');
     const goals = await listFinancialGoals(prisma, session.user.id);
+    const histories = await Promise.all(goals.map((goal) =>
+        listGoalMovements(prisma, session.user.id, goal.id),
+    ));
 
     return (
         <main className="finance-page">
@@ -28,7 +33,7 @@ export default async function GoalsPage() {
             </Card>
             {goals.length === 0 && <p>Nenhuma meta cadastrada.</p>}
             <div className="investment-grid">
-                {goals.map((goal) => {
+                {goals.map((goal, index) => {
                     const progress = calculateGoalProgress(goal.savedInCents, goal.targetInCents);
                     return (
                         <Card key={goal.id} padding="lg">
@@ -39,6 +44,20 @@ export default async function GoalsPage() {
                             {goal.deadline && <p>Prazo: {goal.deadline.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>}
                             <progress value={progress.percentage} max={100} aria-label={`Progresso da meta ${goal.name}`} />
                             <p>{progress.percentage}% concluído</p>
+                            <h3>Registrar aporte ou retirada</h3>
+                            <GoalMovementForm goalId={goal.id} />
+                            <h3>Últimas movimentações</h3>
+                            {histories[index].length === 0 && <p>Nenhuma movimentação registrada.</p>}
+                            <ul className="valuation-history">
+                                {histories[index].map((movement) => (
+                                    <li key={movement.id}>
+                                        {movement.createdAt.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                                        {' — '}
+                                        {movement.type === 'DEPOSIT' ? 'Aporte' : 'Retirada'}
+                                        {': '}{money(movement.amountInCents)}
+                                    </li>
+                                ))}
+                            </ul>
                         </Card>
                     );
                 })}
