@@ -9,6 +9,7 @@ import { InvestmentChart } from '@/components/finance/investment-chart';
 import { InvestmentSnapshotEditor } from '@/components/finance/investment-snapshot-editor';
 import { InvestmentCashflowForm } from '@/components/finance/investment-cashflow-form';
 import { summarizeInvestmentPerformance } from '@/modules/investments/performance';
+import { calculateInvestmentSimpleReturn } from '@/modules/investments/percentage-return';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,6 +77,10 @@ export default async function InvestmentsPage() {
                                 investment.snapshots,
                                 investment.cashflows,
                             );
+                            const percentageReturn = calculateInvestmentSimpleReturn(
+                                investment.snapshots,
+                                investment.cashflows,
+                            );
                             return (
                                 <div>
                                     <h3>Resultado estimado desde o primeiro saldo</h3>
@@ -85,6 +90,15 @@ export default async function InvestmentsPage() {
                                     <p>Ganho ou perda estimado: {performance.estimatedGainInCents === null
                                         ? 'Informe ao menos um saldo'
                                         : `R$ ${(Number(performance.estimatedGainInCents) / 100).toFixed(2)}`}</p>
+                                    <p>Rentabilidade percentual: {percentageReturn.percentage === null
+                                        ? 'Indisponível'
+                                        : `${percentageReturn.percentage.toFixed(2)}%`}</p>
+                                    {percentageReturn.method === 'UNAVAILABLE_EXTERNAL_CASHFLOWS' && (
+                                        <p>Há aportes ou resgates no período. O percentual exige cálculo por TWR ou MWR.</p>
+                                    )}
+                                    {percentageReturn.method === 'SIMPLE_RETURN' && (
+                                        <p>Retorno simples entre avaliações, sem aportes ou resgates no intervalo.</p>
+                                    )}
                                 </div>
                             );
                         })()}
