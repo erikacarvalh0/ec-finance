@@ -41,6 +41,23 @@ Never commit `.env` files. Run migrations in the deployment pipeline before rece
 - Do not return OAuth credentials or provider tokens from API routes.
 - Extend tests to check cross-user writes and updates before enabling bank synchronization.
 
+## Authentication failure monitoring
+
+Auth.js errors emit one JSON record to stderr with only `level: "error"`,
+`event: "auth.failure"` and a generated `correlationId`. Authentication API
+responses include the same ID in `x-correlation-id`; client-supplied IDs are
+ignored. Concurrent requests have separate IDs. Errors outside the authentication
+API (such as server-side session reads) get a new ID per error event.
+
+Unexpected thrown authentication handler errors return a generic, non-cacheable
+500 response. Error messages, stacks, request URLs, headers, bodies, user data,
+bank data and tokens are never passed to this logger.
+
+The log collector can filter `event = auth.failure` and `level = error` to count
+failures and configure a rate-based alert, then investigate using `correlationId`.
+Alert delivery and thresholds must be configured in the hosting environment;
+this change does not provision an alert service or monitor other API routes.
+
 ## Current limitations
 
 This PR implements the authentication and data-model foundations. A configured PostgreSQL instance and Google OAuth application are required to use the sign-in flow. No migrations are committed yet, and bank synchronization is not enabled. The dashboard still displays only fictional data, regardless of the authenticated user. Before launch, add account deletion and consent retention flows, rate limiting, monitoring, and deploy-time migration verification.
