@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getCategoryBudgetReport } from '@/modules/budgets/service';
 import { NewCategoryForm, BudgetLimitForm } from '@/components/budgets/forms';
+import { CopyPreviousMonthBudgets } from '@/components/budgets/copy-previous';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,6 +58,11 @@ export default async function BudgetsPage({
                     </label>
                     <button type="submit">Consultar</button>
                 </form>
+            </Card>
+            <Card padding="lg">
+                <h2>Reutilizar orçamento</h2>
+                <p>Copie os limites do mês anterior apenas para categorias ainda sem limite neste mês.</p>
+                <CopyPreviousMonthBudgets targetPeriod={period} />
             </Card>
             <Card padding="lg">
                 <h2>Categorias</h2>
