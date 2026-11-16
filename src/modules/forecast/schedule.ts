@@ -7,6 +7,7 @@ export interface ForecastExpense {
     installments: number;
     type: 'FIXED' | 'VARIABLE';
     paymentMethod: string;
+    endsOn?: Date | null;
 }
 
 export interface ForecastIncome {
@@ -16,6 +17,7 @@ export interface ForecastIncome {
     date: Date | null;
     createdAt: Date;
     type: 'SALARY' | 'RECURRING' | 'OTHER';
+    endsOn?: Date | null;
 }
 
 export interface ScheduledExpense {
@@ -122,6 +124,10 @@ export function buildMonthlyForecast({
         for (const expense of expenses) {
             const firstDueDate = expense.date ?? expense.createdAt;
 
+            if (expense.endsOn && monthIndex(current) > monthIndex(expense.endsOn)) {
+                continue;
+            }
+
             if (expense.installments > 1) {
                 const monthsSinceStart = monthIndex(current) - monthIndex(firstDueDate);
 
@@ -164,6 +170,10 @@ export function buildMonthlyForecast({
 
         for (const income of incomes) {
             const firstDueDate = income.date ?? income.createdAt;
+
+            if (income.endsOn && monthIndex(current) > monthIndex(income.endsOn)) {
+                continue;
+            }
             const monthsSinceStart = monthIndex(current) - monthIndex(firstDueDate);
             const isDue = income.type === 'RECURRING'
                 ? monthsSinceStart >= 0

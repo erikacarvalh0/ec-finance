@@ -149,6 +149,7 @@ model Expense {
     type          ExpenseType
     date          DateTime?     @db.Date
     installments  Int           @default(1)
+    endsOn        DateTime?     @db.Date
     createdAt     DateTime      @default(now())
     user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
     occurrences   ExpenseOccurrence[]
@@ -165,6 +166,7 @@ model Income {
     responsible   String?
     description   String?
     date          DateTime?   @db.Date
+    endsOn        DateTime?   @db.Date
     createdAt     DateTime    @default(now())
     user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     occurrences   IncomeOccurrence[]
