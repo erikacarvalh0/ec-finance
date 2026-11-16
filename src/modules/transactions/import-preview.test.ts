@@ -28,7 +28,7 @@ describe('owner-scoped imported transaction preview', () => {
         });
         expect(findMany).toHaveBeenCalledWith({
             where: { userId: 'owner-1', cardId: 'card-1', providerTransactionId: { in: ['provider-1'] } },
-            select: { providerTransactionId: true, cardId: true, amountInCents: true },
+            select: { providerTransactionId: true, cardId: true, amountInCents: true, description: true, occurredAt: true },
         });
         expect(result.toImport).toHaveLength(1);
         expect(result.toImport[0].amountInCents).toBe(BigInt(2500));

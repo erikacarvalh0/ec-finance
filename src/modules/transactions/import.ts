@@ -47,7 +47,7 @@ export async function importCardTransactions(
                     in: [...new Set(candidates.map((item) => item.providerTransactionId))],
                 },
             },
-            select: { providerTransactionId: true, cardId: true, amountInCents: true },
+            select: { providerTransactionId: true, cardId: true, amountInCents: true, description: true, occurredAt: true },
         });
         const preview = reconcileImportedTransactions(candidates, existing);
         if (preview.conflicts.length > 0) {
