@@ -56,6 +56,8 @@ export async function previewCardTransactionImport(
             providerTransactionId: true,
             cardId: true,
             amountInCents: true,
+            description: true,
+            occurredAt: true,
         },
     });
     return reconcileImportedTransactions(candidates, existing);
