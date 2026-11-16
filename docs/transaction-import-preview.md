@@ -1,0 +1,3 @@
+# Authenticated transaction import preview
+
+POST `/api/transactions/import-preview` with `{ "cardId": "...", "transactions": [{ "providerTransactionId": "...", "description": "...", "amountInCents": "2500", "occurredAt": "2026-11-15T12:00:00.000Z" }] }`. Requires an authenticated session and an owned card. Returns `toImport`, `duplicates`, and `conflicts`; monetary values are JSON strings. The endpoint is read-only, caps input at 500 records, and queries only matching provider IDs within the authenticated owner's card. No bank credentials, provider calls, or database writes occur. Persistence remains a separate future workstream and must recheck uniqueness at write time.
