@@ -1,8 +1,12 @@
+import { randomUUID } from 'node:crypto';
 import type { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import { buildCardInvoice } from './invoice';
 
-type CardDatabase = Pick<PrismaClient, 'creditCard' | 'transaction' | 'expense'>;
+type CardDatabase = Pick<
+    PrismaClient,
+    'creditCard' | 'transaction' | 'expense' | 'bankConnection'
+>;
 
 const billingCycleSchema = z.object({
     closingDay: z.number().int().min(1).max(31),
@@ -13,6 +17,47 @@ function requireOwner(userId: string, cardId: string): void {
     if (!userId.trim() || !cardId.trim()) {
         throw new Error('Authenticated user and card ID are required');
     }
+}
+
+const manualCardSchema = billingCycleSchema.extend({
+    name: z.string().trim().min(1).max(100),
+});
+
+export async function createManualCard(
+    database: CardDatabase,
+    userId: string,
+    input: z.input<typeof manualCardSchema>,
+) {
+    requireOwner(userId, 'new-card');
+    const data = manualCardSchema.parse(input);
+
+    const connection = await database.bankConnection.upsert({
+        where: {
+            userId_provider_externalItemId: {
+                userId,
+                provider: 'MANUAL',
+                externalItemId: `manual:${userId}`,
+            },
+        },
+        create: {
+            userId,
+            provider: 'MANUAL',
+            externalItemId: `manual:${userId}`,
+        },
+        update: {},
+        select: { id: true },
+    });
+
+    return database.creditCard.create({
+        data: {
+            userId,
+            connectionId: connection.id,
+            externalAccountId: `manual:${randomUUID()}`,
+            name: data.name,
+            closingDay: data.closingDay,
+            dueDay: data.dueDay,
+        },
+    });
 }
 
 export async function listUserCards(database: CardDatabase, userId: string) {
