@@ -8,7 +8,7 @@ const filters = z.object({
     paymentMethod: z.enum(['PIX', 'CREDIT', 'DEBIT', 'AUTOMATIC_DEBIT', 'OTHER']).optional(),
     search: z.string().trim().max(100).optional(),
     archived: z.boolean().optional(),
-    cursor: z.string().trim().min(1).max(200).optional(),
+    cursor: z.string().trim().max(200).transform((value) => value || undefined).optional(),
 });
 
 export type ExpenseHistoryFilters = z.input<typeof filters>;

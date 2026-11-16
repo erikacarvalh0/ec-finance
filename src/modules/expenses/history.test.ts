@@ -47,6 +47,16 @@ describe('expense history filters', () => {
         }));
     });
 
+    it.each(['', '   '])('starts at the first page for a blank cursor %j', async (cursor) => {
+        expect(parseExpenseHistoryFilters({ cursor }).cursor).toBeUndefined();
+
+        await listFilteredExpenses(database, 'owner-a', { cursor });
+
+        const query = findMany.mock.calls[0][0];
+        expect(query).not.toHaveProperty('cursor');
+        expect(query).not.toHaveProperty('skip');
+    });
+
     it('returns twenty records and preserves the last displayed ID as cursor', async () => {
         findMany.mockResolvedValue(
             Array.from({ length: 21 }, (_, index) => ({ id: `expense-${index}` })),
