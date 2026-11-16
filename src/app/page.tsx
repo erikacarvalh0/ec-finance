@@ -106,6 +106,8 @@ export default async function DashboardPage() {
                                     <th>Despesas previstas</th>
                                     <th>Entradas previstas</th>
                                     <th>Saldo projetado</th>
+                                    <th>Realizado</th>
+                                    <th>Pendente</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -115,6 +117,8 @@ export default async function DashboardPage() {
                                         <td>{formatCents(month.expenseTotalInCents)}</td>
                                         <td>{formatCents(month.incomeTotalInCents)}</td>
                                         <td>{formatCents(month.balanceInCents)}</td>
+                                        <td>{formatCents(month.settledIncomeInCents - month.settledExpenseInCents)}</td>
+                                        <td>{formatCents(month.pendingIncomeInCents - month.pendingExpenseInCents)}</td>
                                     </tr>
                                 ))}
                             </tbody>

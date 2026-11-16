@@ -61,6 +61,10 @@ See [Finance tracking modules](docs/finance-tracking.md) for recurrence rules, v
 
 The dashboard and `/forecast` show six months of projected installments, fixed expenses and recurring income. Projections are not confirmed charges or bank balances. See [Monthly cashflow forecast](docs/cashflow-forecast.md).
 
+## Payment reconciliation
+
+The `/forecast` page lets authenticated users mark an individual installment or recurring income as pending, paid/received or canceled. Settled occurrences can record their actual amount, and the dashboard distinguishes realized from pending totals. Original schedules remain unchanged. See [Forecast reconciliation](docs/forecast-reconciliation.md).
+
 ## Design System
 
 The app consumes actual `Button` and `Card` components from [erikacarvalho-ds](https://github.com/erikacarvalh0/erikacarvalho-ds). The React package is built by `npm run setup:ds` using a pinned upstream Git commit. It has not been published to a package registry yet.

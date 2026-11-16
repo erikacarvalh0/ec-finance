@@ -24,6 +24,8 @@ model User {
   incomes       Income[]
   investments   Investment[]
   fixedRules    FixedExpenseRule[]
+  expenseOccurrences ExpenseOccurrence[]
+  incomeOccurrences  IncomeOccurrence[]
 }
 
 model Account {
@@ -149,7 +151,9 @@ model Expense {
     installments  Int           @default(1)
     createdAt     DateTime      @default(now())
     user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    occurrences   ExpenseOccurrence[]
 
+    @@unique([id, userId])
     @@index([userId, createdAt])
 }
 
@@ -163,7 +167,9 @@ model Income {
     date          DateTime?   @db.Date
     createdAt     DateTime    @default(now())
     user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+    occurrences   IncomeOccurrence[]
 
+    @@unique([id, userId])
     @@index([userId, createdAt])
 }
 
@@ -203,4 +209,42 @@ model FixedExpenseRule {
 
     @@unique([userId, cardId, merchantKey])
     @@index([userId])
+}
+
+enum OccurrenceStatus {
+    PENDING
+    SETTLED
+    CANCELED
+}
+
+model ExpenseOccurrence {
+    id                  String           @id @default(cuid())
+    userId              String
+    expenseId           String
+    dueMonth            DateTime         @db.Date
+    status              OccurrenceStatus @default(PENDING)
+    actualAmountInCents BigInt?
+    settledAt           DateTime?
+    updatedAt           DateTime         @updatedAt
+    user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    expense             Expense          @relation(fields: [expenseId, userId], references: [id, userId], onDelete: Cascade)
+
+    @@unique([expenseId, dueMonth])
+    @@index([userId, dueMonth])
+}
+
+model IncomeOccurrence {
+    id                  String           @id @default(cuid())
+    userId              String
+    incomeId            String
+    dueMonth            DateTime         @db.Date
+    status              OccurrenceStatus @default(PENDING)
+    actualAmountInCents BigInt?
+    settledAt           DateTime?
+    updatedAt           DateTime         @updatedAt
+    user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    income              Income           @relation(fields: [incomeId, userId], references: [id, userId], onDelete: Cascade)
+
+    @@unique([incomeId, dueMonth])
+    @@index([userId, dueMonth])
 }

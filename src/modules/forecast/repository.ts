@@ -1,7 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 import { buildMonthlyForecast } from './schedule';
+import { reconcileForecast } from './reconcile';
 
-type ForecastDatabase = Pick<PrismaClient, 'expense' | 'income'>;
+type ForecastDatabase = Pick<
+    PrismaClient,
+    'expense' | 'income' | 'expenseOccurrence' | 'incomeOccurrence'
+>;
 
 export async function getUserCashflowForecast(
     database: ForecastDatabase,
@@ -24,7 +28,7 @@ export async function getUserCashflowForecast(
         1,
     ));
 
-    const [expenses, incomes] = await Promise.all([
+    const [expenses, incomes, expenseAdjustments, incomeAdjustments] = await Promise.all([
         database.expense.findMany({
             where: {
                 userId,
@@ -61,12 +65,42 @@ export async function getUserCashflowForecast(
                 createdAt: true,
             },
         }),
+        database.expenseOccurrence.findMany({
+            where: {
+                userId,
+                dueMonth: {
+                    gte: new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1)),
+                    lt: end,
+                },
+            },
+            select: {
+                expenseId: true,
+                dueMonth: true,
+                status: true,
+                actualAmountInCents: true,
+            },
+        }),
+        database.incomeOccurrence.findMany({
+            where: {
+                userId,
+                dueMonth: {
+                    gte: new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1)),
+                    lt: end,
+                },
+            },
+            select: {
+                incomeId: true,
+                dueMonth: true,
+                status: true,
+                actualAmountInCents: true,
+            },
+        }),
     ]);
 
-    return buildMonthlyForecast({
+    return reconcileForecast(buildMonthlyForecast({
         start,
         monthCount: months,
         expenses,
         incomes,
-    });
+    }), expenseAdjustments, incomeAdjustments);
 }

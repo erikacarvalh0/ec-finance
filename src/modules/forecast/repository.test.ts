@@ -19,6 +19,8 @@ describe('forecast repository', () => {
         const database = {
             expense: { findMany: expenseFindMany },
             income: { findMany: incomeFindMany },
+            expenseOccurrence: { findMany: vi.fn().mockResolvedValue([]) },
+            incomeOccurrence: { findMany: vi.fn().mockResolvedValue([]) },
         } as unknown as Parameters<typeof getUserCashflowForecast>[0];
 
         const result = await getUserCashflowForecast(database, 'owner-a', start, 2);
@@ -39,6 +41,8 @@ describe('forecast repository', () => {
         const database = {
             expense: { findMany: expenseFindMany },
             income: { findMany: incomeFindMany },
+            expenseOccurrence: { findMany: vi.fn().mockResolvedValue([]) },
+            incomeOccurrence: { findMany: vi.fn().mockResolvedValue([]) },
         } as unknown as Parameters<typeof getUserCashflowForecast>[0];
 
         await expect(getUserCashflowForecast(database, ' ', start, 6))
@@ -53,6 +57,8 @@ describe('forecast repository', () => {
         const database = {
             expense: { findMany: expenseFindMany },
             income: { findMany: vi.fn() },
+            expenseOccurrence: { findMany: vi.fn().mockResolvedValue([]) },
+            incomeOccurrence: { findMany: vi.fn().mockResolvedValue([]) },
         } as unknown as Parameters<typeof getUserCashflowForecast>[0];
 
         await expect(getUserCashflowForecast(database, 'owner-a', start, 25))
