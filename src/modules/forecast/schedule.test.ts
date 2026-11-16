@@ -190,3 +190,51 @@ describe('monthly cashflow forecast', () => {
         })).toThrow();
     });
 });
+
+describe('recurrence end dates', () => {
+    const start = new Date('2026-11-01T00:00:00.000Z');
+
+    it('stops a fixed expense after its final configured month', () => {
+        const months = buildMonthlyForecast({
+            start,
+            monthCount: 4,
+            expenses: [{
+                id: 'rent',
+                description: 'Rent',
+                amountInCents: BigInt(10000),
+                date: start,
+                createdAt: start,
+                endsOn: new Date('2026-12-31T00:00:00.000Z'),
+                installments: 1,
+                type: 'FIXED',
+                paymentMethod: 'PIX',
+            }],
+            incomes: [],
+        });
+
+        expect(months.map((month) => month.expenseTotalInCents)).toEqual([
+            BigInt(10000), BigInt(10000), BigInt(0), BigInt(0),
+        ]);
+    });
+
+    it('stops recurring income without removing past occurrences', () => {
+        const months = buildMonthlyForecast({
+            start,
+            monthCount: 4,
+            expenses: [],
+            incomes: [{
+                id: 'income',
+                amountInCents: BigInt(25000),
+                description: 'Rent paid',
+                date: start,
+                createdAt: start,
+                endsOn: new Date('2027-01-15T00:00:00.000Z'),
+                type: 'RECURRING',
+            }],
+        });
+
+        expect(months.map((month) => month.incomeTotalInCents)).toEqual([
+            BigInt(25000), BigInt(25000), BigInt(25000), BigInt(0),
+        ]);
+    });
+});
