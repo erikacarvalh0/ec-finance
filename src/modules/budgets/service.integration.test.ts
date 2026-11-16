@@ -102,6 +102,36 @@ describe('PostgreSQL category budget ownership', () => {
         })).rejects.toThrow();
     });
 
+    it('includes recurring fixed expenses and the current installment only', async () => {
+        const recurring = await prisma.expense.create({
+            data: {
+                userId: ownerId, categoryId, description: 'Monthly internet',
+                amountInCents: BigInt(5000), paymentMethod: 'PIX', type: 'FIXED',
+                date: new Date('2027-03-10T00:00:00.000Z'),
+                endsOn: new Date('2027-05-10T00:00:00.000Z'),
+            },
+        });
+        const installment = await prisma.expense.create({
+            data: {
+                userId: ownerId, categoryId, description: 'Three-part purchase',
+                amountInCents: BigInt(10001), paymentMethod: 'PIX', type: 'VARIABLE',
+                installments: 3, date: new Date('2027-03-15T00:00:00.000Z'),
+            },
+        });
+        try {
+            const march = await getCategoryBudgetReport(prisma, ownerId, '2027-03');
+            const april = await getCategoryBudgetReport(prisma, ownerId, '2027-04');
+            const may = await getCategoryBudgetReport(prisma, ownerId, '2027-05');
+            const june = await getCategoryBudgetReport(prisma, ownerId, '2027-06');
+            expect(march.categories[0].spentInCents).toBe(BigInt(8334));
+            expect(april.categories[0].spentInCents).toBe(BigInt(8334));
+            expect(may.categories[0].spentInCents).toBe(BigInt(8333));
+            expect(june.categories[0].spentInCents).toBe(BigInt(0));
+        } finally {
+            await prisma.expense.deleteMany({ where: { id: { in: [recurring.id, installment.id] } } });
+        }
+    });
+
     it('does not reveal or change another user category budgets', async () => {
         await expect(setCategoryBudget(prisma, otherId, {
             categoryId, period: '2026-11', limitInCents: '1000',
