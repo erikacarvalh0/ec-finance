@@ -9,6 +9,8 @@ type Existing = {
     providerTransactionId: string;
     cardId: string;
     amountInCents?: bigint;
+    description?: string;
+    occurredAt?: Date;
 };
 type Conflict = { candidate: Candidate; existing: Existing | Candidate };
 
@@ -49,7 +51,7 @@ export function reconcileImportedTransactions(candidates: Candidate[], existing:
             known.set(key, candidate);
         } else if ((previous.amountInCents !== undefined
             && previous.amountInCents !== candidate.amountInCents)
-            || ('description' in previous && 'occurredAt' in previous
+            || (previous.description !== undefined && previous.occurredAt !== undefined
                 && (previous.description !== candidate.description
                     || previous.occurredAt.getTime() !== candidate.occurredAt.getTime()))) {
             conflicts.push({ candidate, existing: previous });
