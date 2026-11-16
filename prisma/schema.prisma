@@ -30,6 +30,7 @@ model User {
   invoicePayments    InvoicePayment[]
   categoryBudgets    CategoryBudget[]
   financialGoals     FinancialGoal[]
+  financialGoalMovements FinancialGoalMovement[]
 }
 
 model Account {
@@ -326,6 +327,7 @@ model InvestmentCashflow {
 }
 
 model FinancialGoal {
+    movements       FinancialGoalMovement[]
     id              String   @id @default(cuid())
     userId          String
     name            String
@@ -337,5 +339,24 @@ model FinancialGoal {
     user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([id, userId])
+    @@index([userId, createdAt])
+}
+
+enum FinancialGoalMovementType {
+    DEPOSIT
+    WITHDRAWAL
+}
+
+model FinancialGoalMovement {
+    id              String                    @id @default(cuid())
+    userId          String
+    goalId          String
+    type            FinancialGoalMovementType
+    amountInCents   BigInt
+    createdAt       DateTime                  @default(now())
+    user            User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    goal            FinancialGoal             @relation(fields: [goalId, userId], references: [id, userId], onDelete: Cascade)
+
+    @@index([goalId, createdAt])
     @@index([userId, createdAt])
 }
