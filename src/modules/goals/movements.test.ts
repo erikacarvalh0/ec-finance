@@ -27,7 +27,7 @@ describe('financial goal movements', () => {
         });
 
         expect(updateMany).toHaveBeenCalledWith({
-            where: { id: 'goal-1', userId: 'owner-1' },
+            where: { id: 'goal-1', userId: 'owner-1', savedInCents: { lte: BigInt('9223372036854775557') } },
             data: { savedInCents: { increment: BigInt(250) } },
         });
         expect(create).toHaveBeenCalledWith({ data: {
