@@ -188,6 +188,7 @@ export async function linkManualCardExpense(
                 cardId: true,
                 paymentMethod: true,
                 linkedTransactionId: true,
+                installments: true,
             },
         }),
         database.transaction.findFirst({
@@ -201,6 +202,7 @@ export async function linkManualCardExpense(
     }
 
     if (expense.paymentMethod !== 'CREDIT'
+        || expense.installments !== 1
         || !expense.cardId
         || expense.cardId !== transaction.cardId) {
         throw new Error('Card mismatch');

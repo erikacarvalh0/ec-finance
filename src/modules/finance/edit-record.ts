@@ -9,7 +9,7 @@ type Database = Pick<
 
 const optionalEndDate = z.iso.date().nullable().optional();
 
-const expenseEditSchema = expenseInputSchema.extend({
+const expenseEditSchema = expenseInputSchema.safeExtend({
     endsOn: optionalEndDate,
 }).superRefine((value, ctx) => {
     if (value.endsOn && (value.type !== 'FIXED' || value.installments > 1)) {

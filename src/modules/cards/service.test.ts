@@ -75,6 +75,7 @@ describe('card ownership and invoice data', () => {
             paymentMethod: 'CREDIT',
             cardId: 'card-a',
             linkedTransactionId: null,
+            installments: 1,
         });
         transactionFind.mockResolvedValue({ id: 'import-a', cardId: 'card-a' });
 
@@ -126,6 +127,22 @@ describe('card ownership and invoice data', () => {
                 dueDay: 20,
             }),
         });
+    });
+
+    it('rejects linking a whole installment schedule to one imported charge', async () => {
+        expenseFind.mockResolvedValue({
+            id: 'expense-a',
+            paymentMethod: 'CREDIT',
+            cardId: 'card-a',
+            linkedTransactionId: null,
+            installments: 3,
+        });
+        transactionFind.mockResolvedValue({ id: 'import-a', cardId: 'card-a' });
+
+        await expect(linkManualCardExpense(database, 'owner-a', 'expense-a', 'import-a'))
+            .rejects.toThrow('Card mismatch');
+
+        expect(expenseUpdate).not.toHaveBeenCalled();
     });
 
 });
