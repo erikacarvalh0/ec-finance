@@ -59,6 +59,17 @@ describe('income history filters and pagination', () => {
         }));
     });
 
+    it('filters archived records without exposing another user', async () => {
+        await listFilteredIncomes(db, 'owner-a', { archived: true });
+
+        expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
+            where: expect.objectContaining({
+                userId: 'owner-a',
+                archivedAt: { not: null },
+            }),
+        }));
+    });
+
     it('rejects anonymous access before database reads', async () => {
         await expect(listFilteredIncomes(db, ' ', {})).rejects.toThrow();
         expect(findMany).not.toHaveBeenCalled();
