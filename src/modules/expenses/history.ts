@@ -7,6 +7,7 @@ const filters = z.object({
     type: z.enum(['FIXED', 'VARIABLE']).optional(),
     paymentMethod: z.enum(['PIX', 'CREDIT', 'DEBIT', 'AUTOMATIC_DEBIT', 'OTHER']).optional(),
     search: z.string().trim().max(100).optional(),
+    archived: z.boolean().optional(),
     cursor: z.string().trim().min(1).max(200).optional(),
 });
 
@@ -19,6 +20,7 @@ export function parseExpenseHistoryFilters(input: ExpenseHistoryFilters) {
         type: parsed.type,
         paymentMethod: parsed.paymentMethod,
         search: parsed.search || undefined,
+        archived: parsed.archived,
         cursor: parsed.cursor,
     };
 }
@@ -32,11 +34,11 @@ export async function listFilteredExpenses(
         throw new Error('Authenticated user ID is required');
     }
 
-    const { type, paymentMethod, search, cursor } = parseExpenseHistoryFilters(filtersInput);
+    const { type, paymentMethod, search, cursor, archived } = parseExpenseHistoryFilters(filtersInput);
     const rows = await database.expense.findMany({
         where: {
             userId,
-            archivedAt: null,
+            archivedAt: archived ? { not: null } : null,
             ...(type ? { type } : {}),
             ...(paymentMethod ? { paymentMethod } : {}),
             ...(search ? {
