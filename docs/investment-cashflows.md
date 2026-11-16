@@ -27,6 +27,6 @@ No automatic bank transfers, tax calculations, income recognition, fees, benchma
 
 ## Percentage return
 
-The investment page shows a **simple holding-period percentage return** only when two different valuation dates are available, the starting balance is positive and there are **no recorded deposits or withdrawals within the valuation interval**. The formula is `(last valuation - first valuation) / first valuation * 100`, rounded to two decimal places.
+The investment page shows a **simple holding-period percentage return** only when two different valuation dates are available, the starting balance is positive and there are **no recorded deposits or withdrawals within the valuation interval**. The formula is `(last valuation - first valuation) / first valuation * 100`, rounded to two decimal places with ties away from zero for both gains and losses.
 
 When external cash flows occur within that interval, the app intentionally shows **Unavailable**, because dividing the cashflow-adjusted absolute gain by the opening balance is not a defensible TWR or money-weighted rate. A future TWR/MWR implementation requires adequate dated valuations and/or a defined cash-flow convention. Percentage figures are not annualized, do not account for fees, taxes or inflation, and are not benchmark comparisons. Same-day cashflow/valuation ordering remains ambiguous, so boundary-dated cash flows suppress the simple return.

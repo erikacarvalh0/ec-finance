@@ -53,7 +53,11 @@ export function calculateInvestmentSimpleReturn(
     // Basis points: 100 basis points = 1%; a BigInt quotient preserves
     // precision at the scale of BRL cents before conversion to Number.
     const difference = last.amountInCents - first.amountInCents;
-    const basisPoints = difference * BigInt(10000) / first.amountInCents;
+    const magnitude = difference < BigInt(0) ? -difference : difference;
+    // Round ties away from zero for both gains and losses.
+    const roundedMagnitude = (magnitude * BigInt(10000) + first.amountInCents / BigInt(2))
+        / first.amountInCents;
+    const basisPoints = difference < BigInt(0) ? -roundedMagnitude : roundedMagnitude;
 
     return { percentage: Number(basisPoints) / 100, method: 'SIMPLE_RETURN' };
 }
