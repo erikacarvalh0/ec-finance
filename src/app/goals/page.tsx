@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { listFinancialGoals, calculateGoalProgress } from '@/modules/goals/service';
 import { FinancialGoalForm } from '@/components/goals/financial-goal-form';
 import { GoalMovementForm } from '@/components/goals/goal-movement-form';
+import { GoalContributionProjection } from '@/components/goals/goal-contribution-projection';
 import { listGoalMovements } from '@/modules/goals/movements';
 
 export const dynamic = 'force-dynamic';
@@ -44,6 +45,10 @@ export default async function GoalsPage() {
                             {goal.deadline && <p>Prazo: {goal.deadline.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>}
                             <progress value={progress.percentage} max={100} aria-label={`Progresso da meta ${goal.name}`} />
                             <p>{progress.percentage}% concluído</p>
+                            <GoalContributionProjection
+                                targetInCents={goal.targetInCents.toString()}
+                                savedInCents={goal.savedInCents.toString()}
+                            />
                             <h3>Registrar aporte ou retirada</h3>
                             <GoalMovementForm goalId={goal.id} />
                             <h3>Últimas movimentações</h3>
