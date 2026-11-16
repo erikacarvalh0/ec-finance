@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { configureCardCycle, getUserCardInvoice, linkManualCardExpense } from './service';
+import { configureCardCycle, createManualCard, getUserCardInvoice, linkManualCardExpense } from './service';
 
+const connectionUpsert = vi.fn();
+const cardCreate = vi.fn();
 const cardFind = vi.fn();
 const cardUpdate = vi.fn();
 const transactionFind = vi.fn();
@@ -10,7 +12,8 @@ const transactionList = vi.fn();
 const expenseList = vi.fn();
 
 const database = {
-    creditCard: { findFirst: cardFind, update: cardUpdate },
+    creditCard: { findFirst: cardFind, update: cardUpdate, create: cardCreate },
+    bankConnection: { upsert: connectionUpsert },
     transaction: { findFirst: transactionFind, findMany: transactionList },
     expense: { findFirst: expenseFind, update: expenseUpdate, findMany: expenseList },
 } as unknown as Parameters<typeof configureCardCycle>[0];
@@ -96,4 +99,33 @@ describe('card ownership and invoice data', () => {
             .rejects.toThrow('Card mismatch');
         expect(expenseUpdate).not.toHaveBeenCalled();
     });
+    it('creates a manually configured card without requiring bank access', async () => {
+        connectionUpsert.mockResolvedValue({ id: 'connection-a' });
+
+        await createManualCard(database, 'owner-a', {
+            name: 'My card',
+            closingDay: 10,
+            dueDay: 20,
+        });
+
+        expect(connectionUpsert).toHaveBeenCalledWith(expect.objectContaining({
+            where: {
+                userId_provider_externalItemId: {
+                    userId: 'owner-a',
+                    provider: 'MANUAL',
+                    externalItemId: 'manual:owner-a',
+                },
+            },
+        }));
+        expect(cardCreate).toHaveBeenCalledWith({
+            data: expect.objectContaining({
+                userId: 'owner-a',
+                connectionId: 'connection-a',
+                name: 'My card',
+                closingDay: 10,
+                dueDay: 20,
+            }),
+        });
+    });
+
 });
