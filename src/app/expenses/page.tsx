@@ -7,6 +7,7 @@ import { listFilteredExpenses } from '@/modules/expenses/history';
 import { listUserCards } from '@/modules/cards/service';
 import { listCategories } from '@/modules/categories/service';
 import { LinkImportedTransactionForm } from '@/components/cards/card-forms';
+import { BulkCategoryForm } from '@/components/finance/bulk-category-form';
 import { ExpenseForm } from '@/components/finance/forms';
 import { RecordEditForm } from '@/components/finance/record-edit-form';
 import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
@@ -115,6 +116,7 @@ export default async function ExpensesPage({
                     <button type="submit">Aplicar filtros</button>
                 </form>
                 {expenses.length === 0 && <p>Nenhuma despesa registrada.</p>}
+                {!archived && expenses.length > 0 && <BulkCategoryForm rows={expenses.map(({ id, description, categoryId }) => ({ id, description, categoryId }))} categories={categories.map(({ id, name }) => ({ id, name }))} />}
                 <ul className="record-list">
                     {expenses.map((expense) => (
                         <li key={expense.id}>
