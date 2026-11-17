@@ -67,7 +67,7 @@ export default async function ReportsPage({ searchParams }: {
             <Card padding="lg">
                 <h2>{category ? 'Despesas da categoria selecionada' : 'Receitas versus despesas'}</h2>
                 {category && <p>Receitas não possuem categoria e não entram neste recorte. O comparativo anual permanece geral.</p>}
-                <p><Link href={`/api/reports/cashflow?period=${period}${category ?`&category=${encodeURIComponent(category)}` : ''} `}>Exportar mês atual em CSV</Link></p>
+                <p><Link href={`/api/reports/cashflow?period=${period}${category ? `&category=${encodeURIComponent(category)}` : ''}`}>Exportar mês atual em CSV</Link></p>
                 <div className="cashflow-chart" role="img" aria-label="Gráfico comparativo mensal de receitas e despesas">
                     {months.map((item) => (
                         <div key={item.period} className="cashflow-chart-month">
