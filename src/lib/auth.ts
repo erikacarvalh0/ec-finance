@@ -1,3 +1,4 @@
+import { canJoinBeta } from '@/lib/auth/beta-access';
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
 import { PrismaAdapter } from '@auth/prisma-adapter';
@@ -17,6 +18,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/sign-in',
   },
   callbacks: {
+    signIn({ account, profile }) {
+      if (process.env.BETA_ALLOWED_EMAILS === undefined) return true;
+      return account?.provider === 'google' && canJoinBeta(process.env.BETA_ALLOWED_EMAILS, profile?.email, profile?.email_verified);
+    },
     session({ session, user }) {
       session.user.id = user.id;
 
