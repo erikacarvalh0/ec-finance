@@ -8,3 +8,10 @@ export const securityHeaders = [
     { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
     { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
 ] as const;
+
+export function productionSecurityHeaders(production: boolean) {
+    return production ? [
+        { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
+        { key: 'Content-Security-Policy-Report-Only', value: "default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://accounts.google.com; script-src 'self'; style-src 'self'" },
+    ] : [];
+}
