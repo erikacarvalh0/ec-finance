@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
+import { reportCategoryWhere } from './category-query';
 
 type Database = Pick<PrismaClient, 'income' | 'expense' | 'transaction'>;
 
@@ -68,6 +69,7 @@ export async function getUserMonthlyCashflowReport(
     userId: string,
     start: Date,
     count: number,
+    categoryId?: string,
 ) {
     if (!userId.trim()) {
         throw new Error('Authenticated user is required');
@@ -81,8 +83,9 @@ export async function getUserMonthlyCashflowReport(
         1,
     ));
 
+    const categoryWhere = reportCategoryWhere(userId, categoryId);
     const [incomes, expenses, transactions] = await Promise.all([
-        database.income.findMany({
+        categoryId !== undefined ? Promise.resolve([]) : database.income.findMany({
             where: {
                 userId,
                 OR: [
@@ -94,7 +97,7 @@ export async function getUserMonthlyCashflowReport(
         }),
         database.expense.findMany({
             where: {
-                userId,
+                ...categoryWhere,
                 OR: [
                     { date: { gte: from, lt: to } },
                     { date: null, createdAt: { gte: from, lt: to } },
@@ -108,7 +111,7 @@ export async function getUserMonthlyCashflowReport(
             },
         }),
         database.transaction.findMany({
-            where: { userId, occurredAt: { gte: from, lt: to } },
+            where: { ...categoryWhere, occurredAt: { gte: from, lt: to } },
             select: { amountInCents: true, occurredAt: true },
         }),
     ]);
