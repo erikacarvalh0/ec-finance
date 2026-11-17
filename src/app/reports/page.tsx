@@ -13,7 +13,7 @@ import { parseReportMonthRange } from '@/modules/reports/filters';
 export const dynamic = 'force-dynamic';
 
 export default async function ReportsPage({ searchParams }: {
-    searchParams: Promise<{ from?: string; to?: string }>;
+    searchParams: Promise<{ from?: string; to?: string; category?: string }>;
 }) {
     const session = await auth();
     if (!session?.user?.id) redirect('/sign-in');
@@ -27,10 +27,15 @@ export default async function ReportsPage({ searchParams }: {
         range = parseReportMonthRange({}, now);
     }
     const { from, count } = range;
+    const categories = await prisma.category.findMany({
+        where: { userId: session.user.id }, select: { id: true, name: true }, orderBy: { name: 'asc' },
+    });
+    const category = typeof filters.category === 'string' && (filters.category === 'uncategorized'
+        || categories.some(item => item.id === filters.category)) ? filters.category : undefined;
     const period = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
     const annualFrom = new Date(Date.UTC(now.getUTCFullYear() - 1, 0, 1));
     const [months, annualMonths, categoryReport] = await Promise.all([
-        getUserMonthlyCashflowReport(prisma, session.user.id, from, count),
+        getUserMonthlyCashflowReport(prisma, session.user.id, from, count, category),
         getUserMonthlyCashflowReport(prisma, session.user.id, annualFrom, 24),
         getCategoryBudgetReport(prisma, session.user.id, period),
     ]);
@@ -52,11 +57,17 @@ export default async function ReportsPage({ searchParams }: {
             <form method="get" action="/reports">
                 <label>De (AAAA-MM) <input name="from" type="month" defaultValue={range.from.toISOString().slice(0, 7)} required /></label>
                 <label>Até (AAAA-MM) <input name="to" type="month" defaultValue={range.lastPeriod} required /></label>
-                <button type="submit">Filtrar período (máximo 12 meses)</button>
+                <label>Categoria <select name="category" defaultValue={category ?? ''}>
+                    <option value="">Todas</option>
+                    <option value="uncategorized">Sem categoria</option>
+                    {categories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
+                </select></label>
+                <button type="submit">Filtrar relatório (máximo 12 meses)</button>
             </form>
             <Card padding="lg">
-                <h2>Receitas versus despesas</h2>
-                <p><Link href={`/api/reports/cashflow?period=${period}`}>Exportar mês atual em CSV</Link></p>
+                <h2>{category ? 'Despesas da categoria selecionada' : 'Receitas versus despesas'}</h2>
+                {category && <p>Receitas não possuem categoria e não entram neste recorte. O comparativo anual permanece geral.</p>}
+                <p><Link href={`/api/reports/cashflow?period=${period}`}>Exportar mês atual em CSV (sem filtro)</Link></p>
                 <div className="cashflow-chart" role="img" aria-label="Gráfico comparativo mensal de receitas e despesas">
                     {months.map((item) => (
                         <div key={item.period} className="cashflow-chart-month">
