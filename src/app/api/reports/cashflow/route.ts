@@ -20,7 +20,17 @@ export async function GET(request: NextRequest) {
         return Response.json({ error: 'Invalid reporting period' }, { status: 400 });
     }
 
-    const months = await getUserMonthlyCashflowReport(prisma, session.user.id, start, 1);
+    const category = request.nextUrl.searchParams.get('category') || undefined;
+    if (category !== undefined && category !== 'uncategorized') {
+        const ownedCategory = await prisma.category.findFirst({
+            where: { id: category, userId: session.user.id },
+            select: { id: true },
+        });
+        if (!ownedCategory) {
+            return Response.json({ error: 'Category not found' }, { status: 404 });
+        }
+    }
+    const months = await getUserMonthlyCashflowReport(prisma, session.user.id, start, 1, category);
 
     return new Response('\uFEFF' + formatCashflowCsv(months), {
         headers: {
