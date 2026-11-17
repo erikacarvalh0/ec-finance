@@ -132,6 +132,31 @@ describe('PostgreSQL category budget ownership', () => {
         }
     });
 
+    it('reallocates edited installments to the new category without retaining old amounts', async () => {
+        const newCategory = await prisma.category.create({ data: { userId: ownerId, name: 'Edited category' } });
+        const expense = await prisma.expense.create({ data: {
+            userId: ownerId, categoryId, description: 'Edited purchase',
+            amountInCents: BigInt(10001), paymentMethod: 'PIX', type: 'VARIABLE',
+            installments: 3, date: new Date('2028-01-15T00:00:00Z'),
+        } });
+        try {
+            const spent = async (period: string, id: string) =>
+                (await getCategoryBudgetReport(prisma, ownerId, period)).categories
+                    .find(row => row.categoryId === id)?.spentInCents;
+            expect(await spent('2028-01', categoryId)).toBe(BigInt(3334));
+            await prisma.expense.update({ where: { id: expense.id }, data: {
+                installments: 2, categoryId: newCategory.id,
+            } });
+            expect(await spent('2028-01', categoryId)).toBe(BigInt(0));
+            expect(await spent('2028-01', newCategory.id)).toBe(BigInt(5001));
+            expect(await spent('2028-02', newCategory.id)).toBe(BigInt(5000));
+            expect(await spent('2028-03', newCategory.id)).toBe(BigInt(0));
+        } finally {
+            await prisma.expense.delete({ where: { id: expense.id } });
+            await prisma.category.delete({ where: { id: newCategory.id } });
+        }
+    });
+
     it('does not reveal or change another user category budgets', async () => {
         await expect(setCategoryBudget(prisma, otherId, {
             categoryId, period: '2026-11', limitInCents: '1000',
