@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:integration": "vitest run --config vitest.integration.config.ts",
+    "check:beta": "node scripts/beta-preflight.mjs",
     "check:production": "node --experimental-strip-types scripts/check-production-env.mjs",
     "db:deploy": "prisma migrate deploy",
     "test:e2e": "playwright test"
