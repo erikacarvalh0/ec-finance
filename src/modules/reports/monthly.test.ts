@@ -61,3 +61,29 @@ describe('recorded cashflow reports', () => {
         expect(findMany).not.toHaveBeenCalled();
     });
 });
+
+describe('combined financial report filters', () => {
+    it('scopes both queries and counts linked purchases once', async () => {
+        const income = vi.fn().mockResolvedValue([]);
+        const expense = vi.fn().mockResolvedValue([
+            { amountInCents: BigInt(1001), date: new Date('2026-11-05'), linkedTransactionId: 'txn' },
+            { amountInCents: BigInt(502), date: new Date('2026-11-05'), linkedTransactionId: null },
+        ]);
+        const transaction = vi.fn().mockResolvedValue([
+            { amountInCents: BigInt(1001), occurredAt: new Date('2026-11-05') },
+        ]);
+        const database = {
+            income: { findMany: income }, expense: { findMany: expense },
+            transaction: { findMany: transaction },
+        } as unknown as Parameters<typeof getUserMonthlyCashflowReport>[0];
+        const [month] = await getUserMonthlyCashflowReport(database, 'owner', new Date('2026-11-01'), 1, 'category', 'card');
+        expect(income).not.toHaveBeenCalled();
+        for (const query of [expense, transaction]) {
+            expect(query).toHaveBeenCalledWith(expect.objectContaining({
+                where: expect.objectContaining({ userId: 'owner', categoryId: 'category', cardId: 'card' }),
+            }));
+        }
+        expect(month.expenseInCents).toBe(BigInt(1503));
+        expect(month.netInCents).toBe(BigInt(-1503));
+    });
+});
