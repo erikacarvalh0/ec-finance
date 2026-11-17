@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { securityHeaders } from './security-headers';
+import { productionSecurityHeaders, securityHeaders } from './security-headers';
 
 describe('HTTP security headers', () => {
     it('blocks MIME sniffing and cross-origin framing', () => {
@@ -12,5 +12,11 @@ describe('HTTP security headers', () => {
 
     it('does not impose a speculative CSP on OAuth or design-system resources', () => {
         expect(Object.keys(Object.fromEntries(securityHeaders.map(({ key, value }) => [key, value])))).not.toContain('Content-Security-Policy');
+    });
+    it('adds HSTS and report-only CSP only for production', () => {
+        expect(productionSecurityHeaders(false)).toEqual([]);
+        expect(productionSecurityHeaders(true).map(header => header.key)).toEqual([
+            'Strict-Transport-Security', 'Content-Security-Policy-Report-Only',
+        ]);
     });
 });
