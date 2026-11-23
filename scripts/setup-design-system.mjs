@@ -30,7 +30,8 @@ try {
 
   run('npm', ['install', '--no-audit', '--no-fund'], library);
   run('npm', ['run', 'build'], library);
-  run('npm', ['install', '--no-save', '--install-links', '--no-audit', '--no-fund', './.design-system/packages/react']);
+  // Keep build-time TypeScript and Prisma dependencies even when NODE_ENV=production.
+  run('npm', ['install', '--include=dev', '--no-save', '--install-links', '--no-audit', '--no-fund', './.design-system/packages/react']);
   console.log('EC Design System ready at revision ' + REVISION);
 } catch (error) {
   console.error('Design system setup failed. Verify Git, npm and GitHub access.');
