@@ -18,7 +18,8 @@
     "check:beta": "node scripts/beta-preflight.mjs",
     "check:production": "node --experimental-strip-types scripts/check-production-env.mjs",
     "db:deploy": "prisma migrate deploy",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "vercel-build": "npm run setup:ds && npm run db:generate && npm run build"
   },
   "dependencies": {
     "next": "^15.5.0",
