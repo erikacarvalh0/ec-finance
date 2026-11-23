@@ -2,6 +2,8 @@
 
 This workflow is deliberately **manual only**. It is not triggered by commits, pull requests, merges, or Vercel deployments.
 
+The repository currently has no `package-lock.json`; the migration job uses `npm install --include=dev` rather than `npm ci`, and therefore package versions are not fully locked. A committed lockfile is recommended for reproducible future migrations.
+
 ## One-time GitHub setup
 
 1. In the **Neon** project, select the database branch named **staging**. Use **Connect** and copy its PostgreSQL connection string (including its password). Prefer a dedicated database role limited to the staging branch. Do not use the Neon production branch connection string.
