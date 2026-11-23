@@ -88,10 +88,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
 
-      - name: Install pinned dependencies
-        run: npm ci --ignore-scripts
+      - name: Install dependencies without a lockfile
+        run: npm install --include=dev --no-audit --no-fund
 
       - name: Validate Prisma schema
         run: npx prisma validate
