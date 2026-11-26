@@ -1,0 +1,23 @@
+name: ECDS v1 package preview
+on: [pull_request, workflow_dispatch]
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: erikacarvalh0/erikacarvalho-ds-v1
+          ref: f2e48010972951c6382a81ee117a0f217565e005
+          path: ecds-preview
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: yarn install --frozen-lockfile && npm pack --pack-destination "$RUNNER_TEMP"
+        working-directory: ecds-preview
+      - run: |
+          mkdir "$RUNNER_TEMP/finance-preview"
+          cd "$RUNNER_TEMP/finance-preview"
+          npm init -y
+          npm install --legacy-peer-deps react@19.1.0 react-dom@19.1.0 "$RUNNER_TEMP"/erikacarvalho-react-1.0.0.tgz
+          node -e "const R=require('react');const S=require('react-dom/server');const D=require('@erikacarvalho/react');if(!S.renderToStaticMarkup(R.createElement(D.Card,{title:'Finance preview',subtitle:'ECDS v1'})).includes('Finance preview'))throw Error('Card failed')"
