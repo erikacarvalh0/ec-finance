@@ -1,10 +1,23 @@
 'use client';
 
-import { useState, type FormEvent, type ChangeEvent } from 'react';
+import { useRef, useState, type ComponentProps } from 'react';
 import { Accordion } from '@erikacarvalho/react/Accordion';
-import { Button, Card, Input, Select } from '@/components/ecds-v1/compat';
+import { Input } from '@erikacarvalho/react/Input';
+import { Select } from '@erikacarvalho/react/Select';
+import { Form } from '@erikacarvalho/react/Form';
+import { Card } from '@/components/ecds-v1/compat';
 import { toCents, submitJson, useFeedback } from '@/components/finance/form-utils';
+import { validateAmount, validateDescription, validateInstallments } from './validation';
 import styles from './index.module.css';
+
+const paymentOptions = [
+    { value: 'PIX', label: 'Pix' },
+    { value: 'CREDIT', label: 'Crédito' },
+    { value: 'DEBIT', label: 'Débito' },
+    { value: 'AUTOMATIC_DEBIT', label: 'Débito automático' },
+    { value: 'OTHER', label: 'Outros' },
+];
+const typeOptions = [{ value: 'VARIABLE', label: 'Variável' }, { value: 'FIXED', label: 'Fixa' }];
 
 export function ExpenseForm({
     cards = [],
@@ -17,103 +30,59 @@ export function ExpenseForm({
 }) {
     const feedback = useFeedback();
     const [paymentMethod, setPaymentMethod] = useState('PIX');
-    const [type, setType] = useState('VARIABLE');
+    const [revision, setRevision] = useState(0);
+    const saving = useRef(false);
 
-    function handlePaymentChange(event: ChangeEvent<HTMLSelectElement>) {
-        setPaymentMethod(event.target.value);
+    function handlePaymentChange(value: string) {
+        setPaymentMethod(value);
     }
 
-    function handleTypeChange(event: ChangeEvent<HTMLSelectElement>) {
-        setType(event.target.value);
-    }
-
-    async function onSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        const form = event.currentTarget;
-        const data = new FormData(form);
-
-        await feedback.save(async () => {
-            await submitJson('/api/expenses', {
-                description: String(data.get('description')),
-                amountInCents: toCents(String(data.get('amount'))),
-                paymentMethod,
-                type,
-                installments: Number(data.get('installments') || 1),
-                ...(data.get('categoryId')
-                    ? { categoryId: String(data.get('categoryId')) }
-                    : {}),
-                ...(paymentMethod === 'CREDIT' && data.get('cardId')
-                    ? { cardId: String(data.get('cardId')) }
-                    : {}),
-                ...(data.get('date') ? { date: String(data.get('date')) } : {}),
+    const handleSubmit: NonNullable<ComponentProps<typeof Form>['handleSubmit']> = async (values) => {
+        if (saving.current) return;
+        saving.current = true;
+        try {
+            await feedback.save(async () => {
+                await submitJson('/api/expenses', {
+                    description: String(values.description).trim(),
+                    amountInCents: toCents(String(values.amount)),
+                    paymentMethod: String(values.paymentMethod),
+                    type: String(values.type),
+                    installments: Number(values.installments || 1),
+                    ...(values.categoryId ? { categoryId: String(values.categoryId) } : {}),
+                    ...(values.paymentMethod === 'CREDIT' && values.cardId ? { cardId: String(values.cardId) } : {}),
+                    ...(values.date ? { date: String(values.date) } : {}),
+                });
+                setPaymentMethod('PIX');
+                setRevision(previous => previous + 1);
             });
-
-            form.reset();
-        });
-    }
+        } finally {
+            saving.current = false;
+        }
+    };
 
     return (
         <Card padding="lg">
             <Accordion title="Nova despesa" size="large" hasArrow defaultOpen={monthlyExpenseCount < 5}>
-                <form onSubmit={onSubmit} className={styles.form}>
-                    <label>Valor (R$)
-                        <Input name="amount" inputMode="decimal" placeholder="150,00" required />
-                    </label>
-                    <label className={styles.description}>Descrição
-                        <Input name="description" maxLength={255} required />
-                    </label>
-                    <label>Tipo
-                        <Select value={type} onChange={handleTypeChange}>
-                            <option value="VARIABLE">Variável</option>
-                            <option value="FIXED">Fixa</option>
-                        </Select>
-                    </label>
-                    <label>Forma de pagamento
-                        <Select value={paymentMethod} onChange={handlePaymentChange}>
-                            <option value="PIX">Pix</option>
-                            <option value="CREDIT">Crédito</option>
-                            <option value="DEBIT">Débito</option>
-                            <option value="AUTOMATIC_DEBIT">Débito automático</option>
-                            <option value="OTHER">Outros</option>
-                        </Select>
-                    </label>
-                    {paymentMethod === 'CREDIT' && (
-                        <label>
-                            Cartão (opcional)
-                            <Select name="cardId" defaultValue="">
-                                <option value="">Sem cartão associado</option>
-                                {cards.map((card) => (
-                                    <option key={card.id} value={card.id}>{card.name}</option>
-                                ))}
-                            </Select>
-                        </label>
-                    )}
-                    <label>
-                        Categoria (opcional)
-                        <Select name="categoryId" defaultValue="">
-                            <option value="">Sem categoria</option>
-                            {categories.map((category) => (
-                                <option key={category.id} value={category.id}>
-                                    {category.name}
-                                </option>
-                            ))}
-                        </Select>
-                    </label>
-                    <label>Data (opcional)
-                        <Input name="date" type="date" />
-                    </label>
-                    {['PIX', 'CREDIT', 'OTHER'].includes(paymentMethod) && (
-                        <label>Parcelas
-                            <Input name="installments" type="number" min={1} max={120} defaultValue={1} required />
-                        </label>
-                    )}
-                    <div className={styles.submit}>
-                        <Button type="submit" disabled={feedback.saving}>Salvar despesa</Button>
-                    </div>
+                <div aria-busy={feedback.saving}>
+                    <fieldset disabled={feedback.saving} className={styles.fields}>
+                        <Form key={revision} customClass={styles.form} handleSubmit={handleSubmit} buttonText="Salvar">
+                            <Input name="amount" label="Valor (R$)" isRequired validate={validateAmount} />
+                            <Input name="description" label="Descrição" isRequired validate={validateDescription} customClass={styles.description} />
+                            <Select name="type" label="Tipo" options={typeOptions} defaultValue="VARIABLE" isRequired />
+                            <Select name="paymentMethod" label="Forma de pagamento" options={paymentOptions} defaultValue="PIX" isRequired onValueChange={handlePaymentChange} />
+                            <Select name="categoryId" label="Categoria (opcional)" options={[{ value: '', label: 'Sem categoria' }, ...categories.map(category => ({ value: category.id, label: category.name }))]} defaultValue="" />
+                            <Input name="date" label="Data (opcional)" type="date" />
+                            {['PIX', 'CREDIT', 'OTHER'].includes(paymentMethod) ? (
+                                <Input name="installments" label="Parcelas" type="number" defaultValue="1" isRequired validate={validateInstallments} />
+                            ) : <></>}
+                            {paymentMethod === 'CREDIT' ? (
+                                <Select name="cardId" label="Cartão (opcional)" options={[{ value: '', label: 'Sem cartão associado' }, ...cards.map(card => ({ value: card.id, label: card.name }))]} defaultValue="" />
+                            ) : <></>}
+                        </Form>
+                    </fieldset>
                     <p className={styles.feedback} role="status">{feedback.message}</p>
-                </form>
+                </div>
             </Accordion>
         </Card>
     );
 }
-

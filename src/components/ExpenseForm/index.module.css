@@ -1,33 +1,21 @@
-.form {
+.fields {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+}
+
+.form:global(.form) {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1rem;
-
-    label {
-        display: grid;
-        gap: 0.5rem;
-        min-width: 0;
-    }
-
-    input,
-    select {
-        width: 100%;
-        background: transparent;
-        border: 0;
-        border-bottom: 2px solid var(--acqua);
-        padding: 0.75rem 0;
-    }
 
     .description {
         grid-column: span 3;
     }
 
-    .submit,
-    .feedback {
+    > button[type="submit"] {
         grid-column: 1 / -1;
-    }
-
-    .submit {
         justify-self: end;
     }
 
