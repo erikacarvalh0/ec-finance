@@ -1,3 +1,4 @@
+import { Page } from '@/components/Page';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ecds-v1/compat';
@@ -9,6 +10,7 @@ import { listCategories } from '@/modules/categories/service';
 import { LinkImportedTransactionForm } from '@/components/cards/card-forms';
 import { BulkCategoryForm } from '@/components/finance/bulk-category-form';
 import { ExpenseHistoryHeader } from '@/components/ExpenseHistoryHeader';
+import { ExpenseFilters } from '@/components/ExpenseFilters';
 import { ExpenseForm } from '@/components/finance/forms';
 import { RecordEditForm } from '@/components/finance/record-edit-form';
 import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
@@ -47,9 +49,12 @@ export default async function ExpensesPage({
         prisma.expense.count({ where: { userId: session.user.id, archivedAt: null } }),
         prisma.expense.count({ where: { userId: session.user.id, archivedAt: { not: null } } }),
     ]);
-    const { visible, archived } = resolveExpenseHistoryView(activeCount, archivedCount, parseExpenseArchiveView(query.view));
+    const { visible, archived } = resolveExpenseHistoryView(
+        activeCount,
+        archivedCount,
+        parseExpenseArchiveView(query.view),
+    );
     const [history, cards, transactions, categories] = await Promise.all([
-
         listFilteredExpenses(prisma, session.user.id, {
             type,
             paymentMethod,
@@ -81,46 +86,18 @@ export default async function ExpensesPage({
     if (archived) nextQuery.set('view', 'archived');
 
     return (
-        <main className="finance-page">
-            <Link href="/">← Voltar ao dashboard</Link>
+        <Page>
+            <div className="finance-page">
             <h1>Despesas</h1>
             <ExpenseForm cards={cards} categories={categories} />
             {visible && (
                 <Card padding="lg">
-                    <ExpenseHistoryHeader archived={archived} hasArchived={archivedCount > 0} hasActive={activeCount > 0} />
-                    <form action="/expenses" className="finance-form">
-                        {archived && <input type="hidden" name="view" value="archived" />}
-                        <label>
-                            Pesquisar descrição
-                            <input
-                                name="search"
-                                type="search"
-                                maxLength={100}
-                                defaultValue={search}
-                                placeholder="Ex.: mercado"
-                            />
-                        </label>
-                        <label>
-                            Tipo de despesa
-                            <select name="type" defaultValue={type ?? ''}>
-                                <option value="">Todos os tipos</option>
-                                <option value="FIXED">Fixa</option>
-                                <option value="VARIABLE">Variável</option>
-                            </select>
-                        </label>
-                        <label>
-                            Forma de pagamento
-                            <select name="paymentMethod" defaultValue={paymentMethod ?? ''}>
-                                <option value="">Todas</option>
-                                <option value="PIX">Pix</option>
-                                <option value="CREDIT">Crédito</option>
-                                <option value="DEBIT">Débito</option>
-                                <option value="AUTOMATIC_DEBIT">Débito automático</option>
-                                <option value="OTHER">Outros</option>
-                            </select>
-                        </label>
-                        <button type="submit">Aplicar filtros</button>
-                    </form>
+                    <ExpenseHistoryHeader
+                        archived={archived}
+                        hasArchived={archivedCount > 0}
+                        hasActive={activeCount > 0}
+                    />
+                    <ExpenseFilters archived={archived} search={search} type={type} paymentMethod={paymentMethod} />
                     {expenses.length === 0 && <p>Nenhuma despesa registrada.</p>}
                     {!archived && expenses.length > 0 && <BulkCategoryForm rows={expenses.map(({ id, description, categoryId }) => ({ id, description, categoryId }))} categories={categories.map(({ id, name }) => ({ id, name }))} />}
                     <ul className="record-list">
@@ -180,6 +157,7 @@ export default async function ExpensesPage({
                     )}
                 </Card>
             )}
-        </main>
+            </div>
+        </Page>
     );
 }

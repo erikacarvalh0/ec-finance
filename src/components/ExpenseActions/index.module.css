@@ -1,0 +1,16 @@
+.container {
+    position: relative;
+}
+
+.actions {
+    display: grid;
+    position: absolute;
+    inset-inline-end: 0;
+    z-index: 2;
+    min-width: max-content;
+    background: var(--grey6);
+    color: var(--grey);
+    border: 1px solid var(--greyLight);
+    padding: 0.5rem;
+    gap: 0.25rem;
+}

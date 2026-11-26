@@ -1,3 +1,4 @@
+import { Page } from '@/components/Page';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ecds-v1/compat';
@@ -50,8 +51,8 @@ export default async function ReportsPage({ searchParams }: {
     }, BigInt(1));
 
     return (
-        <main className="finance-page">
-            <Link href="/">← Voltar ao dashboard</Link>
+        <Page>
+            <div className="finance-page">
             <h1>Relatórios financeiros</h1>
             <p>Receitas e despesas registradas no período selecionado, sem projeções futuras.</p>
             <form method="get" action="/reports">
@@ -150,6 +151,7 @@ export default async function ReportsPage({ searchParams }: {
                 )}
                 <p>Gastos sem categoria não entram nesta distribuição.</p>
             </Card>
-        </main>
+            </div>
+        </Page>
     );
 }
