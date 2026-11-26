@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { Page } from './page';
+import { Page } from './index';
 import { signOut } from 'next-auth/react';
 
 vi.mock('next-auth/react', () => ({ signOut: vi.fn().mockResolvedValue(undefined) }));
