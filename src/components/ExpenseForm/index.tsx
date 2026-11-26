@@ -77,17 +77,6 @@ export function ExpenseForm({
                             <option value="OTHER">Outros</option>
                         </Select>
                     </label>
-                    {paymentMethod === 'CREDIT' && (
-                        <label>
-                            Cartão (opcional)
-                            <Select name="cardId" defaultValue="">
-                                <option value="">Sem cartão associado</option>
-                                {cards.map((card) => (
-                                    <option key={card.id} value={card.id}>{card.name}</option>
-                                ))}
-                            </Select>
-                        </label>
-                    )}
                     <label>
                         Categoria (opcional)
                         <Select name="categoryId" defaultValue="">
@@ -105,6 +94,17 @@ export function ExpenseForm({
                     {['PIX', 'CREDIT', 'OTHER'].includes(paymentMethod) && (
                         <label>Parcelas
                             <Input name="installments" type="number" min={1} max={120} defaultValue={1} required />
+                        </label>
+                    )}
+                    {paymentMethod === 'CREDIT' && (
+                        <label>
+                            Cartão (opcional)
+                            <Select name="cardId" defaultValue="">
+                                <option value="">Sem cartão associado</option>
+                                {cards.map((card) => (
+                                    <option key={card.id} value={card.id}>{card.name}</option>
+                                ))}
+                            </Select>
                         </label>
                     )}
                     <div className={styles.submit}>
