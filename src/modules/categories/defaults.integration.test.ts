@@ -1,8 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { describe, expect, it } from 'vitest';
 
-const enabled = process.env.RUN_CATEGORY_DB_TESTS === '1';
-describe.skipIf(!enabled)('category defaults on PostgreSQL', () => {
+if (!(process.env.DATABASE_URL ?? '').includes('ec_finance_test')) {
+    throw new Error('Category integration tests require ec_finance_test.');
+}
+describe('category defaults on PostgreSQL', () => {
     it('creates defaults once and never restores deleted categories', async () => {
         const db = new PrismaClient();
         let userId: string | undefined;
@@ -17,7 +19,7 @@ describe.skipIf(!enabled)('category defaults on PostgreSQL', () => {
             expect(food.color).toBe('#16C6A2');
             expect(food.iconBackground).toBe('#D4F7EE');
             await db.category.delete({ where: { id: food.id } });
-            await db.$queryRaw`SELECT initialize_finance_categories(${userId})::text`;
+            await db.$executeRaw`SELECT initialize_finance_categories(${userId})`;
             expect(await db.category.count({ where: { userId } })).toBe(9);
         } finally {
             if (userId) await db.user.delete({ where: { id: userId } });
