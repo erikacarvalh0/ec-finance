@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { listFilteredExpenses, parseExpenseHistoryFilters } from './history';
+import { listFilteredExpenses, parseExpenseHistoryFilters, matchesDueMonth } from './history';
 
 const findMany = vi.fn();
 const database = { expense: { findMany } } as unknown as Parameters<typeof listFilteredExpenses>[0];
@@ -80,41 +80,36 @@ describe('expense history filters', () => {
     });
 });
 
-it('filters by effective date and category before pagination', async () => {
-    findMany.mockResolvedValue([]);
-    await listFilteredExpenses(database, 'owner-a', { month: '2026-11', categoryId: 'category-a' });
-    const range = { gte: new Date('2026-11-01T00:00:00Z'), lt: new Date('2026-12-01T00:00:00Z') };
-    expect(findMany).toHaveBeenLastCalledWith(expect.objectContaining({
-        where: { userId: 'owner-a', archivedAt: null, categoryId: 'category-a', OR: [{ date: range }, { date: null, createdAt: range }] },
-    }));
+const month = new Date('2026-11-01T00:00:00Z');
+const expense = {
+    id: 'expense-a', description: 'Compra', amountInCents: BigInt(3000),
+    date: new Date('2026-09-30T00:00:00Z'), createdAt: month,
+    installments: 3, type: 'VARIABLE' as const, paymentMethod: 'CREDIT',
+    occurrences: [],
+};
+
+it('includes implicit pending installments in their due month', () => {
+    expect(matchesDueMonth(expense, month, 'PENDING')).toBe(true);
+    expect(matchesDueMonth(expense, new Date('2026-12-01T00:00:00Z'), 'PENDING')).toBe(false);
 });
 
+it('matches status only for the selected due month', () => {
+    const paid = { ...expense, occurrences: [{ dueMonth: month, status: 'SETTLED' }] };
+    expect(matchesDueMonth(paid, month, 'PENDING')).toBe(false);
+    expect(matchesDueMonth(paid, month, 'SETTLED')).toBe(true);
+    expect(matchesDueMonth(paid, new Date('2026-10-01T00:00:00Z'), 'PENDING')).toBe(true);
+});
 
-describe('status filtering', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-        findMany.mockResolvedValue([]);
-    });
+it('honors recurrence end dates', () => {
+    expect(matchesDueMonth({ ...expense, installments: 1, type: 'FIXED', endsOn: new Date('2026-10-01T00:00:00Z') }, month)).toBe(false);
+});
 
-    it('filters persisted occurrences by owner and status before pagination', async () => {
-        await listFilteredExpenses(database, 'owner-a', { status: 'SETTLED' });
-        expect(findMany).toHaveBeenLastCalledWith(expect.objectContaining({
-            where: { userId: 'owner-a', archivedAt: null, occurrences: { some: { userId: 'owner-a', status: 'SETTLED' } } },
-            take: 21,
-        }));
-    });
-
-    it('combines status with month and category filters', async () => {
-        await listFilteredExpenses(database, 'owner-a', {
-            status: 'PENDING', month: '2026-11', categoryId: 'category-a',
-        });
-        expect(findMany).toHaveBeenLastCalledWith(expect.objectContaining({
-            where: expect.objectContaining({
-                userId: 'owner-a',
-                categoryId: 'category-a',
-                occurrences: { some: { userId: 'owner-a', status: 'PENDING' } },
-                OR: expect.any(Array),
-            }),
-        }));
-    });
+it('filters scheduled occurrences before pagination', async () => {
+    findMany.mockResolvedValueOnce([expense, { ...expense, id: 'outside', installments: 1 }]);
+    const result = await listFilteredExpenses(database, 'owner-a', { month: '2026-11', status: 'PENDING', categoryId: 'category-a' });
+    expect(result.expenses.map(row => row.id)).toEqual(['expense-a']);
+    expect(findMany).toHaveBeenLastCalledWith(expect.objectContaining({
+        where: expect.objectContaining({ userId: 'owner-a', categoryId: 'category-a' }),
+        include: { occurrences: { where: { userId: 'owner-a', dueMonth: month } } },
+    }));
 });
