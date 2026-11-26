@@ -88,3 +88,33 @@ it('filters by effective date and category before pagination', async () => {
         where: { userId: 'owner-a', archivedAt: null, categoryId: 'category-a', OR: [{ date: range }, { date: null, createdAt: range }] },
     }));
 });
+
+
+describe('status filtering', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        findMany.mockResolvedValue([]);
+    });
+
+    it('filters persisted occurrences by owner and status before pagination', async () => {
+        await listFilteredExpenses(database, 'owner-a', { status: 'SETTLED' });
+        expect(findMany).toHaveBeenLastCalledWith(expect.objectContaining({
+            where: { userId: 'owner-a', archivedAt: null, occurrences: { some: { userId: 'owner-a', status: 'SETTLED' } } },
+            take: 21,
+        }));
+    });
+
+    it('combines status with month and category filters', async () => {
+        await listFilteredExpenses(database, 'owner-a', {
+            status: 'PENDING', month: '2026-11', categoryId: 'category-a',
+        });
+        expect(findMany).toHaveBeenLastCalledWith(expect.objectContaining({
+            where: expect.objectContaining({
+                userId: 'owner-a',
+                categoryId: 'category-a',
+                occurrences: { some: { userId: 'owner-a', status: 'PENDING' } },
+                OR: expect.any(Array),
+            }),
+        }));
+    });
+});

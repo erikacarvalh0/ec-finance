@@ -28,7 +28,7 @@ const currency = new Intl.NumberFormat('pt-BR', {
 export default async function ExpensesPage({
     searchParams,
 }: {
-    searchParams: Promise<{ type?: string; paymentMethod?: string; search?: string; cursor?: string; view?: string; month?: string; categoryId?: string }>;
+    searchParams: Promise<{ type?: string; paymentMethod?: string; search?: string; cursor?: string; view?: string; month?: string; categoryId?: string; status?: string }>;
 }) {
     const session = await auth();
 
@@ -45,6 +45,9 @@ export default async function ExpensesPage({
         ? query.paymentMethod as 'PIX' | 'CREDIT' | 'DEBIT' | 'AUTOMATIC_DEBIT' | 'OTHER'
         : undefined;
     const search = (query.search ?? '').trim().slice(0, 100);
+    const status = ['PENDING', 'SETTLED', 'CANCELED'].includes(query.status ?? '')
+        ? query.status as 'PENDING' | 'SETTLED' | 'CANCELED'
+        : undefined;
     const month = typeof query.month === 'string' && /^[1-9]\d{3}-(0[1-9]|1[0-2])$/.test(query.month) ? query.month : undefined;
     const categoryId = typeof query.categoryId === 'string' ? query.categoryId.trim().slice(0, 200) || undefined : undefined;
     const now = new Date();
@@ -67,6 +70,7 @@ export default async function ExpensesPage({
             search,
             month,
             categoryId,
+            status,
             cursor: query.cursor,
             archived,
         }),
@@ -91,6 +95,7 @@ export default async function ExpensesPage({
     if (paymentMethod) nextQuery.set('paymentMethod', paymentMethod);
     if (month) nextQuery.set('month', month);
     if (categoryId) nextQuery.set('categoryId', categoryId);
+    if (status) nextQuery.set('status', status);
     if (search) nextQuery.set('search', search);
     if (nextCursor) nextQuery.set('cursor', nextCursor);
     if (archived) nextQuery.set('view', 'archived');
@@ -107,7 +112,7 @@ export default async function ExpensesPage({
                         hasArchived={archivedCount > 0}
                         hasActive={activeCount > 0}
                     />
-                    <ExpenseFilters archived={archived} search={search} type={type} paymentMethod={paymentMethod} month={month} categoryId={categoryId} categories={categories} />
+                    <ExpenseFilters archived={archived} search={search} type={type} paymentMethod={paymentMethod} month={month} categoryId={categoryId} categories={categories} status={status} />
                     {expenses.length === 0 && <p>Nenhuma despesa registrada.</p>}
                     {!archived && expenses.length > 0 && <BulkCategoryForm rows={expenses.map(({ id, description, categoryId }) => ({ id, description, categoryId }))} categories={categories.map(({ id, name }) => ({ id, name }))} />}
                     <ul className="record-list">
