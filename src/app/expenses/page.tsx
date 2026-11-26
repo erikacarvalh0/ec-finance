@@ -10,6 +10,7 @@ import { listCategories } from '@/modules/categories/service';
 import { LinkImportedTransactionForm } from '@/components/cards/card-forms';
 import { BulkCategoryForm } from '@/components/finance/bulk-category-form';
 import { ExpenseHistoryHeader } from '@/components/ExpenseHistoryHeader';
+import { ExpenseFilters } from '@/components/ExpenseFilters';
 import { ExpenseForm } from '@/components/finance/forms';
 import { RecordEditForm } from '@/components/finance/record-edit-form';
 import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
@@ -84,39 +85,7 @@ export default async function ExpensesPage({
             <ExpenseForm cards={cards} categories={categories} />
             <Card padding="lg">
                 <ExpenseHistoryHeader archived={archived} hasArchived={archivedCount > 0} />
-                <form action="/expenses" className="finance-form">
-                    {archived && <input type="hidden" name="view" value="archived" />}
-                    <label>
-                        Pesquisar descrição
-                        <input
-                            name="search"
-                            type="search"
-                            maxLength={100}
-                            defaultValue={search}
-                            placeholder="Ex.: mercado"
-                        />
-                    </label>
-                    <label>
-                        Tipo de despesa
-                        <select name="type" defaultValue={type ?? ''}>
-                            <option value="">Todos os tipos</option>
-                            <option value="FIXED">Fixa</option>
-                            <option value="VARIABLE">Variável</option>
-                        </select>
-                    </label>
-                    <label>
-                        Forma de pagamento
-                        <select name="paymentMethod" defaultValue={paymentMethod ?? ''}>
-                            <option value="">Todas</option>
-                            <option value="PIX">Pix</option>
-                            <option value="CREDIT">Crédito</option>
-                            <option value="DEBIT">Débito</option>
-                            <option value="AUTOMATIC_DEBIT">Débito automático</option>
-                            <option value="OTHER">Outros</option>
-                        </select>
-                    </label>
-                    <button type="submit">Aplicar filtros</button>
-                </form>
+                <ExpenseFilters archived={archived} search={search} type={type} paymentMethod={paymentMethod} />
                 {expenses.length === 0 && <p>Nenhuma despesa registrada.</p>}
                 {!archived && expenses.length > 0 && <BulkCategoryForm rows={expenses.map(({ id, description, categoryId }) => ({ id, description, categoryId }))} categories={categories.map(({ id, name }) => ({ id, name }))} />}
                 <ul className="record-list">
