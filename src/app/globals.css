@@ -46,26 +46,10 @@ a {
 
 .layout {
     display: grid;
-    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-columns: 16rem minmax(0, 1fr);
     min-height: 100vh;
 }
 
-aside {
-    padding: 28px;
-    background: white;
-    border-right: 1px solid #eae7f2;
-}
-
-aside strong {
-    color: #7656d6;
-    font-size: 23px;
-}
-
-.side-navigation {
-    display: grid;
-    gap: 16px;
-    margin: 36px 0;
-}
 
 .table-scroll {
     overflow-x: auto;
@@ -149,17 +133,9 @@ th {
     display: flex;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 767px) {
     .layout {
         display: block;
-    }
-
-    aside {
-        padding: 16px;
-    }
-
-    .side-navigation {
-        grid-template-columns: repeat(2, 1fr);
     }
 }
 

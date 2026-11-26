@@ -1,10 +1,10 @@
 'use client';
 import type { ReactNode } from 'react';
-import { Button } from '@/components/ecds-v1/compat';
+import { Button } from '@erikacarvalho/react/Button';
 import { signOut } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
-import { Sidebar } from '@erikacarvalho/react/Sidebar';
-import { Dashboard, Wallet, ArrowDown, ArrowUp, ChartBar, Calendar, CreditCard, Target } from '@erikacarvalho/react/Icons';
+import { usePathname, useRouter } from 'next/navigation';
+import { Header } from '@erikacarvalho/react/Header';
+import { Dashboard, Wallet, ArrowDown, ArrowUp, ChartBar, Calendar, CreditCard, Target, Logout } from '@erikacarvalho/react/Icons';
 
 const navigation = [
     { href: '/', label: 'Visão geral', Icon: Dashboard },
@@ -19,20 +19,26 @@ const navigation = [
 
 export function Page({ children }: { children: ReactNode }) {
     const pathname = usePathname() ?? '';
+    const router = useRouter();
     const items = navigation.map(({ Icon, href, label }) => ({
-        href, label, icon: <Icon />,
-        active: href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/'),
+        href, text: label, icon: <Icon />,
+        isActive: href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/'),
     }));
     return (
         <div className="layout">
-            <Sidebar brand={<span>ec finance.</span>} navigationLabel="Menu principal" items={items} footer={(
-                <form onSubmit={async (event) => {
-                    event.preventDefault();
-                    await signOut({ redirectTo: '/sign-in' });
-                }}>
-                    <Button type="submit" variant="ghost">Sair</Button>
-                </form>
-            )} />
+            <Header
+                isFixed
+                title="EC Finance"
+                logo={<span>ec finance.</span>}
+                logoHref="/"
+                links={items}
+                routerContext={(href: string) => router.push(href)}
+                footerContent={
+                    <Button theme="neutral" type="button" action={() => { void signOut({ redirectTo: '/sign-in' }); }}>
+                        <Logout aria-hidden="true" /> Sair
+                    </Button>
+                }
+            />
             <main>{children}</main>
         </div>
     );
