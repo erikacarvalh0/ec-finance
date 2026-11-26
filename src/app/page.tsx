@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { CashflowChart } from '@/components/CashflowChart';
+import { ExpensesByCategory } from '@/components/ExpensesByCategory';
 import { FinancialSummary } from '@/components/FinancialSummary';
 import { FinancialOverview } from '@/components/FinancialOverview';
 import { Page } from '@/components/Page';
@@ -86,6 +87,12 @@ export default async function DashboardPage() {
                 <CashflowChart
                     income={Number(recorded.incomeInCents)}
                     expenses={Number(recorded.expenseInCents)}
+                />
+                <ExpensesByCategory
+                    categories={budgetReport.categories.map(category => ({
+                        name: category.name,
+                        cents: Number(category.spentInCents),
+                    }))}
                 />
                 <FinancialOverview
                     fixed={Number(fixed.totalInCents)}
