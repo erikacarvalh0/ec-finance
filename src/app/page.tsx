@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { CashflowChart } from '@/components/CashflowChart';
 import { FinancialSummary } from '@/components/FinancialSummary';
 import { FinancialOverview } from '@/components/FinancialOverview';
 import { Page } from '@/components/Page';
@@ -81,6 +82,10 @@ export default async function DashboardPage() {
                     income={Number(recorded.incomeInCents)}
                     expenses={Number(recorded.expenseInCents)}
                     balance={Number(recorded.netInCents)}
+                />
+                <CashflowChart
+                    income={Number(recorded.incomeInCents)}
+                    expenses={Number(recorded.expenseInCents)}
                 />
                 <FinancialOverview
                     fixed={Number(fixed.totalInCents)}
