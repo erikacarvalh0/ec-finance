@@ -20,6 +20,7 @@ model User {
   sessions      Session[]
   connections   BankConnection[]
   categories    Category[]
+  categoriesInitializedAt DateTime?
   transactions  Transaction[]
   expenses      Expense[]
   incomes       Income[]
@@ -103,16 +104,27 @@ model CreditCard {
   @@index([userId])
 }
 
+enum CategoryType {
+  EXPENSE
+  INCOME
+}
+
 model Category {
   id           String        @id @default(cuid())
   userId       String
   name         String
+  type         CategoryType @default(EXPENSE)
+  color        String @default("#929BAA")
+  iconBackground String @default("#EDF0F5")
+  icon         String @default("ellipsis")
+  sortOrder    Int @default(1000)
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
   expenses     Expense[]
   budgets      CategoryBudget[]
+  incomes      Income[]
 
-  @@unique([userId, name])
+  @@unique([userId, type, name])
   @@unique([id, userId])
 }
 
@@ -186,6 +198,8 @@ model Income {
     userId        String
     amountInCents BigInt
     type          IncomeType
+    categoryId    String?
+    category      Category? @relation(fields: [categoryId, userId], references: [id, userId], onDelete: Restrict)
     responsible   String?
     description   String?
     date          DateTime?   @db.Date

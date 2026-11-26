@@ -2,6 +2,10 @@ import { redirect } from 'next/navigation';
 import { User, Target, Wallet, Info } from '@erikacarvalho/react/Icons';
 import { SecuritySettings } from '@/components/SecuritySettings';
 import { getSecuritySettings } from '@/modules/settings/security';
+import { PreferencesSettings } from '@/components/PreferencesSettings';
+import { getPreferences } from '@/modules/settings/preferences';
+import { CategorySettings } from '@/components/CategorySettings';
+import { listManagedCategories } from '@/modules/categories/management';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { SettingsLayout, SettingsGrid } from '@/components/SettingsLayout';
@@ -15,7 +19,11 @@ export default async function SettingsPage() {
     const session = await auth();
     if (!session?.user?.id) redirect('/sign-in');
 
-    const security = await getSecuritySettings(prisma, session.user.id);
+    const [categories, preferences, security] = await Promise.all([
+        listManagedCategories(prisma, session.user.id),
+        getPreferences(prisma, session.user.id),
+        getSecuritySettings(prisma, session.user.id),
+    ]);
 
     return (
         <SettingsLayout>
@@ -25,10 +33,10 @@ export default async function SettingsPage() {
                     <ProfileSettings name={session.user.name ?? null} email={session.user.email ?? null} />
                 </SettingsCard>
                 <SettingsCard id="preferences-title" title="Preferências" description="Personalize a experiência do Finanças." icon={<Target />}>
-                    <p>As preferências de moeda, tema e notificações estarão disponíveis em uma próxima atualização.</p>
+                    <PreferencesSettings initialPreferences={preferences} />
                 </SettingsCard>
                 <SettingsCard id="categories-title" title="Categorias" description="Gerencie as categorias de receitas e despesas." icon={<Wallet />}>
-                    <p>O gerenciamento de categorias será disponibilizado em uma próxima atualização.</p>
+                    <CategorySettings initialCategories={categories} />
                 </SettingsCard>
                 <SettingsCard id="security-title" title="Segurança" description="Gerencie o acesso à sua conta." icon={<Info />}>
                     <SecuritySettings googleConnected={security.googleConnected} />

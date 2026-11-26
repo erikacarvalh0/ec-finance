@@ -22,8 +22,8 @@ describe('category service', () => {
         await listCategories(database, 'owner-a');
 
         expect(findMany).toHaveBeenCalledWith({
-            where: { userId: 'owner-a' },
-            orderBy: { name: 'asc' },
+            where: { userId: 'owner-a', type: 'EXPENSE' },
+            orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
             select: { id: true, name: true },
         });
     });

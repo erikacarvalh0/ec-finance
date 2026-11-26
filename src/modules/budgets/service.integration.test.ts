@@ -62,12 +62,13 @@ describe('PostgreSQL category budget ownership', () => {
 
         const report = await getCategoryBudgetReport(prisma, ownerId, '2026-11');
 
-        expect(report.categories).toEqual([expect.objectContaining({
+        expect(report.categories).toHaveLength(6);
+        expect(report.categories).toEqual(expect.arrayContaining([expect.objectContaining({
             categoryId,
             limitInCents: BigInt(20000),
             spentInCents: BigInt(16500),
             status: 'NEAR_LIMIT',
-        })]);
+        })]));
         expect(await prisma.categoryBudget.count({
             where: { userId: ownerId, categoryId, period: '2026-11' },
         })).toBe(1);
@@ -85,7 +86,7 @@ describe('PostgreSQL category budget ownership', () => {
         expect(results.filter(result => result.applied)).toHaveLength(1);
         await expect(applyBudgetRollover(prisma, otherId, input)).rejects.toThrow('Budget not found');
         await setCategoryBudget(prisma, ownerId, { categoryId, period: '2027-01', limitInCents: '12000' });
-        expect((await getCategoryBudgetReport(prisma, ownerId, '2027-01')).categories[0])
+        expect((await getCategoryBudgetReport(prisma, ownerId, '2027-01')).categories.find(row => row.categoryId === categoryId)!)
             .toMatchObject({ limitInCents: BigInt(15000), remainingInCents: BigInt(15000), rolloverApplied: true });
         expect(await applyBudgetRollover(prisma, ownerId, { ...input, capInCents: '9000' }))
             .toMatchObject({ applied: false });
@@ -95,7 +96,7 @@ describe('PostgreSQL category budget ownership', () => {
         expect(saved.rolloverInCents).toBe(BigInt(3000));
         expect(saved.rolloverCapInCents).toBe(BigInt(3000));
         await applyBudgetRollover(prisma, ownerId, { ...input, period: '2027-02', capInCents: '20000' });
-        expect((await getCategoryBudgetReport(prisma, ownerId, '2027-02')).categories[0].limitInCents)
+        expect((await getCategoryBudgetReport(prisma, ownerId, '2027-02')).categories.find(row => row.categoryId === categoryId)!.limitInCents)
             .toBe(BigInt(25000));
         await expect(prisma.categoryBudget.update({
             where: { id: saved.id }, data: { rolloverInCents: BigInt(3001) },
@@ -123,10 +124,10 @@ describe('PostgreSQL category budget ownership', () => {
             const april = await getCategoryBudgetReport(prisma, ownerId, '2027-04');
             const may = await getCategoryBudgetReport(prisma, ownerId, '2027-05');
             const june = await getCategoryBudgetReport(prisma, ownerId, '2027-06');
-            expect(march.categories[0].spentInCents).toBe(BigInt(8334));
-            expect(april.categories[0].spentInCents).toBe(BigInt(8334));
-            expect(may.categories[0].spentInCents).toBe(BigInt(8333));
-            expect(june.categories[0].spentInCents).toBe(BigInt(0));
+            expect(march.categories.find(row => row.categoryId === categoryId)!.spentInCents).toBe(BigInt(8334));
+            expect(april.categories.find(row => row.categoryId === categoryId)!.spentInCents).toBe(BigInt(8334));
+            expect(may.categories.find(row => row.categoryId === categoryId)!.spentInCents).toBe(BigInt(8333));
+            expect(june.categories.find(row => row.categoryId === categoryId)!.spentInCents).toBe(BigInt(0));
         } finally {
             await prisma.expense.deleteMany({ where: { id: { in: [recurring.id, installment.id] } } });
         }
@@ -163,7 +164,10 @@ describe('PostgreSQL category budget ownership', () => {
         })).rejects.toThrow('Category not found');
 
         const report = await getCategoryBudgetReport(prisma, otherId, '2026-11');
-        expect(report.categories).toEqual([]);
+        expect(report.categories).toHaveLength(5);
+        expect(report.categories.every(row => row.categoryId !== categoryId && row.spentInCents === BigInt(0) && row.limitInCents === null)).toBe(true);
+        const incomeCategory = await prisma.category.findFirstOrThrow({ where: { userId: otherId, type: 'INCOME' } });
+        await expect(setCategoryBudget(prisma, otherId, { categoryId: incomeCategory.id, period: '2026-11', limitInCents: '1000' })).rejects.toThrow('Category not found');
     });
 
     it('rejects direct foreign-owned category relationships in PostgreSQL', async () => {
