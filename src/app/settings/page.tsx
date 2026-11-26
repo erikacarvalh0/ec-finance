@@ -1,5 +1,8 @@
 import { redirect } from 'next/navigation';
 import { User, Target, Wallet, Info } from '@erikacarvalho/react/Icons';
+import { SecuritySettings } from '@/components/SecuritySettings';
+import { getSecuritySettings } from '@/modules/settings/security';
+import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { SettingsLayout, SettingsGrid } from '@/components/SettingsLayout';
 import { SettingsHeader } from '@/components/SettingsHeader';
@@ -11,6 +14,8 @@ export const dynamic = 'force-dynamic';
 export default async function SettingsPage() {
     const session = await auth();
     if (!session?.user?.id) redirect('/sign-in');
+
+    const security = await getSecuritySettings(prisma, session.user.id);
 
     return (
         <SettingsLayout>
@@ -26,8 +31,7 @@ export default async function SettingsPage() {
                     <p>O gerenciamento de categorias será disponibilizado em uma próxima atualização.</p>
                 </SettingsCard>
                 <SettingsCard id="security-title" title="Segurança" description="Gerencie o acesso à sua conta." icon={<Info />}>
-                    <p>O acesso ao EC Finance utiliza sua conta Google.</p>
-                    <a href="https://myaccount.google.com/security" target="_blank" rel="noopener noreferrer">Gerenciar conta Google</a>
+                    <SecuritySettings googleConnected={security.googleConnected} />
                 </SettingsCard>
             </SettingsGrid>
         </SettingsLayout>
