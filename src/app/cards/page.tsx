@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Page } from '@/components/dashboard/page';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ecds-v1/compat';
 import { auth } from '@/lib/auth';
@@ -33,8 +34,8 @@ export default async function CardsPage() {
     });
 
     return (
-        <main className="finance-page">
-            <Link href="/">← Voltar ao dashboard</Link>
+        <Page>
+            <div className="finance-page">
             <h1>Cartões e faturas</h1>
             <p>
                 Configure as datas de fechamento e vencimento. O valor da fatura é calculado
@@ -76,6 +77,7 @@ export default async function CardsPage() {
                     </Card>
                 ))}
             </div>
-        </main>
+            </div>
+        </Page>
     );
 }
