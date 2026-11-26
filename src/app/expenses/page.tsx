@@ -8,6 +8,7 @@ import { listUserCards } from '@/modules/cards/service';
 import { listCategories } from '@/modules/categories/service';
 import { LinkImportedTransactionForm } from '@/components/cards/card-forms';
 import { BulkCategoryForm } from '@/components/finance/bulk-category-form';
+import { ExpenseHistoryHeader } from '@/components/ExpenseHistoryHeader';
 import { ExpenseForm } from '@/components/finance/forms';
 import { RecordEditForm } from '@/components/finance/record-edit-form';
 import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
@@ -42,7 +43,7 @@ export default async function ExpensesPage({
         : undefined;
     const search = (query.search ?? '').trim().slice(0, 100);
     const archived = parseExpenseArchiveView(query.view);
-    const [history, cards, transactions, categories] = await Promise.all([
+    const [history, cards, transactions, categories, archivedCount] = await Promise.all([
 
         listFilteredExpenses(prisma, session.user.id, {
             type,
@@ -64,6 +65,7 @@ export default async function ExpensesPage({
             take: 100,
         }),
         listCategories(prisma, session.user.id),
+        prisma.expense.count({ where: { userId: session.user.id, archivedAt: { not: null } } }),
     ]);
 
     const { expenses, nextCursor } = history;
@@ -80,8 +82,7 @@ export default async function ExpensesPage({
             <h1>Despesas</h1>
             <ExpenseForm cards={cards} categories={categories} />
             <Card padding="lg">
-                <h2>Histórico de despesas</h2>
-                <p><Link href={archived ? '/expenses' : '/expenses?view=archived'}>{archived ? 'Ver despesas ativas' : 'Ver despesas arquivadas'}</Link></p>
+                <ExpenseHistoryHeader archived={archived} hasArchived={archivedCount > 0} />
                 <form action="/expenses" className="finance-form">
                     {archived && <input type="hidden" name="view" value="archived" />}
                     <label>
