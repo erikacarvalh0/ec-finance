@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type KeyboardEvent } from 'react';
 import { Button } from '@/components/ecds-v1/compat';
 import styles from './index.module.css';
 
@@ -36,23 +36,31 @@ export function ExpenseActions({
         ]) as Array<[ExpenseAction, string]>,
     ];
 
+    function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+        if (event.key === 'Escape') {
+            setOpen(false);
+            event.currentTarget.querySelector('button')?.focus();
+        }
+    }
+
+    function handleToggle() {
+        setOpen(previous => !previous);
+    }
+
+    function handleAction(action: ExpenseAction) {
+        setOpen(false);
+        handlers[action]?.();
+    }
+
     return (
-        <div className={styles.container} onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-                setOpen(false);
-                event.currentTarget.querySelector('button')?.focus();
-            }
-        }}>
-            <Button type="button" aria-label={`Ações de ${description}`} aria-expanded={open} onClick={() => setOpen(!open)}>
+        <div className={styles.container} onKeyDown={handleKeyDown}>
+            <Button type="button" aria-label={`Ações de ${description}`} aria-expanded={open} onClick={handleToggle}>
                 …
             </Button>
             {open && (
                 <div className={styles.actions}>
                     {actions.filter(([action]) => handlers[action]).map(([action, label]) => (
-                        <Button key={action} type="button" onClick={() => {
-                            setOpen(false);
-                            handlers[action]?.();
-                        }}>
+                        <Button key={action} type="button" onClick={() => handleAction(action)}>
                             {label}
                         </Button>
                     ))}
