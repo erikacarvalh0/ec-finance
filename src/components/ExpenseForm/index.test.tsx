@@ -22,13 +22,32 @@ it('shows installments only for supported payment methods and places card after 
 
 it('delegates field validation to ECDS and disables invalid submission', async () => {
     render(<ExpenseForm />);
-    const amount = screen.getByLabelText('Valor (R$)');
+    const amount = screen.getByLabelText('Valor (R$)') as HTMLInputElement;
+    const form = amount.closest('form')!;
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    expect(form.noValidate).toBe(true);
+    expect(submit.textContent).toContain('Salvar');
+
+    const description = screen.getByLabelText('Descrição');
+    fireEvent.change(description, { target: { value: 'Mercado' } });
+    fireEvent.blur(description);
     fireEvent.change(amount, { target: { value: 'abc' } });
     fireEvent.blur(amount);
-    expect(amount.getAttribute('aria-invalid')).toBe('true');
-    await waitFor(() => expect(screen.getByText(/Informe um valor com até duas casas decimais/).textContent).toContain('duas casas'));
-    await waitFor(() => expect((screen.getByRole('button', { name: 'Salvar' }) as HTMLButtonElement).disabled).toBe(true));
-    expect(amount.closest('form')?.noValidate).toBe(true);
+    await waitFor(() => {
+        expect(amount.getAttribute('aria-invalid')).toBe('true');
+        const errorId = amount.getAttribute('aria-describedby');
+        expect(errorId).toBeTruthy();
+        expect(document.getElementById(errorId!)?.textContent).toContain('duas casas');
+        expect(submit.disabled).toBe(true);
+    });
+
+    fireEvent.change(amount, { target: { value: '12,50' } });
+    fireEvent.blur(amount);
+    await waitFor(() => {
+        expect(amount.getAttribute('aria-invalid')).toBe('false');
+        expect(amount.hasAttribute('aria-describedby')).toBe(false);
+        expect(submit.disabled).toBe(false);
+    });
 });
 
 it.each([[0, true], [4, true], [5, false], [6, false]] as const)('sets initial accordion state for %s expenses', (count, open) => {
