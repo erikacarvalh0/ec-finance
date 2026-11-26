@@ -13,6 +13,7 @@ import { ExpenseForm } from '@/components/finance/forms';
 import { RecordEditForm } from '@/components/finance/record-edit-form';
 import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
 import { ExpenseArchiveButton } from '@/components/finance/expense-archive-button';
+import { resolveExpenseHistoryView } from '@/modules/expenses/history-visibility';
 import { parseExpenseArchiveView } from '@/modules/expenses/archive-view';
 
 export const dynamic = 'force-dynamic';
@@ -42,8 +43,12 @@ export default async function ExpensesPage({
         ? query.paymentMethod as 'PIX' | 'CREDIT' | 'DEBIT' | 'AUTOMATIC_DEBIT' | 'OTHER'
         : undefined;
     const search = (query.search ?? '').trim().slice(0, 100);
-    const archived = parseExpenseArchiveView(query.view);
-    const [history, cards, transactions, categories, archivedCount] = await Promise.all([
+    const [activeCount, archivedCount] = await Promise.all([
+        prisma.expense.count({ where: { userId: session.user.id, archivedAt: null } }),
+        prisma.expense.count({ where: { userId: session.user.id, archivedAt: { not: null } } }),
+    ]);
+    const { visible, archived } = resolveExpenseHistoryView(activeCount, archivedCount, parseExpenseArchiveView(query.view));
+    const [history, cards, transactions, categories] = await Promise.all([
 
         listFilteredExpenses(prisma, session.user.id, {
             type,
@@ -65,7 +70,6 @@ export default async function ExpensesPage({
             take: 100,
         }),
         listCategories(prisma, session.user.id),
-        prisma.expense.count({ where: { userId: session.user.id, archivedAt: { not: null } } }),
     ]);
 
     const { expenses, nextCursor } = history;
@@ -81,99 +85,101 @@ export default async function ExpensesPage({
             <Link href="/">← Voltar ao dashboard</Link>
             <h1>Despesas</h1>
             <ExpenseForm cards={cards} categories={categories} />
-            <Card padding="lg">
-                <ExpenseHistoryHeader archived={archived} hasArchived={archivedCount > 0} />
-                <form action="/expenses" className="finance-form">
-                    {archived && <input type="hidden" name="view" value="archived" />}
-                    <label>
-                        Pesquisar descrição
-                        <input
-                            name="search"
-                            type="search"
-                            maxLength={100}
-                            defaultValue={search}
-                            placeholder="Ex.: mercado"
-                        />
-                    </label>
-                    <label>
-                        Tipo de despesa
-                        <select name="type" defaultValue={type ?? ''}>
-                            <option value="">Todos os tipos</option>
-                            <option value="FIXED">Fixa</option>
-                            <option value="VARIABLE">Variável</option>
-                        </select>
-                    </label>
-                    <label>
-                        Forma de pagamento
-                        <select name="paymentMethod" defaultValue={paymentMethod ?? ''}>
-                            <option value="">Todas</option>
-                            <option value="PIX">Pix</option>
-                            <option value="CREDIT">Crédito</option>
-                            <option value="DEBIT">Débito</option>
-                            <option value="AUTOMATIC_DEBIT">Débito automático</option>
-                            <option value="OTHER">Outros</option>
-                        </select>
-                    </label>
-                    <button type="submit">Aplicar filtros</button>
-                </form>
-                {expenses.length === 0 && <p>Nenhuma despesa registrada.</p>}
-                {!archived && expenses.length > 0 && <BulkCategoryForm rows={expenses.map(({ id, description, categoryId }) => ({ id, description, categoryId }))} categories={categories.map(({ id, name }) => ({ id, name }))} />}
-                <ul className="record-list">
-                    {expenses.map((expense) => (
-                        <li key={expense.id}>
-                            <strong>{expense.description}</strong>
-                            <span>{currency.format(Number(expense.amountInCents) / 100)}</span>
-                            <small>
-                                {expense.type === 'FIXED' ? 'Fixa' : 'Variável'}
-                                {' · '}
-                                {expense.installments} parcela(s)
-                            </small>
-                            {!archived && expense.type === 'FIXED' && expense.installments === 1 && (
-                                <EndRecurrenceForm
-                                    kind="expense"
-                                    id={expense.id}
-                                    currentDate={expense.endsOn?.toISOString().slice(0, 10) ?? ''}
-                                />
-                            )}
-                            {!archived && expense.paymentMethod === 'CREDIT'
-                                && expense.cardId
-                                && !expense.linkedTransactionId && (
-                                <LinkImportedTransactionForm
-                                    expenseId={expense.id}
-                                    transactions={transactions
-                                        .filter((transaction) => transaction.cardId === expense.cardId)
-                                        .map((transaction) => ({
-                                            id: transaction.id,
-                                            description: transaction.description,
-                                            amountInCents: transaction.amountInCents.toString(),
-                                        }))}
-                                />
-                            )}
-                            {expense.linkedTransactionId && (
-                                <small>Vinculada à compra importada</small>
-                            )}
-                            {!archived && <RecordEditForm categories={categories} record={{
-                                kind: 'expense',
-                                id: expense.id,
-                                description: expense.description,
-                                amountInCents: expense.amountInCents.toString(),
-                                type: expense.type,
-                                paymentMethod: expense.paymentMethod,
-                                date: expense.date?.toISOString().slice(0, 10) ?? '',
-                                installments: expense.installments,
-                                endsOn: expense.endsOn?.toISOString().slice(0, 10) ?? '',
-                                categoryId: expense.categoryId ?? '',
-                            }} />}
-                            <ExpenseArchiveButton id={expense.id} archived={archived} />
-                        </li>
-                    ))}
-                </ul>
-                {nextCursor && (
-                    <Link href={`/expenses?${nextQuery.toString()}`}>
-                        Carregar próximas 20 despesas
-                    </Link>
-                )}
-            </Card>
+            {visible && (
+                <Card padding="lg">
+                    <ExpenseHistoryHeader archived={archived} hasArchived={archivedCount > 0} hasActive={activeCount > 0} />
+                    <form action="/expenses" className="finance-form">
+                        {archived && <input type="hidden" name="view" value="archived" />}
+                        <label>
+                            Pesquisar descrição
+                            <input
+                                name="search"
+                                type="search"
+                                maxLength={100}
+                                defaultValue={search}
+                                placeholder="Ex.: mercado"
+                            />
+                        </label>
+                        <label>
+                            Tipo de despesa
+                            <select name="type" defaultValue={type ?? ''}>
+                                <option value="">Todos os tipos</option>
+                                <option value="FIXED">Fixa</option>
+                                <option value="VARIABLE">Variável</option>
+                            </select>
+                        </label>
+                        <label>
+                            Forma de pagamento
+                            <select name="paymentMethod" defaultValue={paymentMethod ?? ''}>
+                                <option value="">Todas</option>
+                                <option value="PIX">Pix</option>
+                                <option value="CREDIT">Crédito</option>
+                                <option value="DEBIT">Débito</option>
+                                <option value="AUTOMATIC_DEBIT">Débito automático</option>
+                                <option value="OTHER">Outros</option>
+                            </select>
+                        </label>
+                        <button type="submit">Aplicar filtros</button>
+                    </form>
+                    {expenses.length === 0 && <p>Nenhuma despesa registrada.</p>}
+                    {!archived && expenses.length > 0 && <BulkCategoryForm rows={expenses.map(({ id, description, categoryId }) => ({ id, description, categoryId }))} categories={categories.map(({ id, name }) => ({ id, name }))} />}
+                    <ul className="record-list">
+                        {expenses.map((expense) => (
+                            <li key={expense.id}>
+                                <strong>{expense.description}</strong>
+                                <span>{currency.format(Number(expense.amountInCents) / 100)}</span>
+                                <small>
+                                    {expense.type === 'FIXED' ? 'Fixa' : 'Variável'}
+                                    {' · '}
+                                    {expense.installments} parcela(s)
+                                </small>
+                                {!archived && expense.type === 'FIXED' && expense.installments === 1 && (
+                                    <EndRecurrenceForm
+                                        kind="expense"
+                                        id={expense.id}
+                                        currentDate={expense.endsOn?.toISOString().slice(0, 10) ?? ''}
+                                    />
+                                )}
+                                {!archived && expense.paymentMethod === 'CREDIT'
+                                    && expense.cardId
+                                    && !expense.linkedTransactionId && (
+                                    <LinkImportedTransactionForm
+                                        expenseId={expense.id}
+                                        transactions={transactions
+                                            .filter((transaction) => transaction.cardId === expense.cardId)
+                                            .map((transaction) => ({
+                                                id: transaction.id,
+                                                description: transaction.description,
+                                                amountInCents: transaction.amountInCents.toString(),
+                                            }))}
+                                    />
+                                )}
+                                {expense.linkedTransactionId && (
+                                    <small>Vinculada à compra importada</small>
+                                )}
+                                {!archived && <RecordEditForm categories={categories} record={{
+                                    kind: 'expense',
+                                    id: expense.id,
+                                    description: expense.description,
+                                    amountInCents: expense.amountInCents.toString(),
+                                    type: expense.type,
+                                    paymentMethod: expense.paymentMethod,
+                                    date: expense.date?.toISOString().slice(0, 10) ?? '',
+                                    installments: expense.installments,
+                                    endsOn: expense.endsOn?.toISOString().slice(0, 10) ?? '',
+                                    categoryId: expense.categoryId ?? '',
+                                }} />}
+                                <ExpenseArchiveButton id={expense.id} archived={archived} />
+                            </li>
+                        ))}
+                    </ul>
+                    {nextCursor && (
+                        <Link href={`/expenses?${nextQuery.toString()}`}>
+                            Carregar próximas 20 despesas
+                        </Link>
+                    )}
+                </Card>
+            )}
         </main>
     );
 }
