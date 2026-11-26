@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 const root = process.cwd();
 const temp = mkdtempSync(join(tmpdir(), 'ecds-v1-'));
-const revision = '52b29ca300225dd70143becfae61b8fb6e97742f';
+const revision = '2067c5ee47ecaca397f3b76c827a65d44d76623b';
 const run = (command,args,cwd=temp) => execFileSync(command,args,{cwd,stdio:'inherit'});
 try {
   run('git',['init','--quiet']);
@@ -15,15 +15,17 @@ try {
   const icons = join(temp, 'src/atoms/Icons');
   const legacy = join(icons, 'index.ts');
   const entry = join(icons, 'index.tsx');
+  if (readdirSync(icons).includes('index.ts')) {
   const exports = new Set([...readFileSync(entry, 'utf8').split('\n'), ...readFileSync(legacy, 'utf8').split('\n')].filter(Boolean));
   writeFileSync(entry, [...exports].join('\n') + '\n');
   rmSync(legacy);
+  }
   // SVGR-style icons destructure title but the pinned revision omits its type.
   for (const name of ['ArrowDown', 'ArrowUp', 'Calendar', 'ChartBar', 'CreditCard', 'Dashboard', 'Info', 'Logout', 'Target', 'User', 'Wallet']) {
     const file = join(icons, name + '.tsx');
     const source = readFileSync(file, 'utf8');
     const fixed = source.replace('{ titleId?: string }', '{ title?: string; titleId?: string }');
-    if (fixed === source) throw Error('Unexpected ECDS icon signature: ' + name);
+    if (fixed === source && !source.includes('title?: string')) throw Error('Unexpected ECDS icon signature: ' + name);
     writeFileSync(file, fixed);
   }
   run('yarn',['install','--frozen-lockfile','--production=false']);
