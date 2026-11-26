@@ -18,3 +18,12 @@ it('navigates to selected month', () => {
     });
     expect(push).toHaveBeenCalledWith('/?month=2026-10');
 });
+
+it('does not navigate when the month is cleared', () => {
+    push.mockClear();
+    render(<MonthSelector month="2026-11" />);
+    fireEvent.change(screen.getByLabelText('Período'), {
+        target: { value: '' },
+    });
+    expect(push).not.toHaveBeenCalled();
+});

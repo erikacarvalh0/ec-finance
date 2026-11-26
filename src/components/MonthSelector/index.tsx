@@ -12,7 +12,7 @@ export function MonthSelector({ month }: { month: string }) {
                 type="month"
                 value={month}
                 onChange={event => {
-                    if (/^\d{4}-(0[1-9]|1[0-2])$/.test(event.target.value)) {
+                    if (/^[1-9]\d{3}-(0[1-9]|1[0-2])$/.test(event.target.value)) {
                         router.push('/?month=' + event.target.value);
                     }
                 }}
