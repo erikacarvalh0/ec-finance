@@ -1,0 +1,34 @@
+.header {
+    display: flex;
+    align-items: center;
+    gap: var(--gridSize2x, 16px);
+    margin-bottom: var(--finance-section-gap);
+}
+
+.icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 var(--settings-icon-size);
+    height: var(--settings-icon-size);
+    border-radius: var(--finance-icon-radius);
+    background: var(--acquaLight);
+    color: var(--acquaDark);
+}
+
+.icon svg {
+    width: 32px;
+    height: 32px;
+}
+
+.header h2 {
+    font-size: var(--settings-card-title-size);
+    font-weight: 700;
+    color: var(--finance-ink);
+    margin: 0;
+}
+
+.header p {
+    font-size: var(--settings-description-size);
+    line-height: var(--settings-description-line);
+    margin: 0;
+}

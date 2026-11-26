@@ -1,18 +1,18 @@
 .main {
-    --dashboard-background: #F4F7FA;
-    --dashboard-surface: #FAFBFD;
-    --dashboard-border: #E1E7F0;
-    --dashboard-ink: #101127;
-    --dashboard-padding: 40px;
-    --dashboard-gap: 24px;
-    --dashboard-radius: 18px;
-    --dashboard-title-size: 40px;
+    --dashboard-background: var(--finance-page-background);
+    --dashboard-surface: var(--finance-card-background);
+    --dashboard-border: var(--finance-card-border);
+    --dashboard-ink: var(--finance-ink);
+    --dashboard-padding: var(--finance-page-padding);
+    --dashboard-gap: var(--finance-section-gap);
+    --dashboard-radius: var(--finance-card-radius);
+    --dashboard-title-size: var(--finance-page-title-size);
     --dashboard-card-title-size: 22px;
-    --dashboard-label-size: 18px;
+    --dashboard-label-size: var(--finance-page-subtitle-size);
     --dashboard-value-size: 32px;
     --dashboard-support-line: 28px;
     --dashboard-icon-size: 64px;
-    --dashboard-icon-radius: 12px;
+    --dashboard-icon-radius: var(--finance-icon-radius);
     --dashboard-upper-height: 136px;
     --dashboard-chart-height: 340px;
     --dashboard-lower-height: 198px;

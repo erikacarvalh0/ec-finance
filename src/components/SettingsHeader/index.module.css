@@ -1,0 +1,22 @@
+.header {
+    margin-bottom: var(--finance-section-gap);
+}
+
+.header h1 {
+    font-size: var(--finance-page-title-size);
+    font-weight: 700;
+    color: var(--finance-ink);
+    margin: 0 0 8px;
+}
+
+.header p {
+    font-size: var(--finance-page-subtitle-size);
+    font-weight: 400;
+    margin: 0;
+}
+
+@media (max-width: 767px) {
+    .header h1 {
+        font-size: 32px;
+    }
+}

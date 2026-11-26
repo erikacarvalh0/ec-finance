@@ -7,8 +7,8 @@ import { signOut } from 'next-auth/react';
 
 vi.mock('next-auth/react', () => ({ signOut: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('@erikacarvalho/react/Button', () => ({ Button: ({ children, action }: { children: ReactNode; action: () => void }) => <button type="button" onClick={action}>{children}</button> }));
-const { push } = vi.hoisted(() => ({ push: vi.fn() }));
-vi.mock('next/navigation', () => ({ usePathname: () => '/expenses', useRouter: () => ({ push }) }));
+const { push, pathname } = vi.hoisted(() => ({ push: vi.fn(), pathname: { value: '/expenses' } }));
+vi.mock('next/navigation', () => ({ usePathname: () => pathname.value, useRouter: () => ({ push }) }));
 vi.mock('@erikacarvalho/react/Header', () => ({
     Header: ({ links, footerContent, isFixed, logo, routerContext }: {
         links: { href: string; text: string; isActive: boolean; icon: ReactNode }[];
@@ -21,7 +21,7 @@ vi.mock('@erikacarvalho/react/Header', () => ({
         </nav>
     ),
 }));
-afterEach(cleanup);
+afterEach(() => { cleanup(); pathname.value = '/expenses'; });
 
 describe('Page', () => {
     it('renders one fixed Header and places children inside main', () => {
@@ -37,6 +37,11 @@ describe('Page', () => {
         render(<Page>Conteúdo</Page>);
         fireEvent.click(screen.getByRole('link', { name: 'Entradas' }));
         expect(push).toHaveBeenCalledWith('/incomes');
+    });
+    it('marks settings as active', () => {
+        pathname.value = '/settings';
+        render(<Page>Configurações</Page>);
+        expect(screen.getByRole('link', { name: 'Configurações' }).getAttribute('aria-current')).toBe('page');
     });
     it('signs out from the shared footer', async () => {
         render(<Page>Conteúdo</Page>);

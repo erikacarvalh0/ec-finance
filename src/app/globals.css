@@ -1,4 +1,14 @@
 :root {
+    --finance-page-background: #F4F7FA;
+    --finance-card-background: #FAFBFD;
+    --finance-ink: #101127;
+    --finance-card-border: #E1E7F0;
+    --finance-card-radius: 18px;
+    --finance-page-padding: 40px;
+    --finance-section-gap: 24px;
+    --finance-page-title-size: 40px;
+    --finance-page-subtitle-size: 18px;
+    --finance-icon-radius: 12px;
     font-family: Arial, sans-serif;
     color: #29243b;
     background: #f8f7fc;

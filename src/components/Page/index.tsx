@@ -4,7 +4,7 @@ import { Button } from '@erikacarvalho/react/Button';
 import { signOut } from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Header } from '@erikacarvalho/react/Header';
-import { Dashboard, Wallet, ArrowDown, ArrowUp, ChartBar, Calendar, CreditCard, Target, Logout } from '@erikacarvalho/react/Icons';
+import { Dashboard, Wallet, ArrowDown, ArrowUp, ChartBar, Calendar, CreditCard, Target, Logout, User } from '@erikacarvalho/react/Icons';
 
 const navigation = [
     { href: '/', label: 'Visão geral', Icon: Dashboard },
@@ -15,6 +15,7 @@ const navigation = [
     { href: '/cards', label: 'Cartões e faturas', Icon: CreditCard },
     { href: '/budgets', label: 'Orçamentos', Icon: Target },
     { href: '/reports', label: 'Relatórios', Icon: ChartBar },
+    { href: '/settings', label: 'Configurações', Icon: User },
 ];
 
 export function Page({ children, mainClassName }: { children: ReactNode; mainClassName?: string }) {
