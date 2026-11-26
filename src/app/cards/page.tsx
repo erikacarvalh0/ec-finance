@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Page } from '@/components/dashboard/page';
+import { Page } from '@/components/page';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ecds-v1/compat';
 import { auth } from '@/lib/auth';
