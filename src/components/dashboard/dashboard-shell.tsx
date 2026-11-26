@@ -1,5 +1,6 @@
 'use client';
 import type { ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 import { Sidebar } from '@erikacarvalho/react/Sidebar';
 import { Dashboard, Wallet, ArrowDown, ArrowUp, ChartBar, Calendar, CreditCard, Target } from '@erikacarvalho/react/Icons';
 
@@ -14,19 +15,11 @@ const navigation = [
     { href: '/reports', label: 'Relatórios', Icon: ChartBar },
 ];
 
-export function DashboardShell({ children, pathname, footer }: {
-    children: ReactNode;
-    pathname: string;
-    footer?: ReactNode;
-}) {
+export function DashboardSidebar({ footer }: { footer?: ReactNode }) {
+    const pathname = usePathname() ?? '';
     const items = navigation.map(({ Icon, href, label }) => ({
         href, label, icon: <Icon />,
         active: href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/'),
     }));
-    return (
-        <div className="layout">
-            <Sidebar brand={<span>ec finance.</span>} navigationLabel="Menu principal" items={items} footer={footer} />
-            <main>{children}</main>
-        </div>
-    );
+    return <Sidebar brand={<span>ec finance.</span>} navigationLabel="Menu principal" items={items} footer={footer} />;
 }
