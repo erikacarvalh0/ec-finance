@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Page } from '@/components/Page';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ecds-v1/compat';
 import { auth } from '@/lib/auth';
@@ -33,8 +33,8 @@ export default async function InvestmentsPage() {
     );
 
     return (
-        <main className="finance-page">
-            <Link href="/">← Voltar ao dashboard</Link>
+        <Page>
+            <div className="finance-page">
             <h1>Investimentos</h1>
             <Card padding="lg">
                 <h2>Patrimônio investido estimado</h2>
@@ -168,6 +168,7 @@ export default async function InvestmentsPage() {
                     </Card>
                 ))}
             </div>
-        </main>
+            </div>
+        </Page>
     );
 }
