@@ -45,9 +45,22 @@ export default async function ExpensesPage({
         ? query.paymentMethod as 'PIX' | 'CREDIT' | 'DEBIT' | 'AUTOMATIC_DEBIT' | 'OTHER'
         : undefined;
     const search = (query.search ?? '').trim().slice(0, 100);
-    const [activeCount, archivedCount] = await Promise.all([
+    const now = new Date();
+    const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+    const monthEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+    const [activeCount, archivedCount, monthlyExpenseCount] = await Promise.all([
         prisma.expense.count({ where: { userId: session.user.id, archivedAt: null } }),
         prisma.expense.count({ where: { userId: session.user.id, archivedAt: { not: null } } }),
+        prisma.expense.count({
+            where: {
+                userId: session.user.id,
+                archivedAt: null,
+                OR: [
+                    { date: { gte: monthStart, lt: monthEnd } },
+                    { date: null, createdAt: { gte: monthStart, lt: monthEnd } },
+                ],
+            },
+        }),
     ]);
     const { visible, archived } = resolveExpenseHistoryView(
         activeCount,
@@ -89,7 +102,7 @@ export default async function ExpensesPage({
         <Page>
             <div className="finance-page">
             <h1>Despesas</h1>
-            <ExpenseForm cards={cards} categories={categories} />
+            <ExpenseForm cards={cards} categories={categories} monthlyExpenseCount={monthlyExpenseCount} />
             {visible && (
                 <Card padding="lg">
                     <ExpenseHistoryHeader
