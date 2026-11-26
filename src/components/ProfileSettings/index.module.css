@@ -1,0 +1,57 @@
+.profile {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.fields {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+    flex: 1;
+}
+
+.form:global(.form) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--finance-section-gap);
+}
+
+.email {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.email span {
+    font-size: var(--settings-description-size);
+    font-weight: 500;
+}
+
+.email p {
+    margin: 4px 0;
+}
+
+.cancel {
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid var(--settings-border);
+    padding-top: 16px;
+}
+
+.form > button[type="submit"] {
+    justify-self: end;
+    align-self: end;
+}
+
+.form button {
+    min-height: var(--settings-button-height);
+    font-size: var(--settings-description-size);
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .form:global(.form) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

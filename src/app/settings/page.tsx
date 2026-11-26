@@ -3,6 +3,7 @@ import { User, Target, Wallet, Info } from '@erikacarvalho/react/Icons';
 import { auth } from '@/lib/auth';
 import { SettingsLayout, SettingsGrid } from '@/components/SettingsLayout';
 import { SettingsHeader } from '@/components/SettingsHeader';
+import { ProfileSettings } from '@/components/ProfileSettings';
 import { SettingsCard } from '@/components/SettingsCard';
 
 export const dynamic = 'force-dynamic';
@@ -16,13 +17,7 @@ export default async function SettingsPage() {
             <SettingsHeader />
             <SettingsGrid>
                 <SettingsCard id="profile-title" title="Perfil" description="Atualize suas informações pessoais." icon={<User />}>
-                    <dl>
-                        <dt>Nome</dt>
-                        <dd>{session.user.name || 'Não informado'}</dd>
-                        <dt>E-mail</dt>
-                        <dd>{session.user.email || 'Não informado'}</dd>
-                    </dl>
-                    <p>A edição do perfil ainda não está disponível.</p>
+                    <ProfileSettings name={session.user.name ?? null} email={session.user.email ?? null} />
                 </SettingsCard>
                 <SettingsCard id="preferences-title" title="Preferências" description="Personalize a experiência do Finanças." icon={<Target />}>
                     <p>As preferências de moeda, tema e notificações estarão disponíveis em uma próxima atualização.</p>
