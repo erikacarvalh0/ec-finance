@@ -72,12 +72,12 @@ export function ExpenseForm({
                             <Select name="paymentMethod" label="Forma de pagamento" options={paymentOptions} defaultValue="PIX" isRequired onValueChange={handlePaymentChange} />
                             <Select name="categoryId" label="Categoria (opcional)" options={[{ value: '', label: 'Sem categoria' }, ...categories.map(category => ({ value: category.id, label: category.name }))]} defaultValue="" />
                             <Input name="date" label="Data (opcional)" type="date" />
-                            {['PIX', 'CREDIT', 'OTHER'].includes(paymentMethod) && (
+                            {['PIX', 'CREDIT', 'OTHER'].includes(paymentMethod) ? (
                                 <Input name="installments" label="Parcelas" type="number" defaultValue="1" isRequired validate={validateInstallments} />
-                            )}
-                            {paymentMethod === 'CREDIT' && (
+                            ) : <></>}
+                            {paymentMethod === 'CREDIT' ? (
                                 <Select name="cardId" label="Cartão (opcional)" options={[{ value: '', label: 'Sem cartão associado' }, ...cards.map(card => ({ value: card.id, label: card.name }))]} defaultValue="" />
-                            )}
+                            ) : <></>}
                         </Form>
                     </fieldset>
                     <p className={styles.feedback} role="status">{feedback.message}</p>
