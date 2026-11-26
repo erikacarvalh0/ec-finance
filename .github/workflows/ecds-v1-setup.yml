@@ -1,0 +1,13 @@
+name: ECDS v1 setup validation
+on: [pull_request, workflow_dispatch]
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: node scripts/setup-design-system-v1.mjs
+      - run: node -e "const p=require('@erikacarvalho/react/package.json');if(!p.repository.url.includes('ds-v1'))throw Error('Wrong package')"
