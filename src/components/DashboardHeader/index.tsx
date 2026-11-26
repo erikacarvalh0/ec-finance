@@ -10,9 +10,9 @@ export function DashboardHeader({ name, month }: DashboardHeaderProps) {
     return (
         <header className={styles.header}>
             <div>
-                <h1>Visão geral</h1>
-                <p>{name ? `Olá, ${name}.` : 'Olá! :)'}</p>
-                <p>Acompanhe suas finanças.</p>
+                <h1 className={styles.title}>Visão geral</h1>
+                <p className={styles.greeting}>{name ? `Olá, ${name}.` : 'Olá! :)'}</p>
+                <p className={styles.support}>Acompanhe suas finanças.</p>
             </div>
             <MonthSelector month={month} />
         </header>

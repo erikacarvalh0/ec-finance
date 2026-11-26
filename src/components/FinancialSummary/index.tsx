@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowUp, ArrowDown, Wallet } from '@erikacarvalho/react/Icons';
+import dashboardStyles from '@/components/DashboardLayout/index.module.css';
 import { MetricCard } from '../MetricCard';
 
 const money = new Intl.NumberFormat('pt-BR', {
@@ -16,7 +17,7 @@ type FinancialSummaryProps = {
 
 export function FinancialSummary({ income, expenses, balance }: FinancialSummaryProps) {
     return (
-        <section aria-label="Resumo financeiro" className="grid">
+        <section aria-label="Resumo financeiro" className={dashboardStyles.metrics}>
             <MetricCard
                 title="Receitas registradas"
                 value={money.format(income / 100)}

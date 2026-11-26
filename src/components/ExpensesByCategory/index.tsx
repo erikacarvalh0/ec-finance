@@ -1,5 +1,6 @@
 'use client';
 
+import dashboardStyles from '@/components/DashboardLayout/index.module.css';
 import { Card } from '@erikacarvalho/react/Card';
 import { Chart } from '@erikacarvalho/react/Chart';
 import { chartColors } from '@/lib/chart-colors';
@@ -24,7 +25,7 @@ export function ExpensesByCategory({ categories }: { categories: Category[] }) {
     }));
 
     return (
-        <Card title="Despesas por categoria">
+        <Card customClass={`${dashboardStyles.card} ${dashboardStyles.chartCard}`} title="Despesas por categoria">
             {total === 0 ? (
                 <p>Nenhuma despesa por categoria neste mês.</p>
             ) : (

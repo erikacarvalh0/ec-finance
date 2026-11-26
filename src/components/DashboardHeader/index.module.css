@@ -2,12 +2,27 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
+    gap: var(--dashboard-gap);
     flex-wrap: wrap;
-    margin-bottom: 1rem;
 }
 
-.header h1,
-.header p {
-    margin: 0 0 .5rem;
+.title {
+    margin: 0 0 var(--gridSizeDefault, 8px);
+    font-size: var(--dashboard-title-size);
+    font-weight: 700;
+    color: var(--dashboard-ink);
+    line-height: 1.2;
+}
+
+.greeting {
+    margin: 0;
+    font-size: var(--dashboard-card-title-size);
+    font-weight: 400;
+    color: var(--dashboard-ink);
+}
+
+.support {
+    margin: 0;
+    font-size: var(--dashboard-label-size);
+    line-height: var(--dashboard-support-line);
 }
