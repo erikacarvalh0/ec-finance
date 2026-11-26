@@ -76,7 +76,7 @@ export default async function DashboardPage({searchParams}: {searchParams: Promi
 
     return (
         <Page>
-                <DashboardHeader name={session.user.name ?? session.user.email ?? 'bem-vindo'} month={`${year}-${String(month).padStart(2,'0')}`} />
+                <DashboardHeader name={session.user.name ?? session.user.email} month={`${year}-${String(month).padStart(2,'0')}`} />
                 <Card padding="lg">
                     <h2>Fluxo de caixa registrado neste mês</h2>
                     {!recorded.hasRecords ? (
