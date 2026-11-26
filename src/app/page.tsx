@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ExpensesByCategory } from '@/components/ExpensesByCategory';
 import { Page } from '@/components/Page';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ecds-v1/compat';
@@ -116,6 +117,7 @@ export default async function DashboardPage() {
                         <p>Compras reconhecidas e disponíveis para classificação.</p>
                     </Card>
                 </div>
+                <ExpensesByCategory categories={budgetReport.categories.map(category => ({name:category.name,cents:Number(category.spentInCents)}))} />
                 <Card padding="lg">
                     <h2>Orçamentos deste mês</h2>
                     {budgetReport.categories.length === 0 ? (
