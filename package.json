@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "setup:ds": "node scripts/setup-design-system.mjs",
+    "setup:ds": "node scripts/setup-design-system-v1.mjs",
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
     "db:migrate": "prisma migrate dev",

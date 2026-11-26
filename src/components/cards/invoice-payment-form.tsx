@@ -2,7 +2,7 @@
 
 import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input } from '@erikacarvalho/react';
+import { Button, Input } from '@/components/ecds-v1/compat';
 
 export function InvoicePaymentForm({
     cardId,

@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Button, Input, Select } from '@erikacarvalho/react';
+import { Button, Input, Select } from '@/components/ecds-v1/compat';
 
 type Status = 'PENDING' | 'SETTLED' | 'CANCELED';
 

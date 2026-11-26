@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { Button, Card } from '@erikacarvalho/react';
+import { Button, Card } from '@/components/ecds-v1/compat';
 import { auth, signIn } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';

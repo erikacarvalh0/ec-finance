@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@erikacarvalho/react';
+import { Button } from '@/components/ecds-v1/compat';
 
 export function ExpenseArchiveButton({ id, archived }: { id: string; archived: boolean }) {
     const router = useRouter();

@@ -1,7 +1,13 @@
 import Link from 'next/link';
+import { CashflowChart } from '@/components/CashflowChart';
+import { ExpensesByCategory } from '@/components/ExpensesByCategory';
+import { FinancialSummary } from '@/components/FinancialSummary';
+import { FinancialOverview } from '@/components/FinancialOverview';
+import { DashboardHeader } from '@/components/DashboardHeader';
+import { Page } from '@/components/Page';
 import { redirect } from 'next/navigation';
-import { Button, Card } from '@erikacarvalho/react';
-import { auth, signOut } from '@/lib/auth';
+import { Card } from '@/components/ecds-v1/compat';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getMonthlyFixedExpenses } from '@/modules/finance/monthly';
 import { getUserCashflowForecast } from '@/modules/forecast/repository';
@@ -22,7 +28,11 @@ function formatCents(value: bigint): string {
     return currency.format(Number(value) / 100);
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ month?: string | string[] }>;
+}) {
     const session = await auth();
 
     if (!session?.user?.id) {
@@ -31,8 +41,11 @@ export default async function DashboardPage() {
 
     const userId = session.user.id;
     const now = new Date();
-    const month = now.getUTCMonth() + 1;
-    const year = now.getUTCFullYear();
+    const requested = (await searchParams).month;
+    const valid = typeof requested === 'string' && /^[1-9]\d{3}-(0[1-9]|1[0-2])$/.test(requested);
+    const year = valid ? Number(requested.slice(0, 4)) : now.getUTCFullYear();
+    const month = valid ? Number(requested.slice(5)) : now.getUTCMonth() + 1;
+    const selectedMonth = new Date(Date.UTC(year, month - 1, 1));
     const [fixed, transactions, forecast, recentMonths, budgetReport, recordedMonths] = await Promise.all([
         getMonthlyFixedExpenses(prisma, userId, year, month),
         prisma.transaction.findMany({
@@ -53,11 +66,11 @@ export default async function DashboardPage() {
                 occurredAt: true,
             },
         }),
-        getUserCashflowForecast(prisma, userId, now, 6),
+        getUserCashflowForecast(prisma, userId, selectedMonth, 6),
         getUserCashflowForecast(
             prisma,
             userId,
-            new Date(Date.UTC(year, month - 7, 1)),
+            new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 6, 1)),
             7,
         ),
         getCategoryBudgetReport(prisma, userId, `${year}-${String(month).padStart(2, '0')}`),
@@ -70,77 +83,32 @@ export default async function DashboardPage() {
     );
 
     return (
-        <div className="layout">
-            <aside>
-                <strong>ec finance.</strong>
-                <nav aria-label="Menu principal" className="side-navigation">
-                    <Link href="/">Visão geral</Link>
-                    <Link href="/expenses">Despesas</Link>
-                    <Link href="/incomes">Entradas</Link>
-                    <Link href="/investments">Investimentos</Link>
-                    <Link href="/forecast">Planejamento</Link>
-                    <Link href="/cards">Cartões e faturas</Link>
-                    <Link href="/budgets">Orçamentos</Link>
-                    <Link href="/reports">Relatórios</Link>
-                </nav>
-                <form
-                    action={async () => {
-                        'use server';
-
-                        await signOut({ redirectTo: '/sign-in' });
-                    }}
-                >
-                    <Button type="submit" variant="ghost">
-                        Sair
-                    </Button>
-                </form>
-            </aside>
-
-            <main>
-                <h1>Visão geral</h1>
-                <p>Olá, {session.user.name ?? session.user.email ?? 'bem-vindo'}.</p>
-                <p>Seus lançamentos ficam associados à sua conta.</p>
-                <Card padding="lg">
-                    <h2>Fluxo de caixa registrado neste mês</h2>
-                    {!recorded.hasRecords ? (
-                        <p>Nenhuma receita ou despesa registrada neste mês.</p>
-                    ) : (
-                        <div className="grid">
-                            <div>
-                                <strong>Receitas registradas</strong>
-                                <p className="metric">{formatCents(recorded.incomeInCents)}</p>
-                            </div>
-                            <div>
-                                <strong>Despesas registradas</strong>
-                                <p className="metric">{formatCents(recorded.expenseInCents)}</p>
-                            </div>
-                            <div>
-                                <strong>Saldo registrado</strong>
-                                <p className="metric">{formatCents(recorded.netInCents)}</p>
-                            </div>
-                        </div>
-                    )}
-                    <p>Valores registrados na sua conta; não incluem projeções futuras.</p>
-                    <Link href="/reports">Ver relatórios detalhados</Link>
-                </Card>
-                <div className="grid">
-                    <Card padding="lg">
-                        <h2>Despesas fixas deste mês</h2>
-                        <p className="metric">{formatCents(fixed.totalInCents)}</p>
-                        <p>Despesas com data e compras de cartão marcadas como fixas.</p>
-                    </Card>
-                    <Card padding="lg">
-                        <h2>Despesas atrasadas</h2>
-                        <p className="metric">{formatCents(overdue.totalInCents)}</p>
-                        <p>{overdue.count} ocorrência(s) pendente(s) dos últimos sete meses.</p>
-                        <Link href="/forecast">Revisar pagamentos</Link>
-                    </Card>
-                    <Card padding="lg">
-                        <h2>Lançamentos de cartão do mês</h2>
-                        <p className="metric">{transactions.length}</p>
-                        <p>Compras reconhecidas e disponíveis para classificação.</p>
-                    </Card>
-                </div>
+        <Page>
+                <DashboardHeader
+                    name={session.user.name ?? session.user.email}
+                    month={`${year}-${String(month).padStart(2, '0')}`}
+                />
+                <FinancialSummary
+                    income={Number(recorded.incomeInCents)}
+                    expenses={Number(recorded.expenseInCents)}
+                    balance={Number(recorded.netInCents)}
+                />
+                <CashflowChart
+                    income={Number(recorded.incomeInCents)}
+                    expenses={Number(recorded.expenseInCents)}
+                />
+                <ExpensesByCategory
+                    categories={budgetReport.categories.map(category => ({
+                        name: category.name,
+                        cents: Number(category.spentInCents),
+                    }))}
+                />
+                <FinancialOverview
+                    fixed={Number(fixed.totalInCents)}
+                    overdue={Number(overdue.totalInCents)}
+                    count={overdue.count}
+                    transactions={transactions.length}
+                />
                 <Card padding="lg">
                     <h2>Orçamentos deste mês</h2>
                     {budgetReport.categories.length === 0 ? (
@@ -251,7 +219,6 @@ export default async function DashboardPage() {
                         </div>
                     )}
                 </Card>
-            </main>
-        </div>
+        </Page>
     );
 }
