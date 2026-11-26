@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 const root = process.cwd();
 const temp = mkdtempSync(join(tmpdir(), 'ecds-v1-'));
-const revision = '2e73149dbcd72d49da979973aea2919bf8c0faf5';
+const revision = '47e6e29bd0961cb3a19af2327389f118c1b71e26';
 const run = (command,args,cwd=temp) => execFileSync(command,args,{cwd,stdio:'inherit'});
 try {
   run('git',['init','--quiet']);

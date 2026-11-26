@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import '@erikacarvalho/react/styles.css';
+import '@erikacarvalho/react/tokens.css';
 import './globals.css';
 
 export const metadata: Metadata = {
