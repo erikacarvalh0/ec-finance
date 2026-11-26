@@ -32,7 +32,7 @@ export async function setCategoryBudget(
     }
 
     const category = await database.category.findFirst({
-        where: { id: parsed.categoryId, userId },
+        where: { id: parsed.categoryId, userId, type: 'EXPENSE' },
         select: { id: true },
     });
 
@@ -70,7 +70,7 @@ export async function getCategoryBudgetReport(
     const { start, end } = monthBounds(period);
     const [categories, budgets, expenses, transactions] = await Promise.all([
         database.category.findMany({
-            where: { userId },
+            where: { userId, type: 'EXPENSE' },
             select: { id: true, name: true },
             orderBy: { name: 'asc' },
         }),

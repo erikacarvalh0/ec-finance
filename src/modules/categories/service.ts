@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client';
+import type { CategoryType, PrismaClient } from '@prisma/client';
 
 type CategoryDatabase = Pick<PrismaClient, 'category'>;
 
@@ -11,16 +11,16 @@ function requireOwnerId(userId: string) {
 export async function listCategories(
     database: CategoryDatabase,
     userId: string,
+    type: CategoryType = 'EXPENSE',
 ) {
     requireOwnerId(userId);
 
     return database.category.findMany({
         where: {
             userId,
+            type,
         },
-        orderBy: {
-            name: 'asc',
-        },
+        orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
         select: {
             id: true,
             name: true,
