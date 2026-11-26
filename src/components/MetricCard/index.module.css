@@ -1,0 +1,58 @@
+.card.upper {
+    min-height: var(--dashboard-upper-height, 136px);
+}
+
+.card.lower {
+    min-height: var(--dashboard-lower-height, 198px);
+}
+
+.card {
+    display: flex;
+    align-items: center;
+}
+
+.card :global(.card__content) {
+    width: 100%;
+    min-width: 0;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: var(--gridSize2x, 16px);
+    margin: 0;
+}
+
+.icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 var(--dashboard-icon-size, 64px);
+    height: var(--dashboard-icon-size, 64px);
+    border-radius: var(--dashboard-icon-radius, 12px);
+    background: var(--acquaLight);
+    color: var(--acquaDark);
+}
+
+.icon svg {
+    width: 32px;
+    height: 32px;
+}
+
+.content {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.card .label {
+    font-size: var(--dashboard-label-size, 18px);
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.value {
+    display: block;
+    font-size: var(--dashboard-value-size, 32px);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--dashboard-ink, #101127);
+}

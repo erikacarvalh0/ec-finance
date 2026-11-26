@@ -17,7 +17,7 @@ const navigation = [
     { href: '/reports', label: 'Relatórios', Icon: ChartBar },
 ];
 
-export function Page({ children }: { children: ReactNode }) {
+export function Page({ children, mainClassName }: { children: ReactNode; mainClassName?: string }) {
     const pathname = usePathname() ?? '';
     const router = useRouter();
     const items = navigation.map(({ Icon, href, label }) => ({
@@ -39,7 +39,7 @@ export function Page({ children }: { children: ReactNode }) {
                     </Button>
                 }
             />
-            <main>{children}</main>
+            <main className={mainClassName}>{children}</main>
         </div>
     );
 }

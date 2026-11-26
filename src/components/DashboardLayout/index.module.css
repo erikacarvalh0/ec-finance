@@ -1,0 +1,75 @@
+.main {
+    --dashboard-background: #F4F7FA;
+    --dashboard-surface: #FAFBFD;
+    --dashboard-border: #E1E7F0;
+    --dashboard-ink: #101127;
+    --dashboard-padding: 40px;
+    --dashboard-gap: 24px;
+    --dashboard-radius: 18px;
+    --dashboard-title-size: 40px;
+    --dashboard-card-title-size: 22px;
+    --dashboard-label-size: 18px;
+    --dashboard-value-size: 32px;
+    --dashboard-support-line: 28px;
+    --dashboard-icon-size: 64px;
+    --dashboard-icon-radius: 12px;
+    --dashboard-upper-height: 136px;
+    --dashboard-chart-height: 340px;
+    --dashboard-lower-height: 198px;
+    max-width: none;
+    min-width: 0;
+    min-height: 100vh;
+    padding: var(--dashboard-padding);
+    background: var(--dashboard-background);
+    color: var(--dashboard-ink);
+}
+
+.dashboard {
+    display: grid;
+    gap: var(--dashboard-gap);
+    min-width: 0;
+}
+
+.metrics,
+.charts {
+    display: grid;
+    gap: var(--dashboard-gap);
+    min-width: 0;
+}
+
+.metrics {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+
+.charts {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+}
+
+.dashboard .card {
+    min-width: 0;
+    background: var(--dashboard-surface);
+    border: 1px solid var(--dashboard-border);
+    border-radius: var(--dashboard-radius);
+    padding: var(--dashboard-gap);
+}
+
+.card h2 {
+    font-size: var(--dashboard-card-title-size);
+    font-weight: 700;
+    color: var(--dashboard-ink);
+    text-transform: none;
+    margin: 0 0 var(--gridSizeDefault, 8px);
+}
+
+.chartCard {
+    min-height: var(--dashboard-chart-height);
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+    .main {
+        --dashboard-padding: 20px;
+        --dashboard-gap: 20px;
+        --dashboard-title-size: 32px;
+    }
+}

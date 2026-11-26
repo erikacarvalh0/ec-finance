@@ -1,3 +1,4 @@
+import dashboardStyles from '@/components/DashboardLayout/index.module.css';
 import Link from 'next/link';
 import { CashflowChart } from '@/components/CashflowChart';
 import { ExpensesByCategory } from '@/components/ExpensesByCategory';
@@ -83,7 +84,8 @@ export default async function DashboardPage({
     );
 
     return (
-        <Page>
+        <Page mainClassName={dashboardStyles.main}>
+            <div className={dashboardStyles.dashboard}>
                 <DashboardHeader
                     name={session.user.name ?? session.user.email}
                     month={`${year}-${String(month).padStart(2, '0')}`}
@@ -93,6 +95,7 @@ export default async function DashboardPage({
                     expenses={Number(recorded.expenseInCents)}
                     balance={Number(recorded.netInCents)}
                 />
+                <section className={dashboardStyles.charts} aria-label="Gráficos financeiros">
                 <CashflowChart
                     income={Number(recorded.incomeInCents)}
                     expenses={Number(recorded.expenseInCents)}
@@ -103,13 +106,14 @@ export default async function DashboardPage({
                         cents: Number(category.spentInCents),
                     }))}
                 />
+                </section>
                 <FinancialOverview
                     fixed={Number(fixed.totalInCents)}
                     overdue={Number(overdue.totalInCents)}
                     count={overdue.count}
                     transactions={transactions.length}
                 />
-                <Card padding="lg">
+                <Card padding="lg" className={dashboardStyles.card}>
                     <h2>Orçamentos deste mês</h2>
                     {budgetReport.categories.length === 0 ? (
                         <p>Nenhuma categoria cadastrada.</p>
@@ -133,7 +137,7 @@ export default async function DashboardPage({
                     )}
                     <Link href="/budgets">Gerenciar limites e categorias</Link>
                 </Card>
-                <Card padding="lg">
+                <Card padding="lg" className={dashboardStyles.card}>
                     <h2>Previsão dos próximos meses</h2>
                     <p>
                         Parcelas e recorrências calculadas a partir dos registros existentes.
@@ -167,7 +171,7 @@ export default async function DashboardPage({
                     </div>
                     <Link href="/forecast">Ver detalhes do planejamento</Link>
                 </Card>
-                <Card padding="lg">
+                <Card padding="lg" className={dashboardStyles.card}>
                     <h2>Despesas fixas do mês</h2>
                     {fixed.expenses.length + fixed.cardTransactions.length === 0 ? (
                         <p>Nenhuma despesa fixa encontrada para este mês.</p>
@@ -186,7 +190,7 @@ export default async function DashboardPage({
                         </ul>
                     )}
                 </Card>
-                <Card padding="lg">
+                <Card padding="lg" className={dashboardStyles.card}>
                     <h2>Compras do cartão</h2>
                     {transactions.length === 0 ? (
                         <p>Nenhuma compra de cartão registrada neste mês.</p>
@@ -219,6 +223,7 @@ export default async function DashboardPage({
                         </div>
                     )}
                 </Card>
+            </div>
         </Page>
     );
 }
