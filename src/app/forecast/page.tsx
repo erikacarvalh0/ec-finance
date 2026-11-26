@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Page } from '@/components/dashboard/page';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ecds-v1/compat';
 import { auth } from '@/lib/auth';
@@ -40,8 +40,8 @@ export default async function ForecastPage() {
     );
 
     return (
-        <main className="finance-page">
-            <Link href="/">← Voltar ao dashboard</Link>
+        <Page>
+            <div className="finance-page">
             <h1>Planejamento financeiro</h1>
             <p>
                 Histórico dos últimos seis meses e planejamento dos próximos seis meses,
@@ -112,6 +112,7 @@ export default async function ForecastPage() {
                     </Card>
                 ))}
             </div>
-        </main>
+            </div>
+        </Page>
     );
 }
