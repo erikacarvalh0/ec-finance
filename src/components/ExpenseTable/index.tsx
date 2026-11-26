@@ -21,9 +21,15 @@ export function ExpenseTable({ rows }: { rows: ExpenseTableRow[] }) {
     }
 
     return (
-        <Table data={rows.map(({ id, ...row }) => ({
-            ...row,
-            actions: <div key={id}>{row.actions}</div>,
+        <Table data={rows.map(row => ({
+            date: row.date,
+            description: row.description,
+            category: row.category,
+            paymentMethod: row.paymentMethod,
+            installments: row.installments,
+            amount: row.amount,
+            status: row.status,
+            actions: <div key={row.id}>{row.actions}</div>,
         }))}>
             <th scope="col">Data</th>
             <th scope="col">Descrição</th>
