@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Page } from '@/components/dashboard/page';
 import { redirect } from 'next/navigation';
 import { Button, Card } from '@/components/ecds-v1/compat';
 import { auth, signOut } from '@/lib/auth';
@@ -70,19 +71,7 @@ export default async function DashboardPage() {
     );
 
     return (
-        <div className="layout">
-            <aside>
-                <strong>ec finance.</strong>
-                <nav aria-label="Menu principal" className="side-navigation">
-                    <Link href="/">Visão geral</Link>
-                    <Link href="/expenses">Despesas</Link>
-                    <Link href="/incomes">Entradas</Link>
-                    <Link href="/investments">Investimentos</Link>
-                    <Link href="/forecast">Planejamento</Link>
-                    <Link href="/cards">Cartões e faturas</Link>
-                    <Link href="/budgets">Orçamentos</Link>
-                    <Link href="/reports">Relatórios</Link>
-                </nav>
+        <Page footer={(
                 <form
                     action={async () => {
                         'use server';
@@ -94,9 +83,7 @@ export default async function DashboardPage() {
                         Sair
                     </Button>
                 </form>
-            </aside>
-
-            <main>
+        )}>
                 <h1>Visão geral</h1>
                 <p>Olá, {session.user.name ?? session.user.email ?? 'bem-vindo'}.</p>
                 <p>Seus lançamentos ficam associados à sua conta.</p>
@@ -251,7 +238,6 @@ export default async function DashboardPage() {
                         </div>
                     )}
                 </Card>
-            </main>
-        </div>
+        </Page>
     );
 }
