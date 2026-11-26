@@ -1,4 +1,4 @@
-import { Page } from '@/components/page';
+import { Page } from '@/components/Page';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ecds-v1/compat';
 import { auth } from '@/lib/auth';
