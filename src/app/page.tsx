@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { CashflowChart } from '@/components/CashflowChart';
 import { ExpensesByCategory } from '@/components/ExpensesByCategory';
 import { Page } from '@/components/Page';
 import { redirect } from 'next/navigation';
@@ -99,6 +100,10 @@ export default async function DashboardPage() {
                     <p>Valores registrados na sua conta; não incluem projeções futuras.</p>
                     <Link href="/reports">Ver relatórios detalhados</Link>
                 </Card>
+                <CashflowChart
+                    income={Number(recorded.incomeInCents)}
+                    expenses={Number(recorded.expenseInCents)}
+                />
                 <div className="grid">
                     <Card padding="lg">
                         <h2>Despesas fixas deste mês</h2>
