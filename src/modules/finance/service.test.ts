@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createExpense, createIncome, addInvestmentSnapshot } from './service';
 
+const categoryFind = vi.fn();
 const expenseCreate = vi.fn();
 const cardFind = vi.fn();
 const incomeCreate = vi.fn();
@@ -8,6 +9,7 @@ const investmentFind = vi.fn();
 const snapshotCreate = vi.fn();
 
 const database = {
+    category: { findFirst: categoryFind },
     expense: { create: expenseCreate },
     creditCard: { findFirst: cardFind },
     income: { create: incomeCreate },
@@ -37,6 +39,15 @@ describe('finance records ownership', () => {
                 date: null,
             }),
         });
+    });
+
+    it('validates category owner and income type before saving', async () => {
+        categoryFind.mockResolvedValue({ id: 'income-cat' });
+        await createIncome(database, 'owner-a', { type: 'SALARY', amountInCents: '100', categoryId: 'income-cat' });
+        expect(categoryFind).toHaveBeenCalledWith({ where: { id: 'income-cat', userId: 'owner-a', type: 'INCOME' }, select: { id: true } });
+        expect(incomeCreate).toHaveBeenCalledWith({ data: expect.objectContaining({ categoryId: 'income-cat' }) });
+        categoryFind.mockResolvedValue(null);
+        await expect(createIncome(database, 'owner-a', { type: 'SALARY', amountInCents: '100', categoryId: 'foreign' })).rejects.toThrow('Category not found');
     });
 
     it('persists recurring income fields', async () => {

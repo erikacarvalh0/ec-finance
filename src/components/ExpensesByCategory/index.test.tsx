@@ -32,3 +32,8 @@ it('handles no spending', () => {
     render(<ExpensesByCategory categories={[]} />);
     expect(screen.queryByTestId('chart')).toBeNull();
 });
+
+it('uses persisted category colors', () => {
+    render(<ExpensesByCategory categories={[{ name: 'Moradia', cents: 100, color: '#12BCE5' }]} />);
+    expect(screen.getByTestId('chart').textContent).toContain('"color":"#12BCE5"');
+});

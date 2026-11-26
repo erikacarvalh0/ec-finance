@@ -5,7 +5,7 @@ import { Button, Card, Input, Select } from '@/components/ecds-v1/compat';
 import { toCents, submitJson, useFeedback } from './form-utils';
 export { ExpenseForm } from '@/components/ExpenseForm';
 
-export function IncomeForm() {
+export function IncomeForm({ categories = [] }: { categories?: Array<{ id: string; name: string }> }) {
     const feedback = useFeedback();
     const [type, setType] = useState('SALARY');
 
@@ -17,6 +17,7 @@ export function IncomeForm() {
         await feedback.save(async () => {
             await submitJson('/api/incomes', {
                 type,
+                ...(data.get('categoryId') ? { categoryId: String(data.get('categoryId')) } : {}),
                 amountInCents: toCents(String(data.get('amount'))),
                 ...(type === 'RECURRING' ? {
                     responsible: String(data.get('responsible')),
@@ -41,6 +42,12 @@ export function IncomeForm() {
                         <option value="SALARY">Salário</option>
                         <option value="RECURRING">Recorrente</option>
                         <option value="OTHER">Outros</option>
+                    </Select>
+                </label>
+                <label>Categoria (opcional)
+                    <Select name="categoryId" defaultValue="">
+                        <option value="">Sem categoria</option>
+                        {categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
                     </Select>
                 </label>
                 {type === 'RECURRING' && (

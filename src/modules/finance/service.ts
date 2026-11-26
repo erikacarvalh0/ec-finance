@@ -53,7 +53,7 @@ export async function createExpense(
 
     if (data.categoryId) {
         const category = await database.category.findFirst({
-            where: { id: data.categoryId, userId },
+            where: { id: data.categoryId, userId, type: 'EXPENSE' },
             select: { id: true },
         });
 
@@ -85,11 +85,17 @@ export async function createIncome(
     requireOwner(userId);
     const data = incomeInputSchema.parse(input);
 
+    if (data.categoryId && !await database.category.findFirst({
+        where: { id: data.categoryId, userId, type: 'INCOME' },
+        select: { id: true },
+    })) throw new Error('Category not found');
+
     return database.income.create({
         data: {
             userId,
             type: data.type,
             amountInCents: parseMoney(data.amountInCents),
+            ...(data.categoryId ? { categoryId: data.categoryId } : {}),
             responsible: data.type === 'RECURRING' ? data.responsible : null,
             description: data.type === 'RECURRING' ? data.description : null,
             date: data.type === 'RECURRING' ? toDate(data.date) : null,

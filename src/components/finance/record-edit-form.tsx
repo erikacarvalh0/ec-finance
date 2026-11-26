@@ -19,6 +19,7 @@ type ExpenseRecord = {
 
 type IncomeRecord = {
     kind: 'income';
+    categoryId?: string;
     id: string;
     amountInCents: string;
     type: 'SALARY' | 'RECURRING' | 'OTHER';
@@ -74,6 +75,7 @@ export function RecordEditForm({
         } : {
             type,
             amountInCents,
+            ...(values.has('categoryId') ? { categoryId: String(values.get('categoryId')) || null } : {}),
             ...(recurring ? {
                 responsible: String(values.get('responsible')),
                 description: String(values.get('description')),
@@ -190,6 +192,14 @@ export function RecordEditForm({
                                 />
                             </label>
                         </>
+                    )}
+                    {record.kind === 'income' && (
+                        <label>Categoria (opcional)
+                            <Select name="categoryId" defaultValue={record.categoryId ?? ''}>
+                                <option value="">Sem categoria</option>
+                                {categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
+                            </Select>
+                        </label>
                     )}
                     {record.kind === 'income' && type === 'RECURRING' && (
                         <>

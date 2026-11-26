@@ -13,6 +13,7 @@ const currency = new Intl.NumberFormat('pt-BR', {
 type Category = {
     name: string;
     cents: number;
+    color?: string;
 };
 
 export function ExpensesByCategory({ categories }: { categories: Category[] }) {
@@ -20,7 +21,7 @@ export function ExpensesByCategory({ categories }: { categories: Category[] }) {
     const total = positive.reduce((sum, category) => sum + category.cents, 0);
     const data = positive.map((category, index) => ({
         label: category.name,
-        color: chartColors[index % chartColors.length],
+        color: category.color && /^#[0-9a-fA-F]{6}$/.test(category.color) ? category.color : chartColors[index % chartColors.length],
         percentage: Math.round(category.cents / total * 10000) / 100,
     }));
 

@@ -13,7 +13,7 @@ export async function bulkReclassifyExpenses(
     }
     return database.$transaction(async tx => {
         if (categoryId !== null && !await tx.category.findFirst({
-            where: { id: categoryId, userId }, select: { id: true },
+            where: { id: categoryId, userId, type: 'EXPENSE' }, select: { id: true },
         })) {
             throw new Error('Category not found');
         }

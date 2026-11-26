@@ -38,6 +38,10 @@ export async function PATCH(
             return Response.json({ error: error.message }, { status: 409 });
         }
 
+        if (error instanceof Error && error.message === 'Category not found') {
+            return Response.json({ error: error.message }, { status: 404 });
+        }
+
         if (error instanceof z.ZodError || error instanceof SyntaxError
             || (error instanceof Error && error.message.startsWith('Amount exceeds'))) {
             return Response.json({ error: 'Invalid income update' }, { status: 400 });

@@ -1,3 +1,4 @@
+import { listCategories } from '@/modules/categories/service';
 import { Page } from '@/components/Page';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -42,6 +43,7 @@ export default async function IncomesPage({
         archived,
     });
 
+    const categories = await listCategories(prisma, session.user.id, 'INCOME');
     const nextQuery = new URLSearchParams();
     if (validType) nextQuery.set('type', validType);
     if (search) nextQuery.set('search', search);
@@ -52,7 +54,7 @@ export default async function IncomesPage({
         <Page>
             <div className="finance-page">
             <h1>Entradas</h1>
-            <IncomeForm />
+            <IncomeForm categories={categories} />
             <Card padding="lg">
                 <h2>Histórico de entradas</h2>
                 <p><Link href={archived ? '/incomes' : '/incomes?view=archived'}>{archived ? 'Ver entradas ativas' : 'Ver entradas arquivadas'}</Link></p>
@@ -87,6 +89,7 @@ export default async function IncomesPage({
                                 income.type === 'SALARY' ? 'Salário' : 'Outra entrada'
                             )}</strong>
                             <span>{currency.format(Number(income.amountInCents) / 100)}</span>
+                            <small>{categories.find(category => category.id === income.categoryId)?.name ?? 'Sem categoria'}</small>
                             <small>{income.type === 'RECURRING' ? 'Recorrente' : income.type}</small>
                             {!archived && income.type === 'RECURRING' && (
                                 <EndRecurrenceForm
@@ -95,8 +98,9 @@ export default async function IncomesPage({
                                     currentDate={income.endsOn?.toISOString().slice(0, 10) ?? ''}
                                 />
                             )}
-                            {!archived && <RecordEditForm record={{
+                            {!archived && <RecordEditForm categories={categories} record={{
                                 kind: 'income',
+                                categoryId: income.categoryId ?? '',
                                 id: income.id,
                                 amountInCents: income.amountInCents.toString(),
                                 type: income.type,
