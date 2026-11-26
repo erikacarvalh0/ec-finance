@@ -1,5 +1,8 @@
 import { redirect } from 'next/navigation';
 import { User, Target, Wallet, Info } from '@erikacarvalho/react/Icons';
+import { PreferencesSettings } from '@/components/PreferencesSettings';
+import { getPreferences } from '@/modules/settings/preferences';
+import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { SettingsLayout, SettingsGrid } from '@/components/SettingsLayout';
 import { SettingsHeader } from '@/components/SettingsHeader';
@@ -12,6 +15,8 @@ export default async function SettingsPage() {
     const session = await auth();
     if (!session?.user?.id) redirect('/sign-in');
 
+    const preferences = await getPreferences(prisma, session.user.id);
+
     return (
         <SettingsLayout>
             <SettingsHeader />
@@ -20,7 +25,7 @@ export default async function SettingsPage() {
                     <ProfileSettings name={session.user.name ?? null} email={session.user.email ?? null} />
                 </SettingsCard>
                 <SettingsCard id="preferences-title" title="Preferências" description="Personalize a experiência do Finanças." icon={<Target />}>
-                    <p>As preferências de moeda, tema e notificações estarão disponíveis em uma próxima atualização.</p>
+                    <PreferencesSettings initialPreferences={preferences} />
                 </SettingsCard>
                 <SettingsCard id="categories-title" title="Categorias" description="Gerencie as categorias de receitas e despesas." icon={<Wallet />}>
                     <p>O gerenciamento de categorias será disponibilizado em uma próxima atualização.</p>
