@@ -21,7 +21,7 @@ export function ExpenseTable({ rows }: { rows: ExpenseTableRow[] }) {
     }
 
     return (
-        <Table data={rows.map(row => ({
+        <Table paginationConfig={{ itemsPerPage: 20, arrows: true }} data={rows.map(row => ({
             date: row.date,
             description: row.description,
             category: row.category,

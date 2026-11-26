@@ -1,10 +1,11 @@
 import { Page } from '@/components/Page';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ecds-v1/compat';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { listFilteredExpenses } from '@/modules/expenses/history';
+import { listExpenseTableRecords, mapExpenseTableRows } from '@/modules/expenses/table-history';
+import { ExpenseTable } from '@/components/ExpenseTable';
+import { ExpenseRowActions } from '@/components/ExpenseRowActions';
 import { listUserCards } from '@/modules/cards/service';
 import { listCategories } from '@/modules/categories/service';
 import { LinkImportedTransactionForm } from '@/components/cards/card-forms';
@@ -12,18 +13,12 @@ import { BulkCategoryForm } from '@/components/finance/bulk-category-form';
 import { ExpenseHistoryHeader } from '@/components/ExpenseHistoryHeader';
 import { ExpenseFilters } from '@/components/ExpenseFilters';
 import { ExpenseForm } from '@/components/finance/forms';
-import { RecordEditForm } from '@/components/finance/record-edit-form';
 import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
-import { ExpenseArchiveButton } from '@/components/finance/expense-archive-button';
 import { resolveExpenseHistoryView } from '@/modules/expenses/history-visibility';
 import { parseExpenseArchiveView } from '@/modules/expenses/archive-view';
 
 export const dynamic = 'force-dynamic';
 
-const currency = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-});
 
 export default async function ExpensesPage({
     searchParams,
@@ -64,14 +59,13 @@ export default async function ExpensesPage({
         parseExpenseArchiveView(query.view),
     );
     const [history, cards, transactions, categories] = await Promise.all([
-        listFilteredExpenses(prisma, session.user.id, {
+        listExpenseTableRecords(prisma, session.user.id, {
             type,
             paymentMethod,
             search,
             month,
             categoryId,
             status,
-            cursor: query.cursor,
             archived,
         }),
         listUserCards(prisma, session.user.id),
@@ -89,16 +83,30 @@ export default async function ExpensesPage({
         listCategories(prisma, session.user.id),
     ]);
 
-    const { expenses, nextCursor } = history;
-    const nextQuery = new URLSearchParams();
-    if (type) nextQuery.set('type', type);
-    if (paymentMethod) nextQuery.set('paymentMethod', paymentMethod);
-    if (month) nextQuery.set('month', month);
-    if (categoryId) nextQuery.set('categoryId', categoryId);
-    if (status) nextQuery.set('status', status);
-    if (search) nextQuery.set('search', search);
-    if (nextCursor) nextQuery.set('cursor', nextCursor);
-    if (archived) nextQuery.set('view', 'archived');
+    const expenses = history;
+    const selectedMonth = month ?? now.toISOString().slice(0, 7);
+    const rows = expenses.flatMap(expense => mapExpenseTableRows(expense, selectedMonth, status, categories.find(category => category.id === expense.categoryId)?.name ?? 'Sem categoria').map(row => ({
+        ...row,
+        actions: <ExpenseRowActions
+            key={row.id}
+            row={row}
+            archived={archived}
+            expense={{
+                id: expense.id, description: expense.description, amountInCents: expense.amountInCents.toString(),
+                type: expense.type, paymentMethod: expense.paymentMethod, date: expense.date?.toISOString().slice(0, 10) ?? '',
+                firstDueDate: (expense.date ?? expense.createdAt).toISOString().slice(0, 10),
+                installments: expense.installments, endsOn: expense.endsOn?.toISOString().slice(0, 10) ?? '',
+                categoryId: expense.categoryId ?? '',
+            }}
+            categories={categories.map(({ id, name }) => ({ id, name }))}
+            occurrences={expense.occurrences.map(item => ({ month: item.dueMonth.toISOString().slice(0, 7), status: item.status, actualAmountInCents: item.actualAmountInCents?.toString() ?? null }))}
+            additionalActions={<>
+                {!archived && expense.type === 'FIXED' && expense.installments === 1 && <EndRecurrenceForm kind="expense" id={expense.id} currentDate={expense.endsOn?.toISOString().slice(0, 10) ?? ''} />}
+                {!archived && expense.paymentMethod === 'CREDIT' && expense.cardId && !expense.linkedTransactionId && <LinkImportedTransactionForm expenseId={expense.id} transactions={transactions.filter(transaction => transaction.cardId === expense.cardId).map(transaction => ({ id: transaction.id, description: transaction.description, amountInCents: transaction.amountInCents.toString() }))} />}
+                {expense.linkedTransactionId && <small>Vinculada à compra importada</small>}
+            </>}
+        />,
+    })));
 
     return (
         <Page>
@@ -112,64 +120,10 @@ export default async function ExpensesPage({
                         hasArchived={archivedCount > 0}
                         hasActive={activeCount > 0}
                     />
-                    <ExpenseFilters archived={archived} search={search} type={type} paymentMethod={paymentMethod} month={month} categoryId={categoryId} categories={categories} status={status} />
-                    {expenses.length === 0 && <p>Nenhuma despesa registrada.</p>}
+                    <ExpenseFilters archived={archived} search={search} type={type} paymentMethod={paymentMethod} month={selectedMonth} categoryId={categoryId} categories={categories} status={status} />
+                    
                     {!archived && expenses.length > 0 && <BulkCategoryForm rows={expenses.map(({ id, description, categoryId }) => ({ id, description, categoryId }))} categories={categories.map(({ id, name }) => ({ id, name }))} />}
-                    <ul className="record-list">
-                        {expenses.map((expense) => (
-                            <li key={expense.id}>
-                                <strong>{expense.description}</strong>
-                                <span>{currency.format(Number(expense.amountInCents) / 100)}</span>
-                                <small>
-                                    {expense.type === 'FIXED' ? 'Fixa' : 'Variável'}
-                                    {' · '}
-                                    {expense.installments} parcela(s)
-                                </small>
-                                {!archived && expense.type === 'FIXED' && expense.installments === 1 && (
-                                    <EndRecurrenceForm
-                                        kind="expense"
-                                        id={expense.id}
-                                        currentDate={expense.endsOn?.toISOString().slice(0, 10) ?? ''}
-                                    />
-                                )}
-                                {!archived && expense.paymentMethod === 'CREDIT'
-                                    && expense.cardId
-                                    && !expense.linkedTransactionId && (
-                                    <LinkImportedTransactionForm
-                                        expenseId={expense.id}
-                                        transactions={transactions
-                                            .filter((transaction) => transaction.cardId === expense.cardId)
-                                            .map((transaction) => ({
-                                                id: transaction.id,
-                                                description: transaction.description,
-                                                amountInCents: transaction.amountInCents.toString(),
-                                            }))}
-                                    />
-                                )}
-                                {expense.linkedTransactionId && (
-                                    <small>Vinculada à compra importada</small>
-                                )}
-                                {!archived && <RecordEditForm categories={categories} record={{
-                                    kind: 'expense',
-                                    id: expense.id,
-                                    description: expense.description,
-                                    amountInCents: expense.amountInCents.toString(),
-                                    type: expense.type,
-                                    paymentMethod: expense.paymentMethod,
-                                    date: expense.date?.toISOString().slice(0, 10) ?? '',
-                                    installments: expense.installments,
-                                    endsOn: expense.endsOn?.toISOString().slice(0, 10) ?? '',
-                                    categoryId: expense.categoryId ?? '',
-                                }} />}
-                                <ExpenseArchiveButton id={expense.id} archived={archived} />
-                            </li>
-                        ))}
-                    </ul>
-                    {nextCursor && (
-                        <Link href={`/expenses?${nextQuery.toString()}`}>
-                            Carregar próximas 20 despesas
-                        </Link>
-                    )}
+                    <ExpenseTable rows={rows} />
                 </Card>
             )}
             </div>
