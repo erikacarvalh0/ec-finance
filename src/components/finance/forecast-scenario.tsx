@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { Input } from '@erikacarvalho/react';
+import { Input } from '@/components/ecds-v1/compat';
 import { simulateCashflow } from '@/modules/forecast/scenarios';
 import { compareCashflowScenarios } from '@/modules/forecast/comparison';
 

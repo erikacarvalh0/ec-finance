@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Select } from '@erikacarvalho/react';
+import { Button, Input, Select } from '@/components/ecds-v1/compat';
 
 type ExpenseRecord = {
     kind: 'expense';
