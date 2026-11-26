@@ -79,3 +79,12 @@ describe('expense history filters', () => {
         expect(findMany).not.toHaveBeenCalled();
     });
 });
+
+it('filters by effective date and category before pagination', async () => {
+    findMany.mockResolvedValue([]);
+    await listFilteredExpenses(database, 'owner-a', { month: '2026-11', categoryId: 'category-a' });
+    const range = { gte: new Date('2026-11-01T00:00:00Z'), lt: new Date('2026-12-01T00:00:00Z') };
+    expect(findMany).toHaveBeenLastCalledWith(expect.objectContaining({
+        where: { userId: 'owner-a', archivedAt: null, categoryId: 'category-a', OR: [{ date: range }, { date: null, createdAt: range }] },
+    }));
+});
