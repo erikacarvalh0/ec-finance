@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { DashboardHeader } from '@/components/DashboardHeader';
 import { Page } from '@/components/Page';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ecds-v1/compat';
@@ -23,7 +24,7 @@ function formatCents(value: bigint): string {
     return currency.format(Number(value) / 100);
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({searchParams}: {searchParams: Promise<{month?:string}>}) {
     const session = await auth();
 
     if (!session?.user?.id) {
@@ -32,8 +33,11 @@ export default async function DashboardPage() {
 
     const userId = session.user.id;
     const now = new Date();
-    const month = now.getUTCMonth() + 1;
-    const year = now.getUTCFullYear();
+    const requested = (await searchParams).month;
+    const valid = typeof requested === 'string' && /^[1-9]\d{3}-(0[1-9]|1[0-2])$/.test(requested);
+    const year = valid ? Number(requested.slice(0,4)) : now.getUTCFullYear();
+    const month = valid ? Number(requested.slice(5)) : now.getUTCMonth()+1;
+    const selectedMonth = new Date(Date.UTC(year,month-1,1));
     const [fixed, transactions, forecast, recentMonths, budgetReport, recordedMonths] = await Promise.all([
         getMonthlyFixedExpenses(prisma, userId, year, month),
         prisma.transaction.findMany({
@@ -54,7 +58,7 @@ export default async function DashboardPage() {
                 occurredAt: true,
             },
         }),
-        getUserCashflowForecast(prisma, userId, now, 6),
+        getUserCashflowForecast(prisma, userId, selectedMonth, 6),
         getUserCashflowForecast(
             prisma,
             userId,
@@ -72,9 +76,7 @@ export default async function DashboardPage() {
 
     return (
         <Page>
-                <h1>Visão geral</h1>
-                <p>Olá, {session.user.name ?? session.user.email ?? 'bem-vindo'}.</p>
-                <p>Seus lançamentos ficam associados à sua conta.</p>
+                <DashboardHeader name={session.user.name ?? session.user.email ?? 'bem-vindo'} month={`${year}-${String(month).padStart(2,'0')}`} />
                 <Card padding="lg">
                     <h2>Fluxo de caixa registrado neste mês</h2>
                     {!recorded.hasRecords ? (
