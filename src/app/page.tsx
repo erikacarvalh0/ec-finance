@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { CashflowChart } from '@/components/CashflowChart';
 import { ExpensesByCategory } from '@/components/ExpensesByCategory';
+import { FinancialSummary } from '@/components/FinancialSummary';
+import { FinancialOverview } from '@/components/FinancialOverview';
 import { Page } from '@/components/Page';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ecds-v1/compat';
@@ -77,56 +79,26 @@ export default async function DashboardPage() {
                 <h1>Visão geral</h1>
                 <p>Olá, {session.user.name ?? session.user.email ?? 'bem-vindo'}.</p>
                 <p>Seus lançamentos ficam associados à sua conta.</p>
-                <Card padding="lg">
-                    <h2>Fluxo de caixa registrado neste mês</h2>
-                    {!recorded.hasRecords ? (
-                        <p>Nenhuma receita ou despesa registrada neste mês.</p>
-                    ) : (
-                        <div className="grid">
-                            <div>
-                                <strong>Receitas registradas</strong>
-                                <p className="metric">{formatCents(recorded.incomeInCents)}</p>
-                            </div>
-                            <div>
-                                <strong>Despesas registradas</strong>
-                                <p className="metric">{formatCents(recorded.expenseInCents)}</p>
-                            </div>
-                            <div>
-                                <strong>Saldo registrado</strong>
-                                <p className="metric">{formatCents(recorded.netInCents)}</p>
-                            </div>
-                        </div>
-                    )}
-                    <p>Valores registrados na sua conta; não incluem projeções futuras.</p>
-                    <Link href="/reports">Ver relatórios detalhados</Link>
-                </Card>
+                <FinancialSummary
+                    income={Number(recorded.incomeInCents)}
+                    expenses={Number(recorded.expenseInCents)}
+                    balance={Number(recorded.netInCents)}
+                />
                 <CashflowChart
                     income={Number(recorded.incomeInCents)}
                     expenses={Number(recorded.expenseInCents)}
                 />
-                <div className="grid">
-                    <Card padding="lg">
-                        <h2>Despesas fixas deste mês</h2>
-                        <p className="metric">{formatCents(fixed.totalInCents)}</p>
-                        <p>Despesas com data e compras de cartão marcadas como fixas.</p>
-                    </Card>
-                    <Card padding="lg">
-                        <h2>Despesas atrasadas</h2>
-                        <p className="metric">{formatCents(overdue.totalInCents)}</p>
-                        <p>{overdue.count} ocorrência(s) pendente(s) dos últimos sete meses.</p>
-                        <Link href="/forecast">Revisar pagamentos</Link>
-                    </Card>
-                    <Card padding="lg">
-                        <h2>Lançamentos de cartão do mês</h2>
-                        <p className="metric">{transactions.length}</p>
-                        <p>Compras reconhecidas e disponíveis para classificação.</p>
-                    </Card>
-                </div>
                 <ExpensesByCategory
                     categories={budgetReport.categories.map(category => ({
                         name: category.name,
                         cents: Number(category.spentInCents),
                     }))}
+                />
+                <FinancialOverview
+                    fixed={Number(fixed.totalInCents)}
+                    overdue={Number(overdue.totalInCents)}
+                    count={overdue.count}
+                    transactions={transactions.length}
                 />
                 <Card padding="lg">
                     <h2>Orçamentos deste mês</h2>
