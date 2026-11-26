@@ -1,0 +1,36 @@
+.section {
+    min-width: 0;
+    display: flex;
+}
+
+.section .card {
+    width: 100%;
+    background: var(--finance-card-background);
+    border: 1px solid var(--settings-border);
+    border-radius: var(--finance-card-radius);
+    padding: var(--finance-section-gap);
+}
+
+.card :global(.card__content) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.card :global(.card__content) > * {
+    margin-top: 0;
+}
+
+.body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gridSize2x, 16px);
+    overflow-wrap: anywhere;
+}
+
+.body label {
+    font-size: var(--settings-description-size);
+    font-weight: 500;
+}

@@ -1,0 +1,15 @@
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--gridSize2x, 16px);
+    margin-top: auto;
+    padding-top: var(--gridSize2x, 16px);
+    border-top: 1px solid var(--settings-border);
+}
+
+.actions button {
+    min-height: var(--settings-button-height);
+    font-size: var(--settings-description-size);
+    font-weight: 600;
+}

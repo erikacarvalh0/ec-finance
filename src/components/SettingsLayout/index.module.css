@@ -1,0 +1,43 @@
+.main {
+    --settings-border: #E3E8F0;
+    --settings-card-title-size: 24px;
+    --settings-description-size: 16px;
+    --settings-description-line: 24px;
+    --settings-icon-size: 60px;
+    --settings-button-height: 40px;
+    --settings-switch-width: 52px;
+    --settings-switch-height: 28px;
+    --settings-row-height: 46px;
+    --settings-notice-radius: 8px;
+    --settings-notice-background: #DDF5FC;
+    --settings-notice-border: #BCE5EF;
+    max-width: none;
+    min-width: 0;
+    min-height: 100vh;
+    background: var(--finance-page-background);
+    color: var(--finance-ink);
+    padding: var(--finance-page-padding);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--finance-section-gap);
+    align-items: stretch;
+}
+
+@media (max-width: 1100px) {
+    .grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .main {
+        padding: 20px;
+    }
+
+    .grid {
+        gap: 20px;
+    }
+}
