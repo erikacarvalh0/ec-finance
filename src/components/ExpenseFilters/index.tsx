@@ -6,11 +6,13 @@ export function ExpenseFilters({
     search,
     type,
     paymentMethod,
+    status,
 }: {
     archived: boolean;
     search: string;
     type?: string;
     paymentMethod?: string;
+    status?: string;
 }) {
     return (
         <form action="/expenses" className={styles.filters}>
@@ -33,6 +35,14 @@ export function ExpenseFilters({
                     <option value="DEBIT">Débito</option>
                     <option value="AUTOMATIC_DEBIT">Débito automático</option>
                     <option value="OTHER">Outros</option>
+                </Select>
+            </label>
+            <label>Status
+                <Select name="status" defaultValue={status ?? ''}>
+                    <option value="">Todos</option>
+                    <option value="PENDING">Pendente</option>
+                    <option value="SETTLED">Paga</option>
+                    <option value="CANCELED">Cancelada</option>
                 </Select>
             </label>
             <Button type="submit">Aplicar filtros</Button>

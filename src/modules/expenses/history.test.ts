@@ -79,3 +79,11 @@ describe('expense history filters', () => {
         expect(findMany).not.toHaveBeenCalled();
     });
 });
+
+it('filters persisted occurrences by owner and status before pagination', async () => {
+    findMany.mockResolvedValue([]);
+    await listFilteredExpenses(database, 'owner-a', { status: 'SETTLED' });
+    expect(findMany).toHaveBeenLastCalledWith(expect.objectContaining({
+        where: { userId: 'owner-a', archivedAt: null, occurrences: { some: { userId: 'owner-a', status: 'SETTLED' } } },
+    }));
+});
