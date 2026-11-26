@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation';
 import { User, Target, Wallet, Info } from '@erikacarvalho/react/Icons';
+import { SecuritySettings } from '@/components/SecuritySettings';
+import { getSecuritySettings } from '@/modules/settings/security';
 import { PreferencesSettings } from '@/components/PreferencesSettings';
 import { getPreferences } from '@/modules/settings/preferences';
 import { CategorySettings } from '@/components/CategorySettings';
@@ -17,9 +19,10 @@ export default async function SettingsPage() {
     const session = await auth();
     if (!session?.user?.id) redirect('/sign-in');
 
-    const [categories, preferences] = await Promise.all([
+    const [categories, preferences, security] = await Promise.all([
         listManagedCategories(prisma, session.user.id),
         getPreferences(prisma, session.user.id),
+        getSecuritySettings(prisma, session.user.id),
     ]);
 
     return (
@@ -36,8 +39,7 @@ export default async function SettingsPage() {
                     <CategorySettings initialCategories={categories} />
                 </SettingsCard>
                 <SettingsCard id="security-title" title="Segurança" description="Gerencie o acesso à sua conta." icon={<Info />}>
-                    <p>O acesso ao EC Finance utiliza sua conta Google.</p>
-                    <a href="https://myaccount.google.com/security" target="_blank" rel="noopener noreferrer">Gerenciar conta Google</a>
+                    <SecuritySettings googleConnected={security.googleConnected} />
                 </SettingsCard>
             </SettingsGrid>
         </SettingsLayout>
