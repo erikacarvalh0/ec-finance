@@ -33,16 +33,19 @@ const incomeEditSchema = z.discriminatedUnion('type', [
     z.object({
         type: z.literal('SALARY'),
         amountInCents: z.string().regex(/^[1-9]\d*$/).max(18),
+        categoryId: z.string().trim().min(1).nullable().optional(),
         endsOn: z.null().optional(),
     }),
     z.object({
         type: z.literal('OTHER'),
         amountInCents: z.string().regex(/^[1-9]\d*$/).max(18),
+        categoryId: z.string().trim().min(1).nullable().optional(),
         endsOn: z.null().optional(),
     }),
     z.object({
         type: z.literal('RECURRING'),
         amountInCents: z.string().regex(/^[1-9]\d*$/).max(18),
+        categoryId: z.string().trim().min(1).nullable().optional(),
         responsible: z.string().trim().min(1).max(150),
         description: z.string().trim().min(1).max(255),
         date: z.iso.date(),
@@ -102,7 +105,7 @@ export async function updateOwnedExpense(
 
     if (data.categoryId) {
         const category = await database.category.findFirst({
-            where: { id: data.categoryId, userId },
+            where: { id: data.categoryId, userId, type: 'EXPENSE' },
             select: { id: true },
         });
 
@@ -159,11 +162,17 @@ export async function updateOwnedIncome(
         throw new Error('Settled occurrences prevent editing');
     }
 
+    if (data.categoryId && !await database.category.findFirst({
+        where: { id: data.categoryId, userId, type: 'INCOME' },
+        select: { id: true },
+    })) throw new Error('Category not found');
+
     return database.income.update({
         where: { id: incomeId, userId },
         data: {
             amountInCents,
             type: data.type,
+            ...(data.categoryId !== undefined ? { categoryId: data.categoryId } : {}),
             responsible: data.type === 'RECURRING' ? data.responsible : null,
             description: data.type === 'RECURRING' ? data.description : null,
             date: data.type === 'RECURRING' ? toDate(data.date) : null,

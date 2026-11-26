@@ -28,14 +28,17 @@ export const incomeInputSchema = z.discriminatedUnion('type', [
     z.object({
         type: z.literal('SALARY'),
         amountInCents: positiveMoney,
+        categoryId: z.string().trim().min(1).optional(),
     }),
     z.object({
         type: z.literal('OTHER'),
         amountInCents: positiveMoney,
+        categoryId: z.string().trim().min(1).optional(),
     }),
     z.object({
         type: z.literal('RECURRING'),
         amountInCents: positiveMoney,
+        categoryId: z.string().trim().min(1).optional(),
         responsible: z.string().trim().min(1).max(150),
         description: z.string().trim().min(1).max(255),
         date: dateSchema,

@@ -1,3 +1,4 @@
+import { listManagedCategories } from '@/modules/categories/management';
 import dashboardStyles from '@/components/DashboardLayout/index.module.css';
 import Link from 'next/link';
 import { CashflowChart } from '@/components/CashflowChart';
@@ -77,6 +78,8 @@ export default async function DashboardPage({
         getCategoryBudgetReport(prisma, userId, `${year}-${String(month).padStart(2, '0')}`),
         getUserMonthlyCashflowReport(prisma, userId, new Date(Date.UTC(year, month - 1, 1)), 1),
     ]);
+    const categoryMetadata = await listManagedCategories(prisma, userId);
+    const colors = new Map(categoryMetadata.filter(category => category.type === 'EXPENSE').map(category => [category.id, category.color]));
     const recorded = summarizeDashboardRecordedCashflow(recordedMonths);
     const overdue = getOverdueExpenseTotals(
         recentMonths.flatMap((item) => item.expenses),
@@ -103,6 +106,7 @@ export default async function DashboardPage({
                 <ExpensesByCategory
                     categories={budgetReport.categories.map(category => ({
                         name: category.name,
+                        color: colors.get(category.categoryId),
                         cents: Number(category.spentInCents),
                     }))}
                 />
