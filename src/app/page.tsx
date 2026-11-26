@@ -77,8 +77,17 @@ export default async function DashboardPage() {
                 <h1>Visão geral</h1>
                 <p>Olá, {session.user.name ?? session.user.email ?? 'bem-vindo'}.</p>
                 <p>Seus lançamentos ficam associados à sua conta.</p>
-                <FinancialSummary income={Number(recorded.incomeInCents)} expenses={Number(recorded.expenseInCents)} balance={Number(recorded.netInCents)} />
-                <FinancialOverview fixed={Number(fixed.totalInCents)} overdue={Number(overdue.totalInCents)} count={overdue.count} transactions={transactions.length} />
+                <FinancialSummary
+                    income={Number(recorded.incomeInCents)}
+                    expenses={Number(recorded.expenseInCents)}
+                    balance={Number(recorded.netInCents)}
+                />
+                <FinancialOverview
+                    fixed={Number(fixed.totalInCents)}
+                    overdue={Number(overdue.totalInCents)}
+                    count={overdue.count}
+                    transactions={transactions.length}
+                />
                 <Card padding="lg">
                     <h2>Orçamentos deste mês</h2>
                     {budgetReport.categories.length === 0 ? (
