@@ -26,7 +26,7 @@ it('delegates field validation to ECDS and disables invalid submission', async (
     fireEvent.change(amount, { target: { value: 'abc' } });
     fireEvent.blur(amount);
     expect(amount.getAttribute('aria-invalid')).toBe('true');
-    expect(screen.getByRole('alert').textContent).toContain('duas casas');
+    await waitFor(() => expect(screen.getByText(/Informe um valor com até duas casas decimais/).textContent).toContain('duas casas'));
     await waitFor(() => expect((screen.getByRole('button', { name: 'Salvar' }) as HTMLButtonElement).disabled).toBe(true));
     expect(amount.closest('form')?.noValidate).toBe(true);
 });
