@@ -18,6 +18,14 @@ try {
   const exports = new Set([...readFileSync(entry, 'utf8').split('\n'), ...readFileSync(legacy, 'utf8').split('\n')].filter(Boolean));
   writeFileSync(entry, [...exports].join('\n') + '\n');
   rmSync(legacy);
+  // SVGR-style icons destructure title but the pinned revision omits its type.
+  for (const name of ['ArrowDown', 'ArrowUp', 'Calendar', 'ChartBar', 'CreditCard', 'Dashboard', 'Info', 'Logout', 'Target', 'User', 'Wallet']) {
+    const file = join(icons, name + '.tsx');
+    const source = readFileSync(file, 'utf8');
+    const fixed = source.replace('{ titleId?: string }', '{ title?: string; titleId?: string }');
+    if (fixed === source) throw Error('Unexpected ECDS icon signature: ' + name);
+    writeFileSync(file, fixed);
+  }
   run('yarn',['install','--frozen-lockfile','--production=false']);
   run('npm',['pack']);
   const packs = readdirSync(temp).filter(name=>name.endsWith('.tgz'));
