@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Button } from '@erikacarvalho/react';
+import { Button } from '@/components/ecds-v1/compat';
 
 export function CopyPreviousMonthBudgets({ targetPeriod }: { targetPeriod: string }) {
     const router = useRouter();

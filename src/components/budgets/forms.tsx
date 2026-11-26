@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
-import { Button, Input } from '@erikacarvalho/react';
+import { Button, Input } from '@/components/ecds-v1/compat';
 
 function parseReais(value: string) {
     const match = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(value.trim());

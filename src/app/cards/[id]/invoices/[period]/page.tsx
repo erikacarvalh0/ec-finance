@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { Card } from '@erikacarvalho/react';
+import { Card } from '@/components/ecds-v1/compat';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getInvoicePaymentSummary } from '@/modules/cards/payment-service';
