@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { Button, Card, Input, Select } from '@erikacarvalho/react';
+import { Button, Card, Input, Select } from '@/components/ecds-v1/compat';
 import { useRouter } from 'next/navigation';
 
 function toCents(value: string): string {

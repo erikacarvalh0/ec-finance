@@ -6,7 +6,7 @@ import SignInPage from './page';
 
 vi.mock('@/lib/auth', () => ({ auth: vi.fn(), signIn: vi.fn() }));
 vi.mock('next/navigation', () => ({ redirect: vi.fn() }));
-vi.mock('@erikacarvalho/react', () => ({
+vi.mock('@/components/ecds-v1/compat', () => ({
     Button: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
     Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));

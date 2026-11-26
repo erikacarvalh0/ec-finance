@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Select } from '@erikacarvalho/react';
+import { Button, Input, Select } from '@/components/ecds-v1/compat';
 
 function parseMoney(value: string): string {
     const match = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(value.trim());

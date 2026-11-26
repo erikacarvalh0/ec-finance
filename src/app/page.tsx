@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Button, Card } from '@erikacarvalho/react';
+import { Button, Card } from '@/components/ecds-v1/compat';
 import { auth, signOut } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getMonthlyFixedExpenses } from '@/modules/finance/monthly';
