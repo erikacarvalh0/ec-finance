@@ -1,5 +1,8 @@
 import { redirect } from 'next/navigation';
 import { User, Target, Wallet, Info } from '@erikacarvalho/react/Icons';
+import { CategorySettings } from '@/components/CategorySettings';
+import { listManagedCategories } from '@/modules/categories/management';
+import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { SettingsLayout, SettingsGrid } from '@/components/SettingsLayout';
 import { SettingsHeader } from '@/components/SettingsHeader';
@@ -12,6 +15,8 @@ export default async function SettingsPage() {
     const session = await auth();
     if (!session?.user?.id) redirect('/sign-in');
 
+    const categories = await listManagedCategories(prisma, session.user.id);
+
     return (
         <SettingsLayout>
             <SettingsHeader />
@@ -23,7 +28,7 @@ export default async function SettingsPage() {
                     <p>As preferências de moeda, tema e notificações estarão disponíveis em uma próxima atualização.</p>
                 </SettingsCard>
                 <SettingsCard id="categories-title" title="Categorias" description="Gerencie as categorias de receitas e despesas." icon={<Wallet />}>
-                    <p>O gerenciamento de categorias será disponibilizado em uma próxima atualização.</p>
+                    <CategorySettings initialCategories={categories} />
                 </SettingsCard>
                 <SettingsCard id="security-title" title="Segurança" description="Gerencie o acesso à sua conta." icon={<Info />}>
                     <p>O acesso ao EC Finance utiliza sua conta Google.</p>

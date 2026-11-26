@@ -78,6 +78,7 @@ describe('owner-scoped budget service', () => {
 
     it('scopes all report reads to the authenticated owner and month', async () => {
         await getCategoryBudgetReport(database, 'owner-a', '2026-11');
+        expect(categoryList).toHaveBeenCalledWith(expect.objectContaining({ where: { userId: 'owner-a', type: 'EXPENSE' } }));
         for (const query of [categoryList, budgetList, expenseList, transactionList]) {
             expect(query).toHaveBeenCalledWith(expect.objectContaining({
                 where: expect.objectContaining({ userId: 'owner-a' }),

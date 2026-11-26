@@ -43,12 +43,14 @@ describe('PostgreSQL card due-month category spending', () => {
     });
     it('allocates installments to invoice due months without leaking to other owners', async () => {
         const spent = async (period: string) =>
-            (await getCategoryBudgetReport(prisma, ownerId, period)).categories[0].spentInCents;
+            (await getCategoryBudgetReport(prisma, ownerId, period)).categories.find(row => row.categoryId === categoryId)!.spentInCents;
         expect(await spent('2027-01')).toBe(BigInt(0));
         expect(await spent('2027-02')).toBe(BigInt(0));
         expect(await spent('2027-03')).toBe(BigInt(3334));
         expect(await spent('2027-04')).toBe(BigInt(3334));
         expect(await spent('2027-05')).toBe(BigInt(3333));
-        expect((await getCategoryBudgetReport(prisma, otherId, '2027-03')).categories).toEqual([]);
+        const otherCategories = (await getCategoryBudgetReport(prisma, otherId, '2027-03')).categories;
+        expect(otherCategories).toHaveLength(5);
+        expect(otherCategories.every(row => row.categoryId !== categoryId && row.spentInCents === BigInt(0))).toBe(true);
     });
 });

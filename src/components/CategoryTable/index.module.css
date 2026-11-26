@@ -1,0 +1,7 @@
+.scroll {overflow-x:auto;min-width:0}
+.table {width:100%;border-collapse:collapse;text-align:left;font-size:var(--settings-description-size,16px)}
+.table th,.table td {height:46px;padding:4px;border-bottom:1px solid var(--settings-border,#E3E8F0)}
+.actions {display:flex;gap:4px}
+.symbol {display:inline-grid;place-items:center;width:32px;height:32px;border-radius:8px}
+.dot {display:inline-block;width:14px;height:14px;border-radius:50%}
+.sr {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
