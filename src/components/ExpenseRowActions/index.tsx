@@ -4,6 +4,7 @@ import { useState, type ReactNode } from 'react';
 import { Dialog } from '@erikacarvalho/react/Dialog';
 import { ExpenseActions, type ExpenseAction } from '@/components/ExpenseActions';
 import { ExpenseDetails } from '@/components/ExpenseDetails';
+import { ExpenseDelete } from '@/components/ExpenseDelete';
 import { ExpenseInstallments } from '@/components/ExpenseInstallments';
 import type { InstallmentOccurrence } from '@/components/ExpenseInstallments/utils';
 import { ExpensePayment } from '@/components/ExpensePayment';
@@ -26,7 +27,7 @@ export function ExpenseRowActions({ row, expense, archived, categories, occurren
     const handlers: Partial<Record<ExpenseAction, () => void>> = {
         details: () => setAction('details'),
         installments: () => setAction('installments'),
-        ...(archived ? { restore: () => setAction('restore') } : {
+        ...(archived ? { restore: () => setAction('restore'), delete: () => setAction('delete') } : {
             edit: () => setAction('edit'),
             archive: () => setAction('archive'),
             ...(row.state === 'PENDING' ? { pay: () => setAction('pay') } : {}),
@@ -35,11 +36,12 @@ export function ExpenseRowActions({ row, expense, archived, categories, occurren
     };
     return <>
         <ExpenseActions description={expense.description} archived={archived} paid={row.state === 'SETTLED'} installments={expense.installments} handlers={handlers} />
-        {action && <Dialog isOpen toggleDialog={closeDialog} title={expense.description}>
+        {action && <Dialog isOpen toggleDialog={closeDialog} title={action === 'details' ? 'Detalhes da despesa' : expense.description} headerActions={action === 'details' ? <ExpenseArchiveButton id={expense.id} archived={archived} /> : undefined}>
             {action === 'details' && <>
                 <ExpenseDetails expense={{ ...row, type: expense.type === 'FIXED' ? 'Fixa' : 'Variável' }} />
                 {additionalActions}
             </>}
+            {action === 'delete' && archived && <ExpenseDelete id={expense.id} description={expense.description} onClose={closeDialog} />}
             {action === 'edit' && <RecordEditForm record={{ ...expense, kind: 'expense' }} categories={categories} />}
             {(action === 'pay' || action === 'reopen') && <ExpensePayment id={expense.id} month={row.month} paid={row.state === 'SETTLED'} />}
             {action === 'installments' && <ExpenseInstallments expense={expense} occurrences={occurrences} />}
