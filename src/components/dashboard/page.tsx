@@ -1,7 +1,7 @@
 'use client';
 import type { ReactNode } from 'react';
 import { Button } from '@/components/ecds-v1/compat';
-import { logout } from './actions';
+import { signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from '@erikacarvalho/react/Sidebar';
 import { Dashboard, Wallet, ArrowDown, ArrowUp, ChartBar, Calendar, CreditCard, Target } from '@erikacarvalho/react/Icons';
@@ -26,7 +26,10 @@ export function Page({ children }: { children: ReactNode }) {
     return (
         <div className="layout">
             <Sidebar brand={<span>ec finance.</span>} navigationLabel="Menu principal" items={items} footer={(
-                <form action={logout}>
+                <form onSubmit={async (event) => {
+                    event.preventDefault();
+                    await signOut({ redirectTo: '/sign-in' });
+                }}>
                     <Button type="submit" variant="ghost">Sair</Button>
                 </form>
             )} />
