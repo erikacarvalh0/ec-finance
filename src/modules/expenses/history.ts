@@ -7,6 +7,8 @@ const filters = z.object({
     type: z.enum(['FIXED', 'VARIABLE']).optional(),
     paymentMethod: z.enum(['PIX', 'CREDIT', 'DEBIT', 'AUTOMATIC_DEBIT', 'OTHER']).optional(),
     search: z.string().trim().max(100).optional(),
+    month: z.string().regex(/^[1-9]\d{3}-(0[1-9]|1[0-2])$/).optional(),
+    categoryId: z.string().trim().min(1).max(200).optional(),
     status: z.enum(['PENDING', 'SETTLED', 'CANCELED']).optional(),
     archived: z.boolean().optional(),
     cursor: z.string().trim().max(200).transform((value) => value || undefined).optional(),
@@ -21,6 +23,8 @@ export function parseExpenseHistoryFilters(input: ExpenseHistoryFilters) {
         type: parsed.type,
         paymentMethod: parsed.paymentMethod,
         search: parsed.search || undefined,
+        ...(parsed.month ? { month: parsed.month } : {}),
+        ...(parsed.categoryId ? { categoryId: parsed.categoryId } : {}),
         ...(parsed.status ? { status: parsed.status } : {}),
         archived: parsed.archived,
         cursor: parsed.cursor,
@@ -36,11 +40,20 @@ export async function listFilteredExpenses(
         throw new Error('Authenticated user ID is required');
     }
 
-    const { type, paymentMethod, search, cursor, archived, status } = parseExpenseHistoryFilters(filtersInput);
+    const { type, paymentMethod, search, cursor, archived, month, categoryId, status } = parseExpenseHistoryFilters(filtersInput);
+    const start = month ? new Date(`${month}-01T00:00:00Z`) : undefined;
+    const end = start ? new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1)) : undefined;
     const rows = await database.expense.findMany({
         where: {
             userId,
             archivedAt: archived ? { not: null } : null,
+            ...(categoryId ? { categoryId } : {}),
+            ...(start && end ? {
+                OR: [
+                    { date: { gte: start, lt: end } },
+                    { date: null, createdAt: { gte: start, lt: end } },
+                ],
+            } : {}),
             ...(status ? { occurrences: { some: { userId, status } } } : {}),
             ...(type ? { type } : {}),
             ...(paymentMethod ? { paymentMethod } : {}),

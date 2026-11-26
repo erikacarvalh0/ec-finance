@@ -80,10 +80,41 @@ describe('expense history filters', () => {
     });
 });
 
-it('filters persisted occurrences by owner and status before pagination', async () => {
+it('filters by effective date and category before pagination', async () => {
     findMany.mockResolvedValue([]);
-    await listFilteredExpenses(database, 'owner-a', { status: 'SETTLED' });
+    await listFilteredExpenses(database, 'owner-a', { month: '2026-11', categoryId: 'category-a' });
+    const range = { gte: new Date('2026-11-01T00:00:00Z'), lt: new Date('2026-12-01T00:00:00Z') };
     expect(findMany).toHaveBeenLastCalledWith(expect.objectContaining({
-        where: { userId: 'owner-a', archivedAt: null, occurrences: { some: { userId: 'owner-a', status: 'SETTLED' } } },
+        where: { userId: 'owner-a', archivedAt: null, categoryId: 'category-a', OR: [{ date: range }, { date: null, createdAt: range }] },
     }));
+});
+
+
+describe('status filtering', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        findMany.mockResolvedValue([]);
+    });
+
+    it('filters persisted occurrences by owner and status before pagination', async () => {
+        await listFilteredExpenses(database, 'owner-a', { status: 'SETTLED' });
+        expect(findMany).toHaveBeenLastCalledWith(expect.objectContaining({
+            where: { userId: 'owner-a', archivedAt: null, occurrences: { some: { userId: 'owner-a', status: 'SETTLED' } } },
+            take: 21,
+        }));
+    });
+
+    it('combines status with month and category filters', async () => {
+        await listFilteredExpenses(database, 'owner-a', {
+            status: 'PENDING', month: '2026-11', categoryId: 'category-a',
+        });
+        expect(findMany).toHaveBeenLastCalledWith(expect.objectContaining({
+            where: expect.objectContaining({
+                userId: 'owner-a',
+                categoryId: 'category-a',
+                occurrences: { some: { userId: 'owner-a', status: 'PENDING' } },
+                OR: expect.any(Array),
+            }),
+        }));
+    });
 });

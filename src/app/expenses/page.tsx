@@ -28,7 +28,7 @@ const currency = new Intl.NumberFormat('pt-BR', {
 export default async function ExpensesPage({
     searchParams,
 }: {
-    searchParams: Promise<{ type?: string; paymentMethod?: string; search?: string; cursor?: string; view?: string; status?: string }>;
+    searchParams: Promise<{ type?: string; paymentMethod?: string; search?: string; cursor?: string; view?: string; month?: string; categoryId?: string; status?: string }>;
 }) {
     const session = await auth();
 
@@ -48,22 +48,15 @@ export default async function ExpensesPage({
     const status = ['PENDING', 'SETTLED', 'CANCELED'].includes(query.status ?? '')
         ? query.status as 'PENDING' | 'SETTLED' | 'CANCELED'
         : undefined;
+    const month = typeof query.month === 'string' && /^[1-9]\d{3}-(0[1-9]|1[0-2])$/.test(query.month) ? query.month : undefined;
+    const categoryId = typeof query.categoryId === 'string' ? query.categoryId.trim().slice(0, 200) || undefined : undefined;
     const now = new Date();
     const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
     const monthEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
     const [activeCount, archivedCount, monthlyExpenseCount] = await Promise.all([
         prisma.expense.count({ where: { userId: session.user.id, archivedAt: null } }),
         prisma.expense.count({ where: { userId: session.user.id, archivedAt: { not: null } } }),
-        prisma.expense.count({
-            where: {
-                userId: session.user.id,
-                archivedAt: null,
-                OR: [
-                    { date: { gte: monthStart, lt: monthEnd } },
-                    { date: null, createdAt: { gte: monthStart, lt: monthEnd } },
-                ],
-            },
-        }),
+        prisma.expense.count({ where: { userId: session.user.id, archivedAt: null, OR: [{ date: { gte: monthStart, lt: monthEnd } }, { date: null, createdAt: { gte: monthStart, lt: monthEnd } }] } }),
     ]);
     const { visible, archived } = resolveExpenseHistoryView(
         activeCount,
@@ -75,6 +68,8 @@ export default async function ExpensesPage({
             type,
             paymentMethod,
             search,
+            month,
+            categoryId,
             status,
             cursor: query.cursor,
             archived,
@@ -98,6 +93,8 @@ export default async function ExpensesPage({
     const nextQuery = new URLSearchParams();
     if (type) nextQuery.set('type', type);
     if (paymentMethod) nextQuery.set('paymentMethod', paymentMethod);
+    if (month) nextQuery.set('month', month);
+    if (categoryId) nextQuery.set('categoryId', categoryId);
     if (status) nextQuery.set('status', status);
     if (search) nextQuery.set('search', search);
     if (nextCursor) nextQuery.set('cursor', nextCursor);
@@ -115,7 +112,7 @@ export default async function ExpensesPage({
                         hasArchived={archivedCount > 0}
                         hasActive={activeCount > 0}
                     />
-                    <ExpenseFilters archived={archived} search={search} type={type} paymentMethod={paymentMethod} status={status} />
+                    <ExpenseFilters archived={archived} search={search} type={type} paymentMethod={paymentMethod} month={month} categoryId={categoryId} categories={categories} status={status} />
                     {expenses.length === 0 && <p>Nenhuma despesa registrada.</p>}
                     {!archived && expenses.length > 0 && <BulkCategoryForm rows={expenses.map(({ id, description, categoryId }) => ({ id, description, categoryId }))} categories={categories.map(({ id, name }) => ({ id, name }))} />}
                     <ul className="record-list">
