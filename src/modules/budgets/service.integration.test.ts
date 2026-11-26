@@ -165,7 +165,7 @@ describe('PostgreSQL category budget ownership', () => {
 
         const report = await getCategoryBudgetReport(prisma, otherId, '2026-11');
         expect(report.categories).toHaveLength(5);
-        expect(report.categories.every(row => row.categoryId !== categoryId && row.spentInCents === 0n && row.limitInCents === null)).toBe(true);
+        expect(report.categories.every(row => row.categoryId !== categoryId && row.spentInCents === BigInt(0) && row.limitInCents === null)).toBe(true);
         const incomeCategory = await prisma.category.findFirstOrThrow({ where: { userId: otherId, type: 'INCOME' } });
         await expect(setCategoryBudget(prisma, otherId, { categoryId: incomeCategory.id, period: '2026-11', limitInCents: '1000' })).rejects.toThrow('Category not found');
     });

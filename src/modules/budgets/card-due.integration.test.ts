@@ -51,6 +51,6 @@ describe('PostgreSQL card due-month category spending', () => {
         expect(await spent('2027-05')).toBe(BigInt(3333));
         const otherCategories = (await getCategoryBudgetReport(prisma, otherId, '2027-03')).categories;
         expect(otherCategories).toHaveLength(5);
-        expect(otherCategories.every(row => row.categoryId !== categoryId && row.spentInCents === 0n)).toBe(true);
+        expect(otherCategories.every(row => row.categoryId !== categoryId && row.spentInCents === BigInt(0))).toBe(true);
     });
 });
