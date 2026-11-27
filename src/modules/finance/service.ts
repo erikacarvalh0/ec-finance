@@ -121,7 +121,7 @@ export async function createInvestment(
             ...(data.appliedAt ? { appliedAt: toDate(data.appliedAt) } : {}),
             ...(data.maturityAt ? { maturityAt: toDate(data.maturityAt) } : {}),
             ...(data.contractedRate ? { contractedRate: data.contractedRate } : {}),
-            ...(data.amountInCents && data.appliedAt ? { snapshots: { create: { userId, amountInCents: parseMoney(data.amountInCents), recordedAt: toDate(data.appliedAt) } } } : {}),
+            ...(data.amountInCents && data.appliedAt ? { snapshots: { create: { amountInCents: parseMoney(data.amountInCents), recordedAt: toDate(data.appliedAt) } } } : {}),
         },
     });
 }
