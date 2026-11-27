@@ -58,7 +58,14 @@ export function IncomeForm({ categories = [], onSuccess, onCancel, onDirty }: {
     }
 
     function attributes(name: string) {
-        return { id: `income-${name}`, 'aria-labelledby': `income-label-${name}`, required: true, 'aria-invalid': Boolean(errors[name]), 'aria-describedby': `income-error-${name}` };
+        const labels: Record<string, string> = {
+            description: 'Descrição',
+            amount: 'Valor (R$)',
+            date: 'Data da entrada',
+            categoryId: 'Categoria',
+            type: 'Tipo',
+        };
+        return { id: `income-${name}`, 'aria-label': labels[name], required: true, 'aria-invalid': Boolean(errors[name]), 'aria-describedby': `income-error-${name}` };
     }
 
     return (
