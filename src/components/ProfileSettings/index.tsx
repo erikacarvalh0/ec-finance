@@ -64,7 +64,7 @@ export function ProfileSettings({ name, email }: { name: string | null; email: s
                         <small>Gerenciado pela sua conta Google.</small>
                     </div>
                     <div className={styles['profile-settings__cancel']}>
-                        <Button type="button" theme="neutral" action={cancel} isDisabled={!changed || saving}>Cancelar</Button>
+                        <Button rounded type="button" theme="neutral" action={cancel} isDisabled={!changed || saving}>Cancelar</Button>
                     </div>
                 </Form>
             </fieldset>

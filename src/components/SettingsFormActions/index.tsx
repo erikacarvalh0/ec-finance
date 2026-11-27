@@ -11,8 +11,8 @@ export function SettingsFormActions({ onCancel, onSave, disabled = false, saving
 }) {
     return (
         <div className={styles.actions}>
-            <Button type="button" theme="neutral" action={onCancel} isDisabled={saving}>Cancelar</Button>
-            <Button type="button" theme="cta" action={onSave} isDisabled={disabled || saving}>
+            <Button rounded type="button" theme="neutral" outline action={onCancel} isDisabled={saving}>Cancelar</Button>
+            <Button rounded type="button" theme="cta" action={onSave} isDisabled={disabled || saving}>
                 {saving ? 'Salvando…' : 'Salvar alterações'}
             </Button>
         </div>

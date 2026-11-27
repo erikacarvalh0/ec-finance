@@ -109,8 +109,8 @@ export function IncomeForm({ categories = [], onSuccess, onCancel, onDirty }: {
             </label>
             <p className={styles['income-form__feedback']} role="status">{feedback.message}</p>
             <div className={styles['income-form__actions']}>
-                <button type="button" disabled={feedback.saving} onClick={onCancel}>Cancelar</button>
-                <button type="submit" disabled={feedback.saving}>{feedback.saving ? 'Salvando…' : 'Salvar entrada'}</button>
+                <Button variant="secondary" type="button" disabled={feedback.saving} onClick={onCancel}>Cancelar</Button>
+                <Button type="submit" disabled={feedback.saving}>{feedback.saving ? 'Salvando…' : 'Salvar entrada'}</Button>
             </div>
         </form>
     );

@@ -31,8 +31,8 @@ export function ExpenseDelete({ id, description, onClose }: { id: string; descri
     }
     return <section>
         <p>Excluir permanentemente a despesa {description}? Esta ação não pode ser desfeita.</p>
-        <Button type="button" disabled={saving} onClick={onClose}>Cancelar</Button>
-        <Button type="button" disabled={saving} onClick={confirmDelete}>Excluir permanentemente</Button>
+        <Button variant="secondary" type="button" disabled={saving} onClick={onClose}>Cancelar</Button>
+        <Button variant="danger" type="button" disabled={saving} onClick={confirmDelete}>Excluir permanentemente</Button>
         <p role="status">{message}</p>
     </section>;
 }

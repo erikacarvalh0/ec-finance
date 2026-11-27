@@ -1,6 +1,7 @@
 'use client';
 import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ecds-v1/compat';
 import styles from './index.module.css';
 
 export function InvestmentRegistration({ institutions }: { institutions: string[] }) {
@@ -43,6 +44,6 @@ export function InvestmentRegistration({ institutions }: { institutions: string[
         <label className={styles.type}><span>Tipo <b aria-hidden="true">*</b></span><select {...attrs('type',true)} aria-label="Tipo" defaultValue=""><option value="" disabled>Selecione</option>{['Renda Fixa','Tesouro Direto','Renda Variável','Outros'].map(t=><option key={t}>{t}</option>)}</select>{message('type')}</label>
         {fields.map(([name,label,type,required])=><label key={name} className={name==='name'?styles.description:styles.field}><span>{label}{required&&<b aria-hidden="true"> *</b>}</span><input {...attrs(name,required)} aria-label={label} type={type} placeholder={type==='text'?' ':undefined} maxLength={120} list={name==='institution'?'investment-institutions':undefined}/>{message(name)}</label>)}
         <datalist id="investment-institutions">{institutions.map(name=><option key={name} value={name}/>)}</datalist>
-        <p role="alert" className={styles.error}>{errors.form}</p><button type="submit" disabled={saving}>{saving?'Salvando…':'Salvar'}</button>
+        <p role="alert" className={styles.error}>{errors.form}</p><Button type="submit" disabled={saving}>{saving?'Salvando…':'Salvar'}</Button>
     </form>;
 }
