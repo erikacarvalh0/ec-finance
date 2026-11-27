@@ -3,6 +3,7 @@ import { useRef, useState, useEffect, useId } from 'react';
 import { useRouter } from 'next/navigation';
 import { RecordEditForm } from '@/components/finance/record-edit-form';
 import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
+import { Button } from '@/components/ecds-v1/compat';
 import styles from './index.module.css';
 
 type Record = Extract<Parameters<typeof RecordEditForm>[0]['record'], { kind: 'income' }>;
@@ -40,12 +41,12 @@ export function IncomeActions({ record, categories, archived }: { record: Record
         { action: 'archive', label: archived ? 'Restaurar' : 'Arquivar', path: archived ? 'M4 10h16v10H4z M12 15V3 M8 7l4-4 4 4' : 'M3 4h18v5H3z M5 9v11h14V9 M9 13h6' },
     ];
     return <div className={styles.actions}>
-        {buttons.map(button => <button key={button.action} type="button" aria-label={button.label + ' ' + (record.description || 'entrada')} title={button.label} onClick={event => { trigger.current = event.currentTarget; setAction(button.action); }}><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d={button.path}/></svg></button>)}
+        {buttons.map(button => <Button variant="ghost" key={button.action} type="button" aria-label={button.label + ' ' + (record.description || 'entrada')} title={button.label} onClick={event => { trigger.current = event.currentTarget; setAction(button.action); }} icon={<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d={button.path}/></svg>}/>) }
         {action && <dialog ref={dialog} aria-labelledby={titleId} className={styles.dialog} onCancel={event => { event.preventDefault(); if (!saving) close(); }}>
-            <header><h2 id={titleId}>{action === 'edit' ? 'Editar entrada' : action === 'end' ? 'Encerrar recorrência' : archived ? 'Restaurar entrada?' : 'Arquivar entrada?'}</h2><button type="button" aria-label="Fechar" disabled={saving} onClick={close}>×</button></header>
+            <header><h2 id={titleId}>{action === 'edit' ? 'Editar entrada' : action === 'end' ? 'Encerrar recorrência' : archived ? 'Restaurar entrada?' : 'Arquivar entrada?'}</h2><Button variant="ghost" type="button" aria-label="Fechar" disabled={saving} onClick={close}>×</Button></header>
             {action === 'edit' && <RecordEditForm inline record={record} categories={categories} onSuccess={close}/>}
             {action === 'end' && <EndRecurrenceForm kind="income" id={record.id} currentDate={record.endsOn}/>}
-            {action === 'archive' && <><p>{record.description || 'Entrada'} — {archived ? 'voltará ao histórico ativo.' : 'será movida para as entradas arquivadas.'}</p><p role="alert">{error}</p><footer><button type="button" disabled={saving} onClick={close}>Cancelar</button><button type="button" disabled={saving} onClick={archive}>{saving ? 'Salvando…' : 'Confirmar'}</button></footer></>}
+            {action === 'archive' && <><p>{record.description || 'Entrada'} — {archived ? 'voltará ao histórico ativo.' : 'será movida para as entradas arquivadas.'}</p><p role="alert">{error}</p><footer><Button variant="secondary" type="button" disabled={saving} onClick={close}>Cancelar</Button><Button type="button" disabled={saving} onClick={archive}>{saving ? 'Salvando…' : 'Confirmar'}</Button></footer></>}
         </dialog>}
     </div>;
 }
