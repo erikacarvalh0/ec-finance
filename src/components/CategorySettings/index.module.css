@@ -1,3 +1,38 @@
-.root {display:grid;gap:16px;min-width:0}
-.toolbar,.toolbar>div {display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
-.toolbar button {min-height:var(--settings-button-height,40px);font-weight:600}
+.category-settings {
+    display: grid;
+    gap: var(--gridSize2x, 16px);
+    min-width: 0;
+
+    & .category-settings__toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--gridSizeDefault, 8px);
+        align-items: center;
+        justify-content: space-between;
+
+        & > div {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--gridSizeDefault, 8px);
+        }
+
+        & button {
+            min-height: var(--settings-button-height, 40px);
+            font-weight: 600;
+        }
+
+        & .category-settings__create:global(.button.cta) {
+            background: transparent;
+            border: 1px solid var(--acquaDark, #21949f);
+            color: var(--acquaDark, #21949f);
+
+            &:hover:not(:disabled) {
+                background: var(--acquaLight, #dff4f5);
+            }
+
+            &:disabled {
+                opacity: .5;
+            }
+        }
+    }
+}
