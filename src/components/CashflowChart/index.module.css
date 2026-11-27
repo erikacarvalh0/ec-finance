@@ -23,7 +23,24 @@
             padding: 0;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             grid-template-rows: minmax(1.5em, auto) repeat(100, minmax(0, 1fr)) minmax(1.5em, auto);
-            grid-auto-flow: column;
+            grid-auto-flow: row;
+            list-style: none;
+
+            & > :global(.chart__item:nth-child(1)) {
+                --cashflow-column: 1;
+                --cashflow-value-label: var(--cashflow-income-label);
+            }
+
+            & > :global(.chart__item:nth-child(2)) {
+                --cashflow-column: 2;
+                --cashflow-value-label: var(--cashflow-expenses-label);
+            }
+
+            & > :global(.chart__item) > :global(*) {
+                grid-column: var(--cashflow-column);
+                margin: 0;
+                justify-self: center;
+            }
             column-gap: var(--gridSize2x, 16px);
 
             & :global(.chart__label),
@@ -42,6 +59,18 @@
                 text-align: center;
             }
 
+            & :global(.chart__value) {
+                font-size: 0;
+                align-self: end;
+
+                &::after {
+                    content: var(--cashflow-value-label);
+                    font-size: var(--dashboard-label-size, 16px);
+                    line-height: 1.5;
+                    font-variant-numeric: tabular-nums;
+                }
+            }
+
             & :global(.chart__col) {
                 width: min(60%, 72px);
             }
@@ -51,6 +80,8 @@
     & .cashflow-chart__summary {
         display: flex;
         flex-wrap: wrap;
+        font-size: calc(var(--dashboard-label-size, 16px) - 2px);
+        margin-top: var(--gridSize3x, 24px);
         gap: 0 var(--gridSizeDefault, 8px);
 
         & span {
