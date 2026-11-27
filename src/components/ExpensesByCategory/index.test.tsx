@@ -24,6 +24,7 @@ it('calculates shares from actual amounts', () => {
         />,
     );
 
+    expect(screen.queryByRole('link', { name: 'Adicionar despesa' })).toBeNull();
     expect(screen.getByTestId('chart').textContent).toContain('"percentage":75');
     expect(screen.getByTestId('chart').textContent).toContain('"percentage":25');
 });
@@ -31,6 +32,7 @@ it('calculates shares from actual amounts', () => {
 it('handles no spending', () => {
     render(<ExpensesByCategory categories={[]} />);
     expect(screen.queryByTestId('chart')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Adicionar despesa' }).getAttribute('href')).toBe('/expenses');
 });
 
 it('uses persisted category colors', () => {
