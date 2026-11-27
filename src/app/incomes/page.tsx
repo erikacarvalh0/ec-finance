@@ -6,6 +6,8 @@ import { Card } from '@/components/ecds-v1/compat';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { listFilteredIncomes } from '@/modules/income/history';
+import { IncomeSummary } from '@/components/IncomeSummary';
+import { getIncomeSummary } from '@/modules/income/summary';
 import { IncomeHeader } from '@/components/IncomeHeader';
 import styles from './page.module.css';
 import { RecordEditForm } from '@/components/finance/record-edit-form';
@@ -44,7 +46,10 @@ export default async function IncomesPage({
         archived,
     });
 
-    const categories = await listCategories(prisma, session.user.id, 'INCOME');
+    const [categories, summary] = await Promise.all([
+        listCategories(prisma, session.user.id, 'INCOME'),
+        getIncomeSummary(prisma, session.user.id),
+    ]);
     const nextQuery = new URLSearchParams();
     if (validType) nextQuery.set('type', validType);
     if (search) nextQuery.set('search', search);
@@ -55,6 +60,7 @@ export default async function IncomesPage({
         <Page>
             <div className={`finance-page ${styles['incomes-page']}`}>
             <IncomeHeader categories={categories.map(({ id, name }) => ({ id, name }))} />
+            <IncomeSummary summary={summary} />
             <Card padding="lg">
                 <h2>Histórico de entradas</h2>
                 <p><Link href={archived ? '/incomes' : '/incomes?view=archived'}>{archived ? 'Ver entradas ativas' : 'Ver entradas arquivadas'}</Link></p>
