@@ -122,7 +122,48 @@
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: var(--finance-section-gap, 24px);
-        align-items: start;
+        align-items: stretch;
+    }
+
+    & .dashboard-overview__card--tracking {
+        box-sizing: border-box;
+        max-height: 582px;
+        min-height: 0;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+
+        & :global(.card__content) {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            min-width: 0;
+        }
+
+        & h2,
+        & .dashboard-overview__header,
+        & .dashboard-overview__footer-link {
+            flex-shrink: 0;
+        }
+
+        & .dashboard-overview__budget-list,
+        & .dashboard-overview__scroll-list {
+            min-height: 0;
+            overflow: auto;
+            overscroll-behavior: contain;
+        }
+
+        & .dashboard-overview__empty-state {
+            flex: 1;
+            min-height: 0;
+            padding-block: var(--gridSize2x, 16px);
+        }
+
+        & .dashboard-overview__footer-link {
+            margin-top: auto;
+            padding-top: var(--gridSize2x, 16px);
+        }
     }
 
     & .dashboard-overview__budget-list {
