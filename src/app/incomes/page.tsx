@@ -9,9 +9,7 @@ import { IncomeSummary } from '@/components/IncomeSummary';
 import { getIncomeSummary } from '@/modules/income/summary';
 import { IncomeHeader } from '@/components/IncomeHeader';
 import styles from './page.module.css';
-import { RecordEditForm } from '@/components/finance/record-edit-form';
-import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
-import { IncomeArchiveButton } from '@/components/finance/income-archive-button';
+import { IncomeActions } from '@/components/IncomeActions';
 import { parseIncomeArchiveView } from '@/modules/income/archive-view';
 
 export const dynamic = 'force-dynamic';
@@ -58,27 +56,12 @@ export default async function IncomesPage({
                 type: income.type === 'RECURRING' ? 'Recorrente' : income.type === 'SALARY' ? 'Salário' : 'Eventual',
                 category: categories.find(category => category.id === income.categoryId)?.name ?? 'Sem categoria',
                 amount: currency.format(Number(income.amountInCents) / 100),
-                actions: <div>
-                    {!archived && income.type === 'RECURRING' && (
-                                <EndRecurrenceForm
-                                    kind="income"
-                                    id={income.id}
-                                    currentDate={income.endsOn?.toISOString().slice(0, 10) ?? ''}
-                                />
-                            )}
-                            {!archived && <RecordEditForm categories={categories} record={{
-                                kind: 'income',
-                                categoryId: income.categoryId ?? '',
-                                id: income.id,
-                                amountInCents: income.amountInCents.toString(),
-                                type: income.type,
-                                responsible: income.responsible ?? '',
-                                description: income.description ?? '',
-                                date: income.date?.toISOString().slice(0, 10) ?? '',
-                                endsOn: income.endsOn?.toISOString().slice(0, 10) ?? '',
-                            }} />}
-                            <IncomeArchiveButton id={income.id} archived={archived} />
-                </div>,
+                actions: <IncomeActions archived={archived} categories={categories.map(({ id, name }) => ({ id, name }))} record={{
+                    kind: 'income', id: income.id, categoryId: income.categoryId ?? '',
+                    amountInCents: income.amountInCents.toString(), type: income.type,
+                    responsible: income.responsible ?? '', description: income.description ?? '',
+                    date: income.date?.toISOString().slice(0, 10) ?? '', endsOn: income.endsOn?.toISOString().slice(0, 10) ?? '',
+                }} />,
             }))} />
             </div>
         </Page>

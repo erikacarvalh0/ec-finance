@@ -63,7 +63,8 @@ export function RecordEditForm({
 
         const form = event.currentTarget;
         const values = new FormData(form);
-        const amountInCents = parseCurrency(String(values.get('amount')));
+        let amountInCents: string;
+        try { amountInCents = parseCurrency(String(values.get('amount'))); } catch (error) { setFeedback(error instanceof Error ? error.message : 'Valor inválido.'); return; }
         const recurring = record.kind === 'income' && type === 'RECURRING';
 
         const input = record.kind === 'expense' ? {
@@ -81,10 +82,10 @@ export function RecordEditForm({
             type,
             amountInCents,
             ...(values.has('categoryId') ? { categoryId: String(values.get('categoryId')) || null } : {}),
+            ...(values.get('description') ? { description: String(values.get('description')) } : {}),
+            ...(values.get('date') ? { date: String(values.get('date')) } : {}),
             ...(recurring ? {
-                responsible: String(values.get('responsible')),
-                description: String(values.get('description')),
-                date: String(values.get('date')),
+                ...(values.get('responsible') ? { responsible: String(values.get('responsible')) } : {}),
                 endsOn: String(values.get('endsOn')) || null,
             } : {}),
         };
@@ -127,10 +128,10 @@ export function RecordEditForm({
             </Button>}
             {(inline || expanded) && (
                 <form className={inline ? styles['record-editor__form'] : "finance-form"} onSubmit={save}>
-                    {record.kind === 'expense' && (
+                    {(
                         <label className={inline ? styles['record-editor__description'] : undefined}>
                             Descrição
-                            <Input name="description" defaultValue={record.description} required />
+                            <Input name="description" defaultValue={record.description} required={record.kind === 'expense' || type === 'RECURRING'} />
                         </label>
                     )}
                     <label>
@@ -207,22 +208,8 @@ export function RecordEditForm({
                             </Select>
                         </label>
                     )}
-                    {record.kind === 'income' && type === 'RECURRING' && (
-                        <>
-                            <label>
-                                Responsável
-                                <Input name="responsible" defaultValue={record.responsible} required />
-                            </label>
-                            <label>
-                                Descrição
-                                <Input name="description" defaultValue={record.description} required />
-                            </label>
-                            <label>
-                                Data inicial
-                                <Input name="date" type="date" defaultValue={record.date} required />
-                            </label>
-                        </>
-                    )}
+                    {record.kind === 'income' && <label>Data<Input name="date" type="date" defaultValue={record.date} required={type === 'RECURRING'} /></label>}
+                    {record.kind === 'income' && type === 'RECURRING' && <label>Responsável<Input name="responsible" defaultValue={record.responsible} /></label>}
                     {(record.kind === 'expense' && type === 'FIXED'
                         || record.kind === 'income' && type === 'RECURRING') && (
                         <label>
