@@ -27,6 +27,6 @@ it('renders all three recorded metrics', () => {
 
 it('renders overdue count and review link', () => {
     render(<FinancialOverview fixed={0} overdue={100} count={1} transactions={0} />);
-    expect(screen.getByText('1 ocorrência(s) pendente(s)')).toBeTruthy();
+    expect(screen.getByText('1 ocorrência pendente')).toBeTruthy();
     expect(screen.getByRole('link').getAttribute('href')).toBe('/forecast');
 });
