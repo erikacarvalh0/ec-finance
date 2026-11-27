@@ -1,72 +1,118 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
-import { Button, Card, Input, Select } from '@/components/ecds-v1/compat';
+import { useRef, useState, type FormEvent } from 'react';
+import { Button, Input } from '@/components/ecds-v1/compat';
 import { toCents, submitJson, useFeedback } from './form-utils';
+import styles from './income-form.module.css';
 export { ExpenseForm } from '@/components/ExpenseForm';
 
-export function IncomeForm({ categories = [] }: { categories?: Array<{ id: string; name: string }> }) {
+export function IncomeForm({ categories = [], onSuccess, onCancel, onDirty }: {
+    categories?: Array<{ id: string; name: string }>;
+    onSuccess?: () => void;
+    onCancel?: () => void;
+    onDirty?: () => void;
+}) {
     const feedback = useFeedback();
-    const [type, setType] = useState('SALARY');
+    const [type, setType] = useState('');
+    const [amount, setAmount] = useState('');
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const submitting = useRef(false);
 
     async function onSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const form = event.currentTarget;
-        const data = new FormData(form);
-
-        await feedback.save(async () => {
-            await submitJson('/api/incomes', {
-                type,
-                ...(data.get('categoryId') ? { categoryId: String(data.get('categoryId')) } : {}),
-                amountInCents: toCents(String(data.get('amount'))),
-                ...(type === 'RECURRING' ? {
-                    responsible: String(data.get('responsible')),
-                    description: String(data.get('description')),
-                    date: String(data.get('date')),
-                } : {}),
+        if (submitting.current) return;
+        const data = new FormData(event.currentTarget);
+        const description = String(data.get('description') ?? '').trim();
+        const date = String(data.get('date') ?? '');
+        const categoryId = String(data.get('categoryId') ?? '');
+        const nextErrors: Record<string, string> = {};
+        let amountInCents = '0';
+        if (!description) nextErrors.description = 'Informe uma descrição.';
+        try {
+            amountInCents = toCents(String(data.get('amount') ?? '').replace(/\.(?=\d{3}(?:[.,]|$))/g, ''));
+            if (BigInt(amountInCents) <= BigInt(0) || amountInCents.length > 18) throw new Error();
+        } catch {
+            nextErrors.amount = 'Informe um valor maior que zero.';
+        }
+        if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) nextErrors.date = 'Informe uma data válida.';
+        if (!categoryId) nextErrors.categoryId = 'Selecione uma categoria.';
+        if (!type) nextErrors.type = 'Selecione o tipo de entrada.';
+        setErrors(nextErrors);
+        if (Object.keys(nextErrors).length) {
+            event.currentTarget.querySelector<HTMLElement>(`#income-${Object.keys(nextErrors)[0]}`)?.focus();
+            return;
+        }
+        submitting.current = true;
+        try {
+            await feedback.save(async () => {
+                await submitJson('/api/incomes', { type, categoryId, amountInCents, description, date });
+                onSuccess?.();
             });
+        } finally {
+            submitting.current = false;
+        }
+    }
 
-            form.reset();
-        });
+    function error(name: string) {
+        return <small id={`income-error-${name}`} className={styles['income-form__error']}>{errors[name]}</small>;
+    }
+
+    function attributes(name: string) {
+        const labels: Record<string, string> = {
+            description: 'Descrição',
+            amount: 'Valor (R$)',
+            date: 'Data da entrada',
+            categoryId: 'Categoria',
+            type: 'Tipo',
+        };
+        return { id: `income-${name}`, 'aria-label': labels[name], required: true, 'aria-invalid': Boolean(errors[name]), 'aria-describedby': `income-error-${name}` };
     }
 
     return (
-        <Card padding="lg">
-            <h2>Nova entrada</h2>
-            <form onSubmit={onSubmit} className="finance-form">
-                <label>Valor (R$)
-                    <Input name="amount" inputMode="decimal" placeholder="4500,00" required />
-                </label>
-                <label>Tipo
-                    <Select value={type} onChange={(event) => setType(event.target.value)}>
-                        <option value="SALARY">Salário</option>
-                        <option value="RECURRING">Recorrente</option>
-                        <option value="OTHER">Outros</option>
-                    </Select>
-                </label>
-                <label>Categoria (opcional)
-                    <Select name="categoryId" defaultValue="">
-                        <option value="">Sem categoria</option>
-                        {categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
-                    </Select>
-                </label>
-                {type === 'RECURRING' && (
-                    <>
-                        <label>Responsável
-                            <Input name="responsible" required />
-                        </label>
-                        <label>Descrição
-                            <Input name="description" required />
-                        </label>
-                        <label>Data
-                            <Input name="date" type="date" required />
-                        </label>
-                    </>
-                )}
-                <Button type="submit" disabled={feedback.saving}>Salvar entrada</Button>
-                <p role="status">{feedback.message}</p>
-            </form>
-        </Card>
+        <form noValidate onSubmit={onSubmit} onChange={onDirty} className={styles['income-form']}>
+            <p id="income-dialog-description" className={styles['income-form__intro']}>Registre uma nova receita no seu controle financeiro.</p>
+            <label className={styles['income-form__wide']}>
+                <span id="income-label-description">Descrição <b aria-hidden="true">*</b></span>
+                <input name="description" autoFocus maxLength={255} placeholder="Ex.: Salário, Freelance, Reembolso" {...attributes('description')} />
+                {error('description')}
+            </label>
+            <label>
+                <span id="income-label-amount">Valor (R$) <b aria-hidden="true">*</b></span>
+                <input name="amount" inputMode="numeric" placeholder="0,00" value={amount} onChange={event => {
+                    const digits = event.target.value.replace(/\D/g, '').slice(0, 15);
+                    setAmount(digits ? (Number(digits) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '');
+                }} {...attributes('amount')} />
+                {error('amount')}
+            </label>
+            <label>
+                <span id="income-label-date">Data da entrada <b aria-hidden="true">*</b></span>
+                <input name="date" type="date" {...attributes('date')} />
+                {error('date')}
+            </label>
+            <label className={styles['income-form__wide']}>
+                <span id="income-label-categoryId">Categoria <b aria-hidden="true">*</b></span>
+                <select name="categoryId" defaultValue="" {...attributes('categoryId')}>
+                    <option value="" disabled>Selecione</option>
+                    {categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
+                </select>
+                {error('categoryId')}
+            </label>
+            <label className={styles['income-form__wide']}>
+                <span id="income-label-type">Tipo <b aria-hidden="true">*</b></span>
+                <select name="type" value={type} onChange={event => setType(event.target.value)} {...attributes('type')}>
+                    <option value="" disabled>Selecione</option>
+                    <option value="RECURRING">Recorrente</option>
+                    <option value="OTHER">Eventual</option>
+                </select>
+                {error('type')}
+                {type && <small className={styles['income-form__hint']}>{type === 'RECURRING' ? 'Se repete todos os meses.' : 'Acontece uma única vez.'}</small>}
+            </label>
+            <p className={styles['income-form__feedback']} role="status">{feedback.message}</p>
+            <div className={styles['income-form__actions']}>
+                <button type="button" disabled={feedback.saving} onClick={onCancel}>Cancelar</button>
+                <button type="submit" disabled={feedback.saving}>{feedback.saving ? 'Salvando…' : 'Salvar entrada'}</button>
+            </div>
+        </form>
     );
 }
 

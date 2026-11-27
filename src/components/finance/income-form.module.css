@@ -1,0 +1,167 @@
+.income-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+    min-width: 0;
+
+    & .income-form__intro,
+    & .income-form__wide,
+    & .income-form__actions,
+    & .income-form__feedback {
+        grid-column: 1 / -1;
+    }
+
+    & .income-form__intro {
+        margin: 0 0 8px;
+        color: #3b4262;
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+    & label {
+        display: grid;
+        min-width: 0;
+        color: var(--acqua, #50c8d6);
+        font-size: 12px;
+        font-weight: 600;
+
+        & span {
+            padding-left: 12px;
+            text-transform: uppercase;
+        }
+
+        & b {
+            color: #ff4141;
+        }
+
+        & input,
+        & select {
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 0;
+            height: 40px;
+            padding: 8px 12px;
+            border: 0;
+            border-bottom: 2px solid var(--acqua, #50c8d6);
+            border-radius: 0;
+            background: transparent;
+            color: #101127;
+            font: inherit;
+            font-size: 16px;
+            font-weight: 400;
+
+            &:focus {
+                border-bottom: 3px solid #008b8e;
+                outline: none;
+            }
+
+            &[aria-invalid="true"] {
+                border-bottom-color: #ff4141;
+            }
+        }
+
+        &:has([aria-invalid="true"]) {
+            color: #ff4141;
+        }
+    }
+
+    & .income-form__error,
+    & .income-form__hint {
+        min-height: 18px;
+        padding-left: 12px;
+        font-size: 12px;
+        line-height: 18px;
+        font-weight: 400;
+        overflow-wrap: anywhere;
+    }
+
+    & .income-form__error {
+        color: #bd3847;
+    }
+
+    & .income-form__hint {
+        color: #3b4262;
+    }
+
+    & .income-form__feedback {
+        margin: 0;
+        overflow-wrap: anywhere;
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    & .income-form__actions {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 8px;
+        position: sticky;
+        bottom: 0;
+        background: #fafbfd;
+
+        & button {
+            min-height: 40px;
+            padding: 0 20px;
+            border: 1px solid #008b8e;
+            border-radius: 6px;
+            background: transparent;
+            color: #008b8e;
+            font: inherit;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+
+            &[type="submit"] {
+                background: #008b8e;
+                color: white;
+            }
+
+            &:disabled {
+                opacity: .6;
+                cursor: default;
+            }
+        }
+    }
+
+    @media (max-width: 600px) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+
+.income-form label {
+    position: relative;
+    padding-top: 16px;
+
+    & span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        transition: top .15s, font-size .15s;
+    }
+
+    &:has(input:placeholder-shown):not(:focus-within):not(:has([aria-invalid="true"])),
+    &:has(select:invalid):not(:focus-within):not(:has([aria-invalid="true"])) {
+        & span {
+            top: 24px;
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        & input::placeholder {
+            color: transparent;
+        }
+
+        & select {
+            color: transparent;
+        }
+
+        & option {
+            color: #101127;
+        }
+    }
+}
