@@ -34,7 +34,7 @@ export function IncomeHistory({ filters, categories, rows, page, pages }: {
                 <label>Mês<input type="month" name="month" defaultValue={filters.month ?? ''} /></label>
                 <label>Tipo<select name="type" defaultValue={filters.type ?? ''}><option value="">Todos</option><option value="SALARY">Salário</option><option value="RECURRING">Recorrente</option><option value="OTHER">Eventual</option></select></label>
                 <label>Categoria<select name="categoryId" defaultValue={filters.categoryId ?? ''}><option value="">Todas</option>{categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
-                <label className={styles['income-history__search']}>Buscar<input name="search" type="search" maxLength={100} defaultValue={filters.search ?? ''} placeholder="Responsável ou descrição" /></label>
+                <label className={styles['income-history__search']}><span>Buscar</span><input name="search" type="search" maxLength={100} defaultValue={filters.search ?? ''} placeholder="Responsável ou descrição" /><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg></label>
                 <button type="submit">Aplicar filtros</button>
             </form>
             {rows.length ? <div className={styles['income-history__scroll']}><table>
