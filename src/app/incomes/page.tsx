@@ -6,7 +6,8 @@ import { Card } from '@/components/ecds-v1/compat';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { listFilteredIncomes } from '@/modules/income/history';
-import { IncomeForm } from '@/components/finance/forms';
+import { IncomeHeader } from '@/components/IncomeHeader';
+import styles from './page.module.css';
 import { RecordEditForm } from '@/components/finance/record-edit-form';
 import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
 import { IncomeArchiveButton } from '@/components/finance/income-archive-button';
@@ -52,9 +53,8 @@ export default async function IncomesPage({
 
     return (
         <Page>
-            <div className="finance-page">
-            <h1>Entradas</h1>
-            <IncomeForm categories={categories} />
+            <div className={`finance-page ${styles['incomes-page']}`}>
+            <IncomeHeader categories={categories.map(({ id, name }) => ({ id, name }))} />
             <Card padding="lg">
                 <h2>Histórico de entradas</h2>
                 <p><Link href={archived ? '/incomes' : '/incomes?view=archived'}>{archived ? 'Ver entradas ativas' : 'Ver entradas arquivadas'}</Link></p>
