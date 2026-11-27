@@ -1,3 +1,4 @@
+import { Button } from '@/components/ecds-v1/compat';
 import { Page } from '@/components/Page';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ecds-v1/compat';
@@ -63,7 +64,7 @@ export default async function InvestmentsPage({searchParams}: {searchParams: Pro
                     <label>Tipo<select name="type" defaultValue={filters.type??''}><option value="">Todos</option>{['Renda Fixa','Tesouro Direto','Renda Variável','Outros'].map(t=><option key={t}>{t}</option>)}</select></label>
                     <label>Instituição<select name="institution" defaultValue={filters.institution??''}><option value="">Todas</option>{institutions.map(t=><option key={t}>{t}</option>)}</select></label>
                     <label>Status<select name="status" defaultValue={filters.status??''}><option value="">Todos</option>{['Ativo','Vencendo','Vencido'].map(t=><option key={t}>{t}</option>)}</select></label>
-                    <button type="submit">Aplicar filtros</button>
+                    <Button type="submit">Aplicar filtros</Button>
                 </form>
                 <div className={styles.scroll}><table><thead><tr>{['Data','Descrição','Tipo','Instituição','Valor','Taxa / rentabilidade','Status','Ações'].map(t=><th key={t} scope="col">{t}</th>)}</tr></thead><tbody>{visible.map(i=>{const p=summarizeInvestmentPerformance(i.snapshots,i.cashflows);return <tr key={i.id}><td>{(i.appliedAt??i.createdAt).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td>{i.name}</td><td><span className={styles.badge} data-type={i.type}>{i.type??'Não informado'}</span></td><td>{i.institution??'—'}</td><td>{p.currentBalanceInCents===null?'—':money(p.currentBalanceInCents)}</td><td>{i.contractedRate??'—'}</td><td><span className={styles.badge} data-status={status(i)}>{status(i)}</span></td><td><a className={styles.action} href={'#investment-'+i.id} aria-label={'Detalhes de '+i.name}>⋯</a></td></tr>})}</tbody></table></div>
                 {!visible.length&&<p>Nenhum investimento encontrado.</p>}
