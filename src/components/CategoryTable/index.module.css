@@ -11,15 +11,15 @@
         & th,
         & td {
             height: 46px;
-            padding: 4px;
-            border-bottom: 1px solid var(--settings-border, #e3e8f0);
+            padding: var(--finance-space-4);
+            border-bottom: 1px solid var(--settings-border, var(--finance-color-e3e8f0));
         }
     }
 
     & .category-table__actions {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: var(--finance-space-4);
     }
 
     & .category-table__action:global(.button) {
@@ -31,7 +31,7 @@
         padding: 0;
         border: 0;
         background: transparent;
-        color: var(--acquaDark, #21949f);
+        color: var(--acquaDark, var(--finance-color-21949f));
 
         &:hover:not(:disabled) {
             background: transparent;
@@ -50,7 +50,7 @@
         }
 
         &.category-table__action--delete {
-            color: var(--pinkDark, #d93665);
+            color: var(--pinkDark, var(--finance-color-d93665));
         }
     }
 

@@ -7,9 +7,9 @@
     --dashboard-gap: var(--finance-section-gap);
     --dashboard-radius: var(--finance-card-radius);
     --dashboard-title-size: var(--finance-page-title-size);
-    --dashboard-card-title-size: 22px;
+    --dashboard-card-title-size: var(--finance-font-20);
     --dashboard-label-size: var(--finance-page-subtitle-size);
-    --dashboard-value-size: 32px;
+    --dashboard-value-size: var(--finance-font-30);
     --dashboard-support-line: 28px;
     --dashboard-icon-size: 64px;
     --dashboard-icon-radius: var(--finance-icon-radius);
@@ -58,7 +58,7 @@
     font-weight: 700;
     color: var(--dashboard-ink);
     text-transform: none;
-    margin: 0 0 var(--gridSizeDefault, 8px);
+    margin: 0 0 var(--gridSizeDefault, var(--finance-space-8));
 }
 
 .chartCard {
@@ -68,8 +68,8 @@
 
 @media (max-width: 767px) {
     .main {
-        --dashboard-padding: 20px;
-        --dashboard-gap: 20px;
-        --dashboard-title-size: 32px;
+        --dashboard-padding: var(--finance-space-20);
+        --dashboard-gap: var(--finance-space-20);
+        --dashboard-title-size: var(--finance-page-title-size);
     }
 }
