@@ -16,6 +16,7 @@ import { getUserCashflowForecast } from '@/modules/forecast/repository';
 import { getOverdueExpenseTotals } from '@/modules/forecast/overdue';
 import { getCategoryBudgetReport } from '@/modules/budgets/service';
 import { MarkFixedButton } from '@/components/finance/forms';
+import { Calendar, CreditCard } from '@erikacarvalho/react/Icons';
 import overviewStyles from '@/components/dashboard/overview-details.module.css';
 import { getUserMonthlyCashflowReport } from '@/modules/reports/monthly';
 import { summarizeDashboardRecordedCashflow } from '@/modules/reports/dashboard-cashflow';
@@ -120,30 +121,33 @@ export default async function DashboardPage({
                 />
                 <section className={overviewStyles.sections} aria-label="Planejamento e acompanhamento financeiro">
                 <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles.card} ${overviewStyles.forecastCard}`}>
-                    <h2>Previsão dos próximos meses</h2>
+                    <div className={overviewStyles.cardHeader}>
+                        <h2>Previsão dos próximos meses</h2>
+                        <Link href="/forecast" className={overviewStyles.actionLink}>Ver planejamento →</Link>
+                    </div>
                     <p>
                         Parcelas e recorrências calculadas a partir dos registros existentes.
                         São previsões, não cobranças confirmadas.
                     </p>
-                    <div className="table-scroll">
-                        <table>
+                    <div className={overviewStyles.tableScroll}>
+                        <table className={overviewStyles.forecastTable}>
                             <thead>
                                 <tr>
-                                    <th>Mês</th>
-                                    <th>Despesas previstas</th>
-                                    <th>Entradas previstas</th>
-                                    <th>Saldo projetado</th>
-                                    <th>Realizado</th>
-                                    <th>Pendente</th>
+                                    <th scope="col">Mês</th>
+                                    <th scope="col">Despesas previstas</th>
+                                    <th scope="col">Entradas previstas</th>
+                                    <th scope="col">Saldo projetado</th>
+                                    <th scope="col">Realizado</th>
+                                    <th scope="col">Pendente</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {forecast.map((month) => (
-                                    <tr key={`${month.year}-${month.month}`}>
-                                        <td>{String(month.month).padStart(2, '0')}/{month.year}</td>
+                                    <tr key={`${month.year}-${month.month}`} className={month.year === year && month.month === selectedMonth.getUTCMonth() + 1 ? overviewStyles.currentMonth : undefined}>
+                                        <td>{String(month.month).padStart(2, '0')}/{month.year}{month.year === year && month.month === selectedMonth.getUTCMonth() + 1 && <span className={overviewStyles.currentBadge}>Atual</span>}</td>
                                         <td>{formatCents(month.expenseTotalInCents)}</td>
                                         <td>{formatCents(month.incomeTotalInCents)}</td>
-                                        <td>{formatCents(month.balanceInCents)}</td>
+                                        <td className={month.balanceInCents >= BigInt(0) ? overviewStyles.positiveBalance : overviewStyles.negativeBalance}>{formatCents(month.balanceInCents)}</td>
                                         <td>{formatCents(month.settledIncomeInCents - month.settledExpenseInCents)}</td>
                                         <td>{formatCents(month.pendingIncomeInCents - month.pendingExpenseInCents)}</td>
                                     </tr>
@@ -151,37 +155,60 @@ export default async function DashboardPage({
                             </tbody>
                         </table>
                     </div>
-                    <Link href="/forecast">Ver detalhes do planejamento</Link>
                 </Card>
                 <div className={overviewStyles.tracking}>
                 <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles.card} ${overviewStyles.budgetCard}`}>
                     <h2>Orçamentos deste mês</h2>
                     {budgetReport.categories.length === 0 ? (
-                        <p>Nenhuma categoria cadastrada.</p>
+                        <p className={overviewStyles.muted}>Nenhuma categoria cadastrada.</p>
                     ) : (
-                        <ul>
-                            {budgetReport.categories.map((category) => (
-                                <li key={category.categoryId}>
-                                    <strong>{category.name}</strong>
-                                    {': '}
-                                    {formatCents(category.spentInCents)}
-                                    {' / '}
-                                    {category.limitInCents === null
-                                        ? 'Sem limite'
-                                        : formatCents(category.limitInCents)}
-                                    {category.status === 'OVER_LIMIT' && ' · Acima do limite'}
-                                    {category.status === 'AT_LIMIT' && ' · Limite atingido'}
-                                    {category.status === 'NEAR_LIMIT' && ' · Próximo do limite'}
-                                </li>
-                            ))}
+                        <ul className={overviewStyles.budgetList}>
+                            {budgetReport.categories.map(category => {
+                                const metadata = categoryMetadata.find(item => item.id === category.categoryId);
+                                return (
+                                    <li key={category.categoryId} className={overviewStyles.budgetItem}>
+                                        <span className={overviewStyles.categoryIcon} aria-hidden="true"
+                                            style={{ backgroundColor: metadata?.iconBackground ?? '#E5F3EF', color: metadata?.color ?? '#12786F' }}>
+                                            {metadata?.icon === 'house' ? '⌂' : metadata?.icon === 'shopping-cart' ? '🛒' : metadata?.icon === 'car-front' ? '🚗' : metadata?.icon === 'heart' ? '♥' : '▣'}
+                                        </span>
+                                        <div className={overviewStyles.budgetContent}>
+                                            <div className={overviewStyles.budgetLine}>
+                                                <strong>{category.name}</strong>
+                                                <strong className={overviewStyles.currency}>{formatCents(category.spentInCents)}</strong>
+                                            </div>
+                                            {category.limitInCents === null ? (
+                                                <div className={overviewStyles.budgetLine}>
+                                                    <span className={overviewStyles.muted}>Sem limite definido</span>
+                                                    <Link href="/budgets" className={overviewStyles.actionLink}>Definir limite</Link>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className={overviewStyles.budgetLine}>
+                                                        <span className={overviewStyles.muted}>Limite: {formatCents(category.limitInCents)}</span>
+                                                        <span className={overviewStyles.muted}>{category.percentage}% utilizado</span>
+                                                    </div>
+                                                    <progress className={overviewStyles.progress} max={100} value={Math.min(100, Math.max(0, category.percentage ?? 0))} aria-label={`Orçamento de ${category.name}`} />
+                                                    {category.status === 'OVER_LIMIT' && <span>Acima do limite</span>}
+                                                    {category.status === 'AT_LIMIT' && <span>Limite atingido</span>}
+                                                    {category.status === 'NEAR_LIMIT' && <span>Próximo do limite</span>}
+                                                </>
+                                            )}
+                                        </div>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     )}
-                    <Link href="/budgets">Gerenciar limites e categorias</Link>
+                    <Link href="/budgets" className={overviewStyles.footerLink}>Gerenciar limites e categorias →</Link>
                 </Card>
                 <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles.card}`}>
                     <h2>Despesas fixas do mês</h2>
                     {fixed.expenses.length + fixed.cardTransactions.length === 0 ? (
-                        <p>Nenhuma despesa fixa encontrada para este mês.</p>
+                        <div className={overviewStyles.emptyState}>
+                            <span className={overviewStyles.emptyIcon} aria-hidden="true"><Calendar /></span>
+                            <p>Nenhuma despesa fixa neste mês.</p>
+                            <Link href="/expenses" className={overviewStyles.outlineAction}>Adicionar despesa fixa</Link>
+                        </div>
                     ) : (
                         <ul>
                             {fixed.expenses.map((expense) => (
@@ -198,9 +225,16 @@ export default async function DashboardPage({
                     )}
                 </Card>
                 <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles.card}`}>
-                    <h2>Compras do cartão</h2>
+                    <div className={overviewStyles.cardHeader}>
+                        <h2>Compras do cartão</h2>
+                        <Link href="/cards" className={overviewStyles.actionLink}>Ver todas →</Link>
+                    </div>
                     {transactions.length === 0 ? (
-                        <p>Nenhuma compra de cartão registrada neste mês.</p>
+                        <div className={overviewStyles.emptyState}>
+                            <span className={overviewStyles.emptyIcon} aria-hidden="true"><CreditCard /></span>
+                            <p>Nenhuma compra de cartão registrada neste mês.</p>
+                            <Link href="/expenses" className={overviewStyles.outlineAction}>Registrar compra</Link>
+                        </div>
                     ) : (
                         <div className="table-scroll">
                             <table>
