@@ -1,5 +1,6 @@
 'use client';
 
+import type { CSSProperties } from 'react';
 import dashboardStyles from '@/components/DashboardLayout/index.module.css';
 import { Card } from '@erikacarvalho/react/Card';
 import { Chart } from '@erikacarvalho/react/Chart';
@@ -11,6 +12,13 @@ const currency = new Intl.NumberFormat('pt-BR', {
 });
 
 export function CashflowChart({ income, expenses }: { income: number; expenses: number }) {
+    const formattedIncome = currency.format(income / 100);
+    const formattedExpenses = currency.format(expenses / 100);
+    const plotStyle = {
+        '--cashflow-income-label': JSON.stringify(formattedIncome),
+        '--cashflow-expenses-label': JSON.stringify(formattedExpenses),
+    } as CSSProperties;
+
     return (
         <Card
             customClass={`${dashboardStyles.card} ${styles['cashflow-chart']}`}
@@ -19,7 +27,7 @@ export function CashflowChart({ income, expenses }: { income: number; expenses: 
             {income === 0 && expenses === 0 ? (
                 <p>Nenhuma movimentação registrada neste mês.</p>
             ) : (
-                <div className={styles['cashflow-chart__plot']}>
+                <div className={styles['cashflow-chart__plot']} style={plotStyle}>
                     <Chart
                         config={{ type: 'column' }}
                         data={{ Entradas: [income / 100], Despesas: [expenses / 100] }}
@@ -27,9 +35,9 @@ export function CashflowChart({ income, expenses }: { income: number; expenses: 
                 </div>
             )}
             <p className={styles['cashflow-chart__summary']}>
-                <span>Entradas: {currency.format(income / 100)}</span>
+                <span>Entradas: {formattedIncome}</span>
                 <span aria-hidden="true"> · </span>
-                <span>Despesas: {currency.format(expenses / 100)}</span>
+                <span>Despesas: {formattedExpenses}</span>
             </p>
         </Card>
     );
