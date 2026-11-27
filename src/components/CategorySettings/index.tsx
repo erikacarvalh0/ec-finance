@@ -37,15 +37,15 @@ export function CategorySettings({ initialCategories }: {initialCategories: Mana
     return <div className={styles['category-settings']}>
         <div className={styles['category-settings__toolbar']}>
             <div role="group" aria-label="Tipo de categoria">
-                <Button type="button" theme={type==='EXPENSE'?'cta':'neutral'} isDisabled={busy} action={()=>setType('EXPENSE')}>Despesas</Button>
-                <Button type="button" theme={type==='INCOME'?'cta':'neutral'} isDisabled={busy} action={()=>setType('INCOME')}>Entradas</Button>
+                <Button rounded type="button" theme={type==='EXPENSE'?'cta':'neutral'} isDisabled={busy} action={()=>setType('EXPENSE')}>Despesas</Button>
+                <Button rounded type="button" theme={type==='INCOME'?'cta':'neutral'} isDisabled={busy} action={()=>setType('INCOME')}>Entradas</Button>
             </div>
-            <Button type="button" theme="cta" customClass={styles['category-settings__create']} isDisabled={busy} action={()=>{setMessage('');setDialog({action:'create'});}}>Nova categoria</Button>
+            <Button rounded type="button" theme="cta" outline customClass={styles['category-settings__create']} isDisabled={busy} action={()=>{setMessage('');setDialog({action:'create'});}}>Nova categoria</Button>
         </div>
         <CategoryTable rows={rows} busy={busy} move={move} edit={row=>{setMessage('');setDialog({action:'edit',row});}} remove={row=>{setMessage('');setDialog({action:'delete',row});}} />
         <p role="status">{dialog?'':message}</p>
         {dialog && <Dialog isOpen toggleDialog={close} title={dialog.action==='delete'?'Excluir categoria':dialog.action==='edit'?'Editar categoria':'Nova categoria'}>
-            {dialog.action==='delete'?<div className={styles['category-settings__delete']}><p>Excluir {dialog.row?.name}? Categorias em uso não podem ser excluídas.</p><div className={styles['category-settings__delete-actions']}><Button type="button" theme="cancel" isDisabled={busy} action={()=>void submit({action:'delete',id:dialog.row?.id})}>Excluir</Button></div></div>:<CategoryForm row={dialog.row} busy={busy} save={category=>void submit(dialog.action==='create'?{action:'create',type,category}:{action:'edit',id:dialog.row?.id,category})}/>}
+            {dialog.action==='delete'?<div className={styles['category-settings__delete']}><p>Excluir {dialog.row?.name}? Categorias em uso não podem ser excluídas.</p><div className={styles['category-settings__delete-actions']}><Button rounded type="button" theme="cancel" isDisabled={busy} action={()=>void submit({action:'delete',id:dialog.row?.id})}>Excluir</Button></div></div>:<CategoryForm row={dialog.row} busy={busy} save={category=>void submit(dialog.action==='create'?{action:'create',type,category}:{action:'edit',id:dialog.row?.id,category})}/>}
             <p role="status">{message}</p>
 
         </Dialog>}
