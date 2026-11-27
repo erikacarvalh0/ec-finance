@@ -10,12 +10,13 @@ type MetricCardProps = {
     value: string;
     icon: ReactNode;
     children?: ReactNode;
+    alignContent?: 'top-centered';
     variant?: 'upper' | 'lower';
 };
 
-export function MetricCard({ title, value, icon, children, variant = 'upper' }: MetricCardProps) {
+export function MetricCard({ title, value, icon, children, variant = 'upper', alignContent }: MetricCardProps) {
     return (
-        <Card customClass={`${dashboardStyles.card} ${styles.card} ${styles[variant]}`}>
+        <Card customClass={`${dashboardStyles.card} ${styles.card} ${styles[variant]} ${alignContent === 'top-centered' ? styles['metric-card--top-centered'] : ''}`}>
             <div className={styles.row}>
                 <span className={styles.icon} aria-hidden="true">{icon}</span>
                 <div className={styles.content}>
