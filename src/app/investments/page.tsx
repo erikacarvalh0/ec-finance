@@ -43,7 +43,7 @@ export default async function InvestmentsPage({searchParams}: {searchParams: Pro
     const status = (i: typeof investments[number]) => !i.maturityAt ? 'Ativo' : i.maturityAt < new Date(now.toISOString().slice(0,10)) ? 'Vencido' : i.maturityAt.getTime()-now.getTime() <= 30*86400000 ? 'Vencendo' : 'Ativo';
     const visible = investments.filter(i=>(filters.period==='all'||(i.appliedAt??i.createdAt)>=start)&&(!filters.type||i.type===filters.type)&&(!filters.institution||i.institution===filters.institution)&&(!filters.status||status(i)===filters.status));
     const gains = investments.map(i=>summarizeInvestmentPerformance(i.snapshots,i.cashflows).estimatedGainInCents);
-    const gain = gains.length && gains.every(g=>g!==null) ? gains.reduce<bigint>((sum,g)=>sum+(g??0n),0n) : null;
+    const gain = gains.length && gains.every(g=>g!==null) ? gains.reduce<bigint>((sum,g)=>sum+(g??BigInt(0)),BigInt(0)) : null;
     return (
         <Page>
             <div className={`finance-page ${styles.investments}`}>
