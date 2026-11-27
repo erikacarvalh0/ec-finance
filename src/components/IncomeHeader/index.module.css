@@ -46,3 +46,58 @@
         flex-direction: column;
     }
 }
+
+.income-dialog {
+    box-sizing: border-box;
+    width: 660px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100dvh - 32px);
+    padding: 28px;
+    margin: auto;
+    background: #fafbfd;
+    color: #101127;
+    border: 1px solid #e1e7f0;
+    border-radius: 18px;
+    box-shadow: 0 16px 48px rgba(16, 17, 39, .18);
+    overflow: auto;
+
+    &::backdrop {
+        background: rgba(16, 17, 39, .48);
+    }
+
+    & .income-dialog__header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        background: transparent;
+
+        & h2 {
+            flex: 1;
+            margin: 0;
+            font-size: 24px;
+            line-height: 30px;
+            font-weight: 700;
+        }
+
+        & button {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: 0;
+            color: #008b8e;
+            font-size: 28px;
+            cursor: pointer;
+        }
+    }
+
+    & .income-dialog__icon {
+        display: grid;
+        place-items: center;
+        flex: 0 0 48px;
+        height: 48px;
+        border-radius: 10px;
+        background: #d5f3f1;
+        color: #008b8e;
+    }
+}
