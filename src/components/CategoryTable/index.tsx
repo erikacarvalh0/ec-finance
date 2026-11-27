@@ -44,12 +44,12 @@ export function CategoryTable({ rows, busy, move, edit, remove }: {
                         <tr key={row.id}>
                             <td>
                                 <div className={styles['category-table__actions']}>
-                                    <Button type="button" theme="neutral" customClass={iconClass}
+                                    <Button rounded type="button" theme="neutral" customClass={iconClass}
                                         isDisabled={busy || index === 0} action={() => move(index, -1)}>
                                         <ActionIcon kind="up" />
                                         <span className={styles['category-table__sr']}>Subir {row.name}</span>
                                     </Button>
-                                    <Button type="button" theme="neutral" customClass={iconClass}
+                                    <Button rounded type="button" theme="neutral" customClass={iconClass}
                                         isDisabled={busy || index === rows.length - 1} action={() => move(index, 1)}>
                                         <ActionIcon kind="down" />
                                         <span className={styles['category-table__sr']}>Descer {row.name}</span>
@@ -67,12 +67,12 @@ export function CategoryTable({ rows, busy, move, edit, remove }: {
                             </td>
                             <td>
                                 <div className={styles['category-table__actions']}>
-                                    <Button type="button" theme="neutral" customClass={iconClass}
+                                    <Button rounded type="button" theme="neutral" customClass={iconClass}
                                         isDisabled={busy} action={() => edit(row)}>
                                         <ActionIcon kind="edit" />
                                         <span className={styles['category-table__sr']}>Editar {row.name}</span>
                                     </Button>
-                                    <Button type="button" theme="cancel"
+                                    <Button rounded type="button" theme="cancel"
                                         customClass={`${iconClass} ${styles['category-table__action--delete']}`}
                                         isDisabled={busy} action={() => remove(row)}>
                                         <ActionIcon kind="delete" />
