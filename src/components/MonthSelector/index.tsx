@@ -1,14 +1,17 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import styles from './index.module.css';
 
 export function MonthSelector({ month }: { month: string }) {
     const router = useRouter();
 
     return (
-        <label>
-            Período
+        <label className={styles['month-selector']}>
+            <span className={styles['month-selector__label']}>Mês</span>
             <input
+                className={styles['month-selector__input']}
+                lang="pt-BR"
                 type="month"
                 value={month}
                 onChange={event => {
