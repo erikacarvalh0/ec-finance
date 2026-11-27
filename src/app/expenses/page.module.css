@@ -1,0 +1,33 @@
+.expenses-page {
+    --field-accent: #50c8d6;
+    --field-focus: #008b8e;
+    --field-error: #ff4141;
+    --field-text: #101127;
+    display: grid;
+    gap: 24px;
+    padding: 24px 40px;
+    background: #f4f7fa;
+    color: var(--field-text);
+    min-width: 0;
+
+    & .expenses-page__header {
+        & h1 { margin: 0; font-size: 40px; line-height: 48px; font-weight: 700; }
+        & p { margin: 8px 0 0; font-size: 18px; line-height: 26px; color: #3b4262; }
+    }
+
+    & > :global(.finance-ds-card) {
+        min-width: 0;
+        background: #fafbfd;
+        border: 1px solid #e1e7f0;
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: none;
+
+        & h2 { font-size: 22px; line-height: 28px; font-weight: 700; }
+    }
+
+    @media (max-width: 720px) {
+        padding: 16px;
+        & > :global(.finance-ds-card) { padding: 16px; }
+    }
+}
