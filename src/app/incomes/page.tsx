@@ -7,7 +7,8 @@ import { getPagedIncomeHistory } from '@/modules/income/paged-history';
 import { IncomeHistory } from '@/components/IncomeHistory';
 import { IncomeSummary } from '@/components/IncomeSummary';
 import { getIncomeSummary } from '@/modules/income/summary';
-import { IncomeForm } from '@/components/finance/forms';
+import { IncomeHeader } from '@/components/IncomeHeader';
+import styles from './page.module.css';
 import { IncomeActions } from '@/components/IncomeActions';
 import { parseIncomeArchiveView } from '@/modules/income/archive-view';
 
@@ -45,9 +46,8 @@ export default async function IncomesPage({
 
     return (
         <Page>
-            <div className="finance-page">
-            <h1>Entradas</h1>
-            <IncomeForm categories={categories} />
+            <div className={`finance-page ${styles['incomes-page']}`}>
+            <IncomeHeader categories={categories.map(({ id, name }) => ({ id, name }))} />
             <IncomeSummary summary={summary} />
             <IncomeHistory filters={filters} categories={categories} page={page} pages={pages} rows={incomes.map(income => ({
                 id: income.id,
