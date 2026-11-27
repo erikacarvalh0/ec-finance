@@ -54,21 +54,21 @@ export function ProfileSettings({ name, email }: { name: string | null; email: s
     };
 
     return (
-        <div className={styles.profile} aria-busy={saving}>
-            <fieldset disabled={saving} className={styles.fields}>
-                <Form key={revision} customClass={styles.form} handleSubmit={save} buttonText="Salvar alterações">
+        <div className={styles['profile-settings']} aria-busy={saving}>
+            <fieldset disabled={saving} className={styles['profile-settings__fields']}>
+                <Form key={revision} customClass={styles['profile-settings__form']} handleSubmit={save} buttonText="Salvar alterações">
                     <Input name="name" label="Nome" defaultValue={savedName} isRequired validate={validateProfileName} onValueChange={setDraft} />
-                    <div className={styles.email}>
+                    <div className={styles['profile-settings__email']}>
                         <span>E-mail</span>
                         <p>{email ?? 'Não informado'}</p>
                         <small>Gerenciado pela sua conta Google.</small>
                     </div>
-                    <div className={styles.cancel}>
+                    <div className={styles['profile-settings__cancel']}>
                         <Button type="button" theme="neutral" action={cancel} isDisabled={!changed || saving}>Cancelar</Button>
                     </div>
                 </Form>
             </fieldset>
-            <p role="status">{message}</p>
+            <p className={styles['profile-settings__status']} role="status">{message}</p>
         </div>
     );
 }
