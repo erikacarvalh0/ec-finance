@@ -43,9 +43,7 @@
 }
 
 .expense-details__footer {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 24px;
+    width: 100%;
 }
 
 @media (max-width: 1024px) {
