@@ -217,6 +217,12 @@ model Investment {
     id        String               @id @default(cuid())
     userId    String
     name      String
+    type String?
+    institution String?
+    product String?
+    appliedAt DateTime? @db.Date
+    maturityAt DateTime? @db.Date
+    contractedRate String?
     createdAt DateTime             @default(now())
     user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
     snapshots InvestmentSnapshot[]
