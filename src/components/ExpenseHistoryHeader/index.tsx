@@ -11,7 +11,7 @@ export function ExpenseHistoryHeader({
     hasActive?: boolean;
 }) {
     return (
-        <header className={styles.header}>
+        <header className={styles['expense-history__header']}>
             <h2>{archived ? 'Despesas arquivadas' : 'Histórico de despesas'}</h2>
             {(archived ? hasActive : hasArchived) && (
                 <Link href={archived ? '/expenses' : '/expenses?view=archived'}>

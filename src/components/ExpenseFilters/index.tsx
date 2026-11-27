@@ -21,7 +21,7 @@ export function ExpenseFilters({
     status?: string;
 }) {
     return (
-        <form action="/expenses" className={styles.filters}>
+        <form action="/expenses" className={styles['expense-filters']}>
             {archived && <input type="hidden" name="view" value="archived" />}
             <label>Mês
                 <Input name="month" type="month" defaultValue={month ?? ''} />
