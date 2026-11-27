@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import overviewStyles from '@/components/dashboard/overview-details.module.css';
 import dashboardStyles from '@/components/DashboardLayout/index.module.css';
 import { Card } from '@erikacarvalho/react/Card';
 import { Chart } from '@erikacarvalho/react/Chart';
@@ -28,7 +30,14 @@ export function ExpensesByCategory({ categories }: { categories: Category[] }) {
     return (
         <Card customClass={`${dashboardStyles.card} ${dashboardStyles.chartCard}`} title="Despesas por categoria">
             {total === 0 ? (
-                <p>Nenhuma despesa por categoria neste mês.</p>
+                <div className={overviewStyles['dashboard-overview']}>
+                    <div className={overviewStyles['dashboard-overview__empty-state']}>
+                        <p>Nenhuma despesa por categoria neste mês.</p>
+                        <Link href="/expenses" className={overviewStyles['dashboard-overview__outline-action']}>
+                            Adicionar despesa
+                        </Link>
+                    </div>
+                </div>
             ) : (
                 <>
                     <Chart
