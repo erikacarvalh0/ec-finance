@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ecds-v1/compat';
 import styles from './expense-archive-button.module.css';
 
-export function ExpenseArchiveButton({ id, archived }: { id: string; archived: boolean }) {
+export function ExpenseArchiveButton({ id, archived, onSuccess }: { id: string; archived: boolean; onSuccess?: () => void }) {
     const router = useRouter();
     const [confirming, setConfirming] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -29,6 +29,7 @@ export function ExpenseArchiveButton({ id, archived }: { id: string; archived: b
             }
 
             setConfirming(false);
+            onSuccess?.();
             router.refresh();
         } catch (error) {
             setFeedback(error instanceof Error ? error.message : 'Falha ao atualizar.');
