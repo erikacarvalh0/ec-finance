@@ -17,6 +17,8 @@ import { EndRecurrenceForm } from '@/components/finance/end-recurrence-form';
 import { resolveExpenseHistoryView } from '@/modules/expenses/history-visibility';
 import { parseExpenseArchiveView } from '@/modules/expenses/archive-view';
 
+import styles from './page.module.css';
+
 export const dynamic = 'force-dynamic';
 
 
@@ -110,8 +112,11 @@ export default async function ExpensesPage({
 
     return (
         <Page>
-            <div className="finance-page">
-            <h1>Despesas</h1>
+            <div className={`finance-page ${styles['expenses-page']}`}>
+            <header className={styles['expenses-page__header']}>
+                <h1>Despesas</h1>
+                <p>Gerencie e acompanhe suas despesas.</p>
+            </header>
             <ExpenseForm cards={cards} categories={categories} monthlyExpenseCount={monthlyExpenseCount} />
             {visible && (
                 <Card padding="lg">
