@@ -37,7 +37,7 @@ export function FinancialOverview({ fixed, overdue, count, transactions }: Finan
             </MetricCard>
             <MetricCard
                 variant="lower"
-                title="Lançamentos de cartão do mês"
+                title="Lançamentos de cartão"
                 value={String(transactions)}
                 icon={<CreditCard />}
             />
