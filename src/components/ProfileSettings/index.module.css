@@ -1,57 +1,124 @@
-.profile {
+.profile-settings {
     display: flex;
     flex-direction: column;
-    flex: 1;
-}
-
-.fields {
-    border: 0;
-    padding: 0;
-    margin: 0;
     min-width: 0;
-    flex: 1;
-}
 
-.form:global(.form) {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--finance-section-gap);
-}
+    & .profile-settings__fields {
+        border: 0;
+        padding: 0;
+        margin: 0;
+        min-width: 0;
+    }
 
-.email {
-    min-width: 0;
-    overflow-wrap: anywhere;
-}
+    & .profile-settings__form:global(.form) {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: var(--gridSize2x, 16px);
+        align-items: start;
 
-.email span {
-    font-size: var(--settings-description-size);
-    font-weight: 500;
-}
+        & > :global(.input-container) {
+            grid-column: 1;
+            grid-row: 1;
+            min-width: 0;
+            width: 100%;
+        }
 
-.email p {
-    margin: 4px 0;
-}
+        & > button[type="submit"] {
+            grid-column: 3;
+            grid-row: 3;
+            justify-self: end;
+        }
 
-.cancel {
-    display: flex;
-    justify-content: flex-end;
-    border-top: 1px solid var(--settings-border);
-    padding-top: 16px;
-}
+        & button {
+            min-height: var(--settings-button-height);
+            font-size: var(--settings-description-size);
+            font-weight: 600;
+        }
 
-.form > button[type="submit"] {
-    justify-self: end;
-    align-self: end;
-}
+        &::after {
+            content: '';
+            grid-column: 1 / -1;
+            grid-row: 2;
+            border-top: 1px solid var(--settings-border);
+            margin-top: var(--gridSize2x, 16px);
+        }
+    }
 
-.form button {
-    min-height: var(--settings-button-height);
-    font-size: var(--settings-description-size);
-    font-weight: 600;
-}
+    & .profile-settings__email {
+        grid-column: 2 / -1;
+        grid-row: 1;
+        position: relative;
+        min-width: 0;
+        padding-top: 12px;
+        overflow-wrap: anywhere;
 
-@media (max-width: 600px) {
-    .form:global(.form) {
-        grid-template-columns: minmax(0, 1fr);
+        & span {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translate(8px, 1px);
+            font-weight: 700;
+            font-size: var(--gridSizeDefault);
+            color: #58c9d4;
+            text-transform: uppercase;
+            transition: all .3s ease;
+        }
+
+        & p {
+            margin: 7px 0 4px;
+            box-sizing: border-box;
+            border: none;
+            border-bottom: 2px solid #58c9d4;
+            padding: var(--gridSizeSmall) var(--gridSize3x) var(--gridSizeSmall) var(--gridSizeDefault);
+            color: #3f4147;
+        }
+
+        & small {
+            display: block;
+            font-size: 12px;
+            color: #bdbdbd;
+            padding-left: 8px;
+        }
+    }
+
+    & .profile-settings__cancel {
+        grid-column: 2;
+        grid-row: 3;
+        justify-self: end;
+    }
+
+    & .profile-settings__status {
+        margin: 0;
+
+        &:not(:empty) {
+            margin-top: var(--gridSize2x, 16px);
+        }
+    }
+
+    @media (max-width: 600px) {
+        & .profile-settings__form:global(.form) {
+            grid-template-columns: minmax(0, 1fr) auto auto;
+
+            & > :global(.input-container) {
+                grid-column: 1 / -1;
+            }
+
+            &::after {
+                grid-row: 3;
+            }
+
+            & > button[type="submit"] {
+                grid-row: 4;
+            }
+        }
+
+        & .profile-settings__email {
+            grid-column: 1 / -1;
+            grid-row: 2;
+        }
+
+        & .profile-settings__cancel {
+            grid-row: 4;
+        }
     }
 }
