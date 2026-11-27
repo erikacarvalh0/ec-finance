@@ -63,7 +63,7 @@ export function IncomeForm({ categories = [], onSuccess, onCancel, onDirty }: {
 
     return (
         <form noValidate onSubmit={onSubmit} onChange={onDirty} className={styles['income-form']}>
-            <p className={styles['income-form__intro']}>Registre uma nova receita no seu controle financeiro.</p>
+            <p id="income-dialog-description" className={styles['income-form__intro']}>Registre uma nova receita no seu controle financeiro.</p>
             <label className={styles['income-form__wide']}>
                 <span id="income-label-description">Descrição <b aria-hidden="true">*</b></span>
                 <input name="description" autoFocus maxLength={255} placeholder="Ex.: Salário, Freelance, Reembolso" {...attributes('description')} />
