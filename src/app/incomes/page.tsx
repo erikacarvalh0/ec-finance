@@ -1,11 +1,10 @@
 import { listCategories } from '@/modules/categories/service';
 import { Page } from '@/components/Page';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Card } from '@/components/ecds-v1/compat';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { listFilteredIncomes } from '@/modules/income/history';
+import { getPagedIncomeHistory } from '@/modules/income/paged-history';
+import { IncomeHistory } from '@/components/IncomeHistory';
 import { IncomeSummary } from '@/components/IncomeSummary';
 import { getIncomeSummary } from '@/modules/income/summary';
 import { IncomeHeader } from '@/components/IncomeHeader';
@@ -25,7 +24,7 @@ const currency = new Intl.NumberFormat('pt-BR', {
 export default async function IncomesPage({
     searchParams,
 }: {
-    searchParams: Promise<{ type?: string; search?: string; cursor?: string; view?: string }>;
+    searchParams: Promise<{ type?: string; search?: string; page?: string; month?: string; categoryId?: string; view?: string }>;
 }) {
     const session = await auth();
 
@@ -39,65 +38,28 @@ export default async function IncomesPage({
         : undefined;
     const search = (params.search ?? '').slice(0, 100).trim();
     const archived = parseIncomeArchiveView(params.view);
-    const { incomes, nextCursor } = await listFilteredIncomes(prisma, session.user.id, {
-        type: validType,
-        search,
-        cursor: params.cursor,
-        archived,
-    });
+    const filters = { type: validType, search, archived, month: /^\d{4}-(0[1-9]|1[0-2])$/.test(params.month ?? '') ? params.month : undefined, categoryId: params.categoryId?.slice(0, 200), page: params.page };
+    const { incomes, page, pages } = await getPagedIncomeHistory(prisma, session.user.id, filters);
 
     const [categories, summary] = await Promise.all([
         listCategories(prisma, session.user.id, 'INCOME'),
         getIncomeSummary(prisma, session.user.id),
     ]);
-    const nextQuery = new URLSearchParams();
-    if (validType) nextQuery.set('type', validType);
-    if (search) nextQuery.set('search', search);
-    if (nextCursor) nextQuery.set('cursor', nextCursor);
-    if (archived) nextQuery.set('view', 'archived');
 
     return (
         <Page>
             <div className={`finance-page ${styles['incomes-page']}`}>
             <IncomeHeader categories={categories.map(({ id, name }) => ({ id, name }))} />
             <IncomeSummary summary={summary} />
-            <Card padding="lg">
-                <h2>Histórico de entradas</h2>
-                <p><Link href={archived ? '/incomes' : '/incomes?view=archived'}>{archived ? 'Ver entradas ativas' : 'Ver entradas arquivadas'}</Link></p>
-                <form action="/incomes" className="finance-form">
-                    {archived && <input type="hidden" name="view" value="archived" />}
-                    <label>
-                        Pesquisar por responsável ou descrição
-                        <input
-                            name="search"
-                            type="search"
-                            maxLength={100}
-                            defaultValue={search}
-                            placeholder="Ex.: aluguel"
-                        />
-                    </label>
-                    <label>
-                        Tipo de entrada
-                        <select name="type" defaultValue={validType ?? ''}>
-                            <option value="">Todos os tipos</option>
-                            <option value="SALARY">Salário</option>
-                            <option value="RECURRING">Recorrente</option>
-                            <option value="OTHER">Outros</option>
-                        </select>
-                    </label>
-                    <button type="submit">Aplicar filtros</button>
-                </form>
-                {incomes.length === 0 && <p>Nenhuma entrada registrada.</p>}
-                <ul className="record-list">
-                    {incomes.map((income) => (
-                        <li key={income.id}>
-                            <strong>{income.description ?? (
-                                income.type === 'SALARY' ? 'Salário' : 'Outra entrada'
-                            )}</strong>
-                            <span>{currency.format(Number(income.amountInCents) / 100)}</span>
-                            <small>{categories.find(category => category.id === income.categoryId)?.name ?? 'Sem categoria'}</small>
-                            <small>{income.type === 'RECURRING' ? 'Recorrente' : income.type}</small>
-                            {!archived && income.type === 'RECURRING' && (
+            <IncomeHistory filters={filters} categories={categories} page={page} pages={pages} rows={incomes.map(income => ({
+                id: income.id,
+                date: (income.date ?? income.createdAt).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
+                description: income.description ?? income.responsible ?? (income.type === 'SALARY' ? 'Salário' : 'Outra entrada'),
+                type: income.type === 'RECURRING' ? 'Recorrente' : income.type === 'SALARY' ? 'Salário' : 'Eventual',
+                category: categories.find(category => category.id === income.categoryId)?.name ?? 'Sem categoria',
+                amount: currency.format(Number(income.amountInCents) / 100),
+                actions: <div>
+                    {!archived && income.type === 'RECURRING' && (
                                 <EndRecurrenceForm
                                     kind="income"
                                     id={income.id}
@@ -116,15 +78,8 @@ export default async function IncomesPage({
                                 endsOn: income.endsOn?.toISOString().slice(0, 10) ?? '',
                             }} />}
                             <IncomeArchiveButton id={income.id} archived={archived} />
-                        </li>
-                    ))}
-                </ul>
-                {nextCursor && (
-                    <Link href={`/incomes?${nextQuery.toString()}`}>
-                        Carregar próximas 20 entradas
-                    </Link>
-                )}
-            </Card>
+                </div>,
+            }))} />
             </div>
         </Page>
     );

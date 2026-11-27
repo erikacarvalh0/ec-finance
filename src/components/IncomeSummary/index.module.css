@@ -1,0 +1,68 @@
+.income-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+
+    & .income-summary__card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-width: 0;
+        min-height: 104px;
+        box-sizing: border-box;
+        padding: 20px;
+        background: #fafbfd;
+        border: 1px solid #e1e7f0;
+        border-radius: 16px;
+
+        & h2 {
+            margin: 0;
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 500;
+            color: #3b4262;
+        }
+
+        & strong {
+            display: block;
+            font-size: 26px;
+            line-height: 32px;
+            font-weight: 700;
+            color: #101127;
+            font-variant-numeric: tabular-nums;
+            overflow-wrap: anywhere;
+        }
+
+        & small {
+            display: block;
+            color: #3b4262;
+            font-size: 12px;
+        }
+
+        & .income-summary__value--positive {
+            color: #187a46;
+        }
+
+        & .income-summary__value--negative {
+            color: #bd3847;
+        }
+    }
+
+    & .income-summary__icon {
+        flex: 0 0 32px;
+        color: #008b8e;
+
+        & svg {
+            width: 32px;
+            height: 32px;
+        }
+    }
+
+    @media (max-width: 1200px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (max-width: 600px) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
