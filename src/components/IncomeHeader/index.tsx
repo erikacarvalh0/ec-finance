@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Dialog } from '@erikacarvalho/react/Dialog';
 import { IncomeForm } from '@/components/finance/forms';
 import styles from './index.module.css';
@@ -10,8 +10,17 @@ export function IncomeHeader({ categories }: {
 }) {
     const [open, setOpen] = useState(false);
 
+    const dirty = useRef(false);
+    const trigger = useRef<HTMLButtonElement>(null);
+
     function closeDialog() {
+        dirty.current = false;
         setOpen(false);
+        requestAnimationFrame(() => trigger.current?.focus());
+    }
+
+    function requestClose() {
+        if (!dirty.current || window.confirm('Descartar alterações não salvas?')) closeDialog();
     }
 
     return (
@@ -22,6 +31,7 @@ export function IncomeHeader({ categories }: {
             </div>
             <button
                 type="button"
+                ref={trigger}
                 className={styles['income-header__action']}
                 onClick={() => setOpen(true)}
             >
@@ -31,8 +41,8 @@ export function IncomeHeader({ categories }: {
                 Nova entrada
             </button>
             {open && (
-                <Dialog isOpen toggleDialog={closeDialog} title="Nova entrada">
-                    <IncomeForm categories={categories} onSuccess={closeDialog} />
+                <Dialog isOpen toggleDialog={requestClose} title="Nova entrada">
+                    <IncomeForm categories={categories} onSuccess={closeDialog} onCancel={requestClose} onDirty={() => { dirty.current = true; }} />
                 </Dialog>
             )}
         </header>
