@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { IncomeForm } from '@/components/finance/forms';
+import { Button } from '@/components/ecds-v1/compat';
 import styles from './index.module.css';
 
 export function IncomeHeader({ categories }: {
@@ -17,7 +18,7 @@ export function IncomeHeader({ categories }: {
         }
     }, [open]);
     const dirty = useRef(false);
-    const trigger = useRef<HTMLButtonElement>(null);
+    const trigger = useRef<HTMLButtonElement | null>(null);
 
     function closeDialog() {
         dirty.current = false;
@@ -53,17 +54,9 @@ export function IncomeHeader({ categories }: {
                 <h1>Entradas</h1>
                 <p>Registre e acompanhe todas as suas receitas.</p>
             </div>
-            <button
-                type="button"
-                ref={trigger}
-                className={styles['income-header__action']}
-                onClick={() => setOpen(true)}
-            >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <Button type="button" outline className={styles['income-header__action']} onClick={event => { trigger.current = event.currentTarget; setOpen(true); }} icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                     <path d="M12 5v14M5 12h14" />
-                </svg>
-                Nova entrada
-            </button>
+                </svg>}>Nova entrada</Button>
             {open && (
                 <dialog ref={dialog} className={styles['income-dialog']} aria-labelledby="income-dialog-title" aria-describedby="income-dialog-description" onKeyDown={keepKeyboardFocus} onCancel={event => { event.preventDefault(); requestClose(); }}>
                     <header className={styles['income-dialog__header']}>
@@ -71,7 +64,7 @@ export function IncomeHeader({ categories }: {
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 8v8m-4-4h8"/></svg>
                         </span>
                         <h2 id="income-dialog-title">Nova entrada</h2>
-                        <button type="button" aria-label="Fechar" onClick={requestClose}>×</button>
+                        <Button variant="ghost" type="button" aria-label="Fechar" onClick={requestClose}>×</Button>
                     </header>
                     <IncomeForm categories={categories} onSuccess={closeDialog} onCancel={requestClose} onDirty={() => { dirty.current = true; }} />
                 </dialog>
