@@ -30,6 +30,23 @@ export function IncomeHeader({ categories }: {
         if (!dirty.current || window.confirm('Descartar alterações não salvas?')) closeDialog();
     }
 
+    function keepKeyboardFocus(event: React.KeyboardEvent<HTMLDialogElement>) {
+        if (event.key !== 'Tab') return;
+        const controls = Array.from(dialog.current?.querySelectorAll<HTMLElement>(
+            'button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+        ) ?? []).filter(element => element.getClientRects().length > 0);
+        if (controls.length === 0) return;
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    }
+
     return (
         <header className={styles['income-header']}>
             <div>
@@ -48,7 +65,7 @@ export function IncomeHeader({ categories }: {
                 Nova entrada
             </button>
             {open && (
-                <dialog ref={dialog} className={styles['income-dialog']} aria-labelledby="income-dialog-title" aria-describedby="income-dialog-description" onCancel={event => { event.preventDefault(); requestClose(); }}>
+                <dialog ref={dialog} className={styles['income-dialog']} aria-labelledby="income-dialog-title" aria-describedby="income-dialog-description" onKeyDown={keepKeyboardFocus} onCancel={event => { event.preventDefault(); requestClose(); }}>
                     <header className={styles['income-dialog__header']}>
                         <span className={styles['income-dialog__icon']} aria-hidden="true">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 8v8m-4-4h8"/></svg>
