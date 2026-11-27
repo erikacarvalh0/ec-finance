@@ -21,6 +21,7 @@ export function MonthSelector({ month }: { month: string }) {
                 className={styles['month-selector__input']}
                 lang="pt-BR"
                 type="month"
+                aria-label="Mês"
                 value={month}
                 onChange={event => {
                     if (/^[1-9]\d{3}-(0[1-9]|1[0-2])$/.test(event.target.value)) {
