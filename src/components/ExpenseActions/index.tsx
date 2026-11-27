@@ -94,15 +94,15 @@ export function ExpenseActions({
 
     return (
         <div ref={triggerRef} className={styles['expense-actions']} onKeyDown={handleKeyDown}>
-            <Button type="button" aria-label={`Ações de ${description}`} aria-expanded={open} onClick={handleToggle}>
+            <Button variant="ghost" type="button" aria-label={`Ações de ${description}`} aria-expanded={open} onClick={handleToggle}>
                 …
             </Button>
             {open && createPortal(
                 <div ref={menuRef} className={styles['expense-actions__menu']} style={position}>
                     {actions.filter(([action]) => handlers[action]).map(([action, label]) => (
-                        <button className={styles['expense-actions__item']} key={action} type="button" onClick={() => handleAction(action)}>
+                        <Button variant="ghost" className={styles['expense-actions__item']} key={action} type="button" onClick={() => handleAction(action)}>
                             {label}
-                        </button>
+                        </Button>
                     ))}
                 </div>,
                 document.body,
