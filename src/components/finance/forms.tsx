@@ -1,11 +1,15 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { Button, Card, Input, Select } from '@/components/ecds-v1/compat';
+import { Button, Input, Select } from '@/components/ecds-v1/compat';
 import { toCents, submitJson, useFeedback } from './form-utils';
+import styles from './income-form.module.css';
 export { ExpenseForm } from '@/components/ExpenseForm';
 
-export function IncomeForm({ categories = [] }: { categories?: Array<{ id: string; name: string }> }) {
+export function IncomeForm({ categories = [], onSuccess }: {
+    categories?: Array<{ id: string; name: string }>;
+    onSuccess?: () => void;
+}) {
     const feedback = useFeedback();
     const [type, setType] = useState('SALARY');
 
@@ -27,46 +31,46 @@ export function IncomeForm({ categories = [] }: { categories?: Array<{ id: strin
             });
 
             form.reset();
+            onSuccess?.();
         });
     }
 
     return (
-        <Card padding="lg">
-            <h2>Nova entrada</h2>
-            <form onSubmit={onSubmit} className="finance-form">
-                <label>Valor (R$)
-                    <Input name="amount" inputMode="decimal" placeholder="4500,00" required />
-                </label>
-                <label>Tipo
-                    <Select value={type} onChange={(event) => setType(event.target.value)}>
-                        <option value="SALARY">Salário</option>
-                        <option value="RECURRING">Recorrente</option>
-                        <option value="OTHER">Outros</option>
-                    </Select>
-                </label>
-                <label>Categoria (opcional)
-                    <Select name="categoryId" defaultValue="">
-                        <option value="">Sem categoria</option>
-                        {categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
-                    </Select>
-                </label>
-                {type === 'RECURRING' && (
-                    <>
-                        <label>Responsável
-                            <Input name="responsible" required />
-                        </label>
-                        <label>Descrição
-                            <Input name="description" required />
-                        </label>
-                        <label>Data
-                            <Input name="date" type="date" required />
-                        </label>
-                    </>
-                )}
+        <form onSubmit={onSubmit} className={styles['income-form']}>
+            <label>Valor (R$)
+                <Input name="amount" inputMode="decimal" placeholder="4500,00" required />
+            </label>
+            <label>Tipo
+                <Select value={type} onChange={(event) => setType(event.target.value)}>
+                    <option value="SALARY">Salário</option>
+                    <option value="RECURRING">Recorrente</option>
+                    <option value="OTHER">Outros</option>
+                </Select>
+            </label>
+            <label>Categoria (opcional)
+                <Select name="categoryId" defaultValue="">
+                    <option value="">Sem categoria</option>
+                    {categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
+                </Select>
+            </label>
+            {type === 'RECURRING' && (
+                <>
+                    <label>Responsável
+                        <Input name="responsible" required />
+                    </label>
+                    <label>Descrição
+                        <Input name="description" required />
+                    </label>
+                    <label>Data
+                        <Input name="date" type="date" required />
+                    </label>
+                </>
+            )}
+            <p className={styles['income-form__feedback']} role="status">{feedback.message}</p>
+            <div className={styles['income-form__actions']}>
                 <Button type="submit" disabled={feedback.saving}>Salvar entrada</Button>
-                <p role="status">{feedback.message}</p>
-            </form>
-        </Card>
+            </div>
+        </form>
     );
 }
 
