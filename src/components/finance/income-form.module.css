@@ -1,0 +1,81 @@
+.income-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    min-width: 0;
+
+    & label {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
+        color: var(--field-accent, #50c8d6);
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+
+        &:focus-within {
+            color: var(--field-focus, #008b8e);
+        }
+
+        & input,
+        & select {
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 0;
+            min-height: 40px;
+            padding: 8px 12px;
+            background: transparent;
+            border: 0;
+            border-bottom: 2px solid var(--field-accent, #50c8d6);
+            border-radius: 0;
+            color: var(--field-text, #101127);
+            font: inherit;
+            font-size: 16px;
+            font-weight: 400;
+            text-transform: none;
+
+            &:focus {
+                border-bottom-color: var(--field-focus, #008b8e);
+                outline: 2px solid transparent;
+            }
+        }
+    }
+
+    & .income-form__actions {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    & .income-form__feedback {
+        grid-column: 1 / -1;
+        margin: 0;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+:global(.dialog):has(.income-form) {
+    box-sizing: border-box;
+    width: 40vw;
+    min-width: min(480px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+
+    & :global(.dialog__body) {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    @media (max-width: 1024px) {
+        width: min(640px, calc(100vw - 32px));
+    }
+}
