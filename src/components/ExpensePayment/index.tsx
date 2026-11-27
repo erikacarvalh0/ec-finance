@@ -53,7 +53,7 @@ export function ExpensePayment({ id, month, paid, direct = false, onSuccess }: {
             {(direct || confirming) && (
                 <div className={direct ? styles['expense-payment__actions'] : undefined} role="group" aria-label="Confirmar pagamento">
                     {!direct && <p>{paid ? 'Reverter o pagamento desta parcela?' : 'Confirmar pagamento desta parcela?'}</p>}
-                    {!direct && <Button type="button" disabled={saving} onClick={cancelConfirmation}>Cancelar</Button>}
+                    {!direct && <Button variant="secondary" type="button" disabled={saving} onClick={cancelConfirmation}>Cancelar</Button>}
                     <Button type="button" disabled={saving} onClick={savePayment}>Confirmar</Button>
                 </div>
             )}
