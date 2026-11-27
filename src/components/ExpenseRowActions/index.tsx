@@ -36,7 +36,7 @@ export function ExpenseRowActions({ row, expense, archived, categories, occurren
     };
     return <>
         <ExpenseActions description={expense.description} archived={archived} paid={row.state === 'SETTLED'} installments={expense.installments} handlers={handlers} />
-        {action && <Dialog isOpen toggleDialog={closeDialog} title={action === 'details' ? 'Detalhes da despesa' : action === 'edit' ? 'Editar despesa' : action === 'pay' ? `Marcar ${expense.description} de ${row.amount} como paga?` : expense.description}>
+        {action && <Dialog isOpen toggleDialog={closeDialog} title={action === 'details' ? 'Detalhes da despesa' : action === 'edit' ? 'Editar despesa' : (action === 'pay' || action === 'reopen') ? `Marcar ${expense.description} de ${row.amount} como ${action === 'pay' ? 'paga' : 'pendente'}?` : expense.description}>
             {action === 'details' && <>
                 <ExpenseDetails
                     expense={{ ...row, type: expense.type === 'FIXED' ? 'Fixa' : 'Variável' }}
@@ -47,7 +47,7 @@ export function ExpenseRowActions({ row, expense, archived, categories, occurren
             </>}
             {action === 'delete' && archived && <ExpenseDelete id={expense.id} description={expense.description} onClose={closeDialog} />}
             {action === 'edit' && <RecordEditForm record={{ ...expense, kind: 'expense' }} categories={categories} inline onSuccess={closeDialog} />}
-            {(action === 'pay' || action === 'reopen') && <ExpensePayment id={expense.id} month={row.month} paid={row.state === 'SETTLED'} direct={action === 'pay'} onSuccess={action === 'pay' ? closeDialog : undefined} />}
+            {(action === 'pay' || action === 'reopen') && <ExpensePayment id={expense.id} month={row.month} paid={row.state === 'SETTLED'} direct onSuccess={closeDialog} />}
             {action === 'installments' && <ExpenseInstallments expense={expense} occurrences={occurrences} />}
             {(action === 'archive' || action === 'restore') && <ExpenseArchiveButton id={expense.id} archived={archived} onSuccess={closeDialog} />}
         </Dialog>}
