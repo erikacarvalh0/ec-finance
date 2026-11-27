@@ -9,7 +9,6 @@ import { ExpenseRowActions } from '@/components/ExpenseRowActions';
 import { listUserCards } from '@/modules/cards/service';
 import { listCategories } from '@/modules/categories/service';
 import { LinkImportedTransactionForm } from '@/components/cards/card-forms';
-import { BulkCategoryForm } from '@/components/finance/bulk-category-form';
 import { ExpenseHistoryHeader } from '@/components/ExpenseHistoryHeader';
 import { ExpenseFilters } from '@/components/ExpenseFilters';
 import { ExpenseForm } from '@/components/finance/forms';
@@ -126,8 +125,6 @@ export default async function ExpensesPage({
                         hasActive={activeCount > 0}
                     />
                     <ExpenseFilters archived={archived} search={search} type={type} paymentMethod={paymentMethod} month={selectedMonth} categoryId={categoryId} categories={categories} status={status} />
-                    
-                    {!archived && expenses.length > 0 && <BulkCategoryForm rows={expenses.map(({ id, description, categoryId }) => ({ id, description, categoryId }))} categories={categories.map(({ id, name }) => ({ id, name }))} />}
                     <ExpenseTable rows={rows} />
                 </Card>
             )}
