@@ -1,0 +1,48 @@
+.income-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    & h1 {
+        margin: 0;
+        font-size: 40px;
+        line-height: 48px;
+        font-weight: 700;
+    }
+
+    & p {
+        margin: 4px 0 0;
+        font-size: 18px;
+        line-height: 26px;
+        color: #3b4262;
+    }
+
+    & .income-header__action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--gridSizeDefault, 8px);
+        min-height: 40px;
+        padding: 0 20px;
+        border: 1px solid var(--field-focus, #008b8e);
+        border-radius: 6px;
+        background: transparent;
+        color: var(--field-focus, #008b8e);
+        font: inherit;
+        font-size: 16px;
+        font-weight: 600;
+        white-space: nowrap;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 3px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
