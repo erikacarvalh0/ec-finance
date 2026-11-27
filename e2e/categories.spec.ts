@@ -18,6 +18,7 @@ test('category changes reach financial forms and dashboard', async ({ page, cont
         const incomeCategory = await db.category.findFirstOrThrow({ where: { userId, name: 'E2E Income' } });
         const expenseCategory = await db.category.findFirstOrThrow({ where: { userId, type: 'EXPENSE', name: 'Moradia' } });
         await page.goto('/incomes');
+        await page.getByRole('button', { name: 'Nova entrada' }).click();
         await expect(page.locator('select[name="categoryId"] option', { hasText: 'E2E Income' })).toHaveCount(1);
         const created = await page.request.post('/api/incomes', { data: { type: 'SALARY', amountInCents: '10000', categoryId: incomeCategory.id } });
         expect(created.status()).toBe(201);
