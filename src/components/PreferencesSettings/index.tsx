@@ -58,16 +58,18 @@ export function PreferencesSettings({ initialPreferences }: { initialPreferences
     }
 
     return (
-        <div className={styles.root} aria-busy={saving}>
-            <fieldset key={revision} disabled={saving} className={styles.fields}>
-                <Select name="currency" label="Moeda padrão" options={currencies} defaultValue={saved.currency}
+        <div className={styles['preferences-settings']} aria-busy={saving}>
+            <fieldset key={revision} disabled={saving} className={styles['preferences-settings__fields']}>
+                <Select customClass={styles['preferences-settings__select']} name="currency" label="Moeda padrão" options={currencies} defaultValue={saved.currency}
                     onValueChange={value => { if (value === 'BRL' || value === 'USD' || value === 'EUR') update('currency', value); }} />
-                <Select name="theme" label="Tema" options={themes} defaultValue={saved.theme}
+                <Select customClass={styles['preferences-settings__select']} name="theme" label="Tema" options={themes} defaultValue={saved.theme}
                     onValueChange={value => { if (value === 'LIGHT' || value === 'DARK' || value === 'SYSTEM') update('theme', value); }} />
+                <div className={styles['preferences-settings__switches']}>
                 <SettingsSwitch label="Lembretes de vencimento" checked={draft.billReminders} disabled={saving}
                     onChange={value => update('billReminders', value)} />
                 <SettingsSwitch label="Resumo mensal" checked={draft.monthlySummary} disabled={saving}
                     onChange={value => update('monthlySummary', value)} />
+                </div>
             </fieldset>
             <small>As escolhas são salvas na sua conta. A aplicação de temas, conversão de moedas e envio de notificações serão disponibilizados separadamente.</small>
             <p role="status">{message}</p>
