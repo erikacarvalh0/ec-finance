@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
+import type { ReactNode } from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { OverviewDetails } from './overview-details';
 
 vi.mock('next/link', () => ({
-    default: ({ href, children, ...props }: { href: string; children: React.ReactNode; className?: string }) =>
+    default: ({ href, children, ...props }: { href: string; children: ReactNode; className?: string }) =>
         <a href={href} {...props}>{children}</a>,
 }));
 vi.mock('@erikacarvalho/react/Icons', () => ({
