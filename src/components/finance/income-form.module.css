@@ -1,7 +1,7 @@
 .income-form {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px 24px;
+    gap: var(--finance-space-16) var(--finance-space-24);
     min-width: 0;
 
     & .income-form__intro,
@@ -12,26 +12,26 @@
     }
 
     & .income-form__intro {
-        margin: 0 0 8px;
-        color: #3b4262;
-        font-size: 14px;
+        margin: 0 0 var(--finance-space-8);
+        color: var(--grey3);
+        font-size: var(--finance-font-12);
         line-height: 20px;
     }
 
     & label {
         display: grid;
         min-width: 0;
-        color: var(--acqua, #50c8d6);
-        font-size: 12px;
+        color: var(--acqua, var(--finance-color-50c8d6));
+        font-size: var(--finance-font-12);
         font-weight: 600;
 
         & span {
-            padding-left: 12px;
+            padding-left: var(--finance-space-12);
             text-transform: uppercase;
         }
 
         & b {
-            color: #ff4141;
+            color: var(--finance-color-ff4141);
         }
 
         & input,
@@ -40,47 +40,47 @@
             width: 100%;
             min-width: 0;
             height: 40px;
-            padding: 8px 12px;
+            padding: var(--finance-space-8) var(--finance-space-12);
             border: 0;
-            border-bottom: 2px solid var(--acqua, #50c8d6);
+            border-bottom: 2px solid var(--acqua, var(--finance-color-50c8d6));
             border-radius: 0;
             background: transparent;
-            color: #101127;
+            color: var(--finance-ink);
             font: inherit;
-            font-size: 16px;
+            font-size: var(--finance-font-14);
             font-weight: 400;
 
             &:focus {
-                border-bottom: 3px solid #008b8e;
+                border-bottom: 3px solid var(--finance-color-008b8e);
                 outline: none;
             }
 
             &[aria-invalid="true"] {
-                border-bottom-color: #ff4141;
+                border-bottom-color: var(--finance-color-ff4141);
             }
         }
 
         &:has([aria-invalid="true"]) {
-            color: #ff4141;
+            color: var(--finance-color-ff4141);
         }
     }
 
     & .income-form__error,
     & .income-form__hint {
         min-height: 18px;
-        padding-left: 12px;
-        font-size: 12px;
+        padding-left: var(--finance-space-12);
+        font-size: var(--finance-font-12);
         line-height: 18px;
         font-weight: 400;
         overflow-wrap: anywhere;
     }
 
     & .income-form__error {
-        color: #bd3847;
+        color: var(--finance-color-bd3847);
     }
 
     & .income-form__hint {
-        color: #3b4262;
+        color: var(--grey3);
     }
 
     & .income-form__feedback {
@@ -96,26 +96,26 @@
         display: flex;
         justify-content: flex-end;
         flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 8px;
+        gap: var(--finance-space-12);
+        margin-top: var(--finance-space-8);
         position: sticky;
         bottom: 0;
-        background: #fafbfd;
+        background: var(--finance-color-fafbfd);
 
         & button {
             min-height: 40px;
-            padding: 0 20px;
-            border: 1px solid #008b8e;
+            padding: 0 var(--finance-space-20);
+            border: 1px solid var(--finance-color-008b8e);
             border-radius: 6px;
             background: transparent;
-            color: #008b8e;
+            color: var(--finance-color-008b8e);
             font: inherit;
-            font-size: 16px;
+            font-size: var(--finance-font-14);
             font-weight: 600;
             cursor: pointer;
 
             &[type="submit"] {
-                background: #008b8e;
+                background: var(--finance-color-008b8e);
                 color: white;
             }
 
@@ -134,7 +134,7 @@
 
 .income-form label {
     position: relative;
-    padding-top: 16px;
+    padding-top: var(--finance-space-16);
 
     & span {
         position: absolute;
@@ -148,7 +148,7 @@
     &:has(select:invalid):not(:focus-within):not(:has([aria-invalid="true"])) {
         & span {
             top: 24px;
-            font-size: 16px;
+            font-size: var(--finance-font-14);
             font-weight: 400;
         }
 
@@ -161,7 +161,7 @@
         }
 
         & option {
-            color: #101127;
+            color: var(--finance-ink);
         }
     }
 }

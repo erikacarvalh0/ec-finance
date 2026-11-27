@@ -4,17 +4,17 @@
 
     & .expense-archive__divider {
         border: 0;
-        border-top: 1px solid var(--finance-card-border, #e1e7f0);
-        margin: 24px 0 16px;
+        border-top: 1px solid var(--finance-card-border, var(--finance-color-e1e7f0));
+        margin: var(--finance-space-24) 0 var(--finance-space-16);
     }
 
     & .expense-archive__title {
         font-family: "Josefin Sans", sans-serif;
-        color: #3f4147;
-        font-size: 18px;
+        color: var(--finance-ink);
+        font-size: var(--finance-font-16);
         font-weight: 700;
         text-transform: uppercase;
-        margin: 0 0 16px;
+        margin: 0 0 var(--finance-space-16);
     }
 
     & .expense-archive__actions {
@@ -22,24 +22,24 @@
         flex-wrap: wrap;
         justify-content: flex-end;
         align-items: center;
-        gap: var(--gridSize2x, 16px);
+        gap: var(--gridSize2x, var(--finance-space-16));
 
         & .expense-archive__trigger {
             background: transparent;
-            border: 1px solid var(--acquaDark, #198e99);
-            color: var(--acquaDark, #198e99);
+            border: 1px solid var(--acquaDark, var(--finance-color-198e99));
+            color: var(--acquaDark, var(--finance-color-198e99));
             border-radius: 10px;
             text-transform: none;
-            padding: 10px 16px;
+            padding: var(--finance-space-10) var(--finance-space-16);
 
             &:hover:not(:disabled) {
-                background: var(--acquaLight, #dff4f5);
+                background: var(--acquaLight, var(--finance-color-dff4f5));
             }
         }
 
         & .expense-archive__cancel {
-            background: #858585;
-            color: #fff;
+            background: var(--finance-color-858585);
+            color: var(--finance-color-ffffff);
         }
     }
 }

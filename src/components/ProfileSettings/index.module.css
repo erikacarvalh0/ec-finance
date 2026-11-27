@@ -13,7 +13,7 @@
     & .profile-settings__form:global(.form) {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto auto;
-        gap: var(--gridSize2x, 16px);
+        gap: var(--gridSize2x, var(--finance-space-16));
         align-items: start;
 
         & > :global(.input-container) {
@@ -40,7 +40,7 @@
             grid-column: 1 / -1;
             grid-row: 2;
             border-top: 1px solid var(--settings-border);
-            margin-top: var(--gridSize2x, 16px);
+            margin-top: var(--gridSize2x, var(--finance-space-16));
         }
     }
 
@@ -49,7 +49,7 @@
         grid-row: 1;
         position: relative;
         min-width: 0;
-        padding-top: 12px;
+        padding-top: var(--finance-space-12);
         overflow-wrap: anywhere;
 
         & span {
@@ -59,25 +59,25 @@
             transform: translate(8px, 1px);
             font-weight: 700;
             font-size: var(--gridSizeDefault);
-            color: #58c9d4;
+            color: var(--finance-color-58c9d4);
             text-transform: uppercase;
             transition: all .3s ease;
         }
 
         & p {
-            margin: 7px 0 4px;
+            margin: 7px 0 var(--finance-space-4);
             box-sizing: border-box;
             border: none;
-            border-bottom: 2px solid #58c9d4;
+            border-bottom: 2px solid var(--finance-color-58c9d4);
             padding: var(--gridSizeSmall) var(--gridSize3x) var(--gridSizeSmall) var(--gridSizeDefault);
-            color: #3f4147;
+            color: var(--finance-ink);
         }
 
         & small {
             display: block;
-            font-size: 12px;
-            color: #bdbdbd;
-            padding-left: 8px;
+            font-size: var(--finance-font-12);
+            color: var(--finance-color-bdbdbd);
+            padding-left: var(--finance-space-8);
         }
     }
 
@@ -91,7 +91,7 @@
         margin: 0;
 
         &:not(:empty) {
-            margin-top: var(--gridSize2x, 16px);
+            margin-top: var(--gridSize2x, var(--finance-space-16));
         }
     }
 

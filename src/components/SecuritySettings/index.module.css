@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    gap: var(--gridSize2x, 16px);
+    gap: var(--gridSize2x, var(--finance-space-16));
     min-width: 0;
 
     & .security-settings__account {
@@ -10,29 +10,29 @@
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: var(--gridSizeDefault, 8px);
+        gap: var(--gridSizeDefault, var(--finance-space-8));
         font-weight: 500;
     }
 
     & .security-settings__status {
-        font-size: 14px;
+        font-size: var(--finance-font-12);
     }
 
     & .security-settings__status--connected {
         display: inline-block;
-        padding: 3px 8px;
+        padding: 3px var(--finance-space-8);
         border-radius: 99px;
-        color: var(--acquaDark, #147b73);
-        background: #d5ebe4;
-        font-size: 11px;
+        color: var(--acquaDark, var(--finance-color-147b73));
+        background: var(--finance-color-d5ebe4);
+        font-size: var(--finance-font-11);
         font-weight: 700;
     }
 
     & .security-settings__notice {
         display: flex;
         align-items: flex-start;
-        gap: 12px;
-        padding: var(--gridSize2x, 16px);
+        gap: var(--finance-space-12);
+        padding: var(--gridSize2x, var(--finance-space-16));
         background: var(--settings-notice-background);
         border: 1px solid var(--settings-notice-border);
         border-radius: var(--settings-notice-radius);
@@ -41,12 +41,12 @@
         & svg {
             width: 24px;
             height: 24px;
-            color: var(--acquaDark, #21949f);
+            color: var(--acquaDark, var(--finance-color-21949f));
         }
 
         & h3 {
-            font-size: 14px;
-            margin: 0 0 8px;
+            font-size: var(--finance-font-12);
+            margin: 0 0 var(--finance-space-8);
             font-weight: 700;
         }
 
@@ -60,7 +60,7 @@
 
     & .security-settings__actions {
         margin-top: auto;
-        padding-top: var(--gridSize2x, 16px);
+        padding-top: var(--gridSize2x, var(--finance-space-16));
         border-top: 1px solid var(--settings-border);
         display: flex;
         justify-content: flex-end;
@@ -70,11 +70,11 @@
             flex-wrap: wrap;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: var(--finance-space-4);
             min-height: var(--settings-button-height);
-            padding: 8px 16px;
+            padding: var(--finance-space-8) var(--finance-space-16);
             border-radius: var(--settings-notice-radius);
-            background: var(--acquaDark, #21949f);
+            background: var(--acquaDark, var(--finance-color-21949f));
             color: white;
             font-weight: 600;
             text-decoration: none;
