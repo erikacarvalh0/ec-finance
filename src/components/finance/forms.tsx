@@ -14,6 +14,7 @@ export function IncomeForm({ categories = [], onSuccess, onCancel, onDirty }: {
 }) {
     const feedback = useFeedback();
     const [type, setType] = useState('');
+    const [amount, setAmount] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
     const submitting = useRef(false);
 
@@ -37,7 +38,10 @@ export function IncomeForm({ categories = [], onSuccess, onCancel, onDirty }: {
         if (!categoryId) nextErrors.categoryId = 'Selecione uma categoria.';
         if (!type) nextErrors.type = 'Selecione o tipo de entrada.';
         setErrors(nextErrors);
-        if (Object.keys(nextErrors).length) return;
+        if (Object.keys(nextErrors).length) {
+            event.currentTarget.querySelector<HTMLElement>(`#income-${Object.keys(nextErrors)[0]}`)?.focus();
+            return;
+        }
         submitting.current = true;
         try {
             await feedback.save(async () => {
@@ -54,29 +58,32 @@ export function IncomeForm({ categories = [], onSuccess, onCancel, onDirty }: {
     }
 
     function attributes(name: string) {
-        return { required: true, 'aria-invalid': Boolean(errors[name]), 'aria-describedby': `income-error-${name}` };
+        return { id: `income-${name}`, 'aria-labelledby': `income-label-${name}`, required: true, 'aria-invalid': Boolean(errors[name]), 'aria-describedby': `income-error-${name}` };
     }
 
     return (
         <form noValidate onSubmit={onSubmit} onChange={onDirty} className={styles['income-form']}>
             <p className={styles['income-form__intro']}>Registre uma nova receita no seu controle financeiro.</p>
             <label className={styles['income-form__wide']}>
-                <span>Descrição <b>*</b></span>
+                <span id="income-label-description">Descrição <b aria-hidden="true">*</b></span>
                 <input name="description" autoFocus maxLength={255} placeholder="Ex.: Salário, Freelance, Reembolso" {...attributes('description')} />
                 {error('description')}
             </label>
             <label>
-                <span>Valor (R$) <b>*</b></span>
-                <input name="amount" inputMode="decimal" placeholder="0,00" {...attributes('amount')} />
+                <span id="income-label-amount">Valor (R$) <b aria-hidden="true">*</b></span>
+                <input name="amount" inputMode="numeric" placeholder="0,00" value={amount} onChange={event => {
+                    const digits = event.target.value.replace(/\D/g, '').slice(0, 15);
+                    setAmount(digits ? (Number(digits) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '');
+                }} {...attributes('amount')} />
                 {error('amount')}
             </label>
             <label>
-                <span>Data da entrada <b>*</b></span>
+                <span id="income-label-date">Data da entrada <b aria-hidden="true">*</b></span>
                 <input name="date" type="date" {...attributes('date')} />
                 {error('date')}
             </label>
             <label className={styles['income-form__wide']}>
-                <span>Categoria <b>*</b></span>
+                <span id="income-label-categoryId">Categoria <b aria-hidden="true">*</b></span>
                 <select name="categoryId" defaultValue="" {...attributes('categoryId')}>
                     <option value="" disabled>Selecione</option>
                     {categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
@@ -84,7 +91,7 @@ export function IncomeForm({ categories = [], onSuccess, onCancel, onDirty }: {
                 {error('categoryId')}
             </label>
             <label className={styles['income-form__wide']}>
-                <span>Tipo <b>*</b></span>
+                <span id="income-label-type">Tipo <b aria-hidden="true">*</b></span>
                 <select name="type" value={type} onChange={event => setType(event.target.value)} {...attributes('type')}>
                     <option value="" disabled>Selecione</option>
                     <option value="RECURRING">Recorrente</option>
