@@ -1,0 +1,60 @@
+.cashflow-chart {
+    min-width: 0;
+    overflow-wrap: normal;
+
+    & .cashflow-chart__plot {
+        min-width: 0;
+        max-height: 35vh;
+
+        & :global(.chart__container) {
+            margin: 0;
+        }
+
+        & :global(.chart__title:empty) {
+            display: none;
+        }
+
+        & :global(.chart.column) {
+            box-sizing: border-box;
+            height: 35vh;
+            max-height: 35vh;
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-rows: minmax(1.5em, auto) repeat(100, minmax(0, 1fr)) minmax(1.5em, auto);
+            grid-auto-flow: column;
+            column-gap: var(--gridSize2x, 16px);
+
+            & :global(.chart__label),
+            & :global(.chart__value),
+            & :global(.chart__col) {
+                margin: 0;
+                justify-self: center;
+            }
+
+            & :global(.chart__label),
+            & :global(.chart__value) {
+                white-space: nowrap;
+                overflow-wrap: normal;
+                word-break: normal;
+                line-height: 1.5;
+                text-align: center;
+            }
+
+            & :global(.chart__col) {
+                width: min(60%, 72px);
+            }
+        }
+    }
+
+    & .cashflow-chart__summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 var(--gridSizeDefault, 8px);
+
+        & span {
+            white-space: nowrap;
+        }
+    }
+}
