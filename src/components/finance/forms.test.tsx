@@ -27,7 +27,7 @@ describe('finance forms', () => {
         expect((screen.getByLabelText('Parcelas') as HTMLInputElement).value).toBe('1');
     });
 
-    it('reveals responsible, description and date for recurring incomes', async () => {
+    it('keeps required fields visible and changes type guidance', async () => {
         const user = userEvent.setup();
 
         render(<IncomeForm />);
@@ -36,9 +36,14 @@ describe('finance forms', () => {
 
         await user.selectOptions(screen.getByLabelText('Tipo'), 'RECURRING');
 
-        expect(screen.getByLabelText('Responsável')).toBeTruthy();
+        expect(screen.queryByLabelText('Responsável')).toBeNull();
+        expect(screen.getByText('Se repete todos os meses.')).toBeTruthy();
         expect(screen.getByLabelText('Descrição')).toBeTruthy();
-        expect(screen.getByLabelText('Data')).toBeTruthy();
+        expect(screen.getByLabelText('Data da entrada')).toBeTruthy();
+        await user.selectOptions(screen.getByLabelText('Tipo'), 'OTHER');
+        expect(screen.getByText('Acontece uma única vez.')).toBeTruthy();
+        await user.type(screen.getByLabelText('Valor (R$)'), '123456');
+        expect((screen.getByLabelText('Valor (R$)') as HTMLInputElement).value).toBe('1.234,56');
     });
 
     it('separates investment creation and valuation update', () => {
