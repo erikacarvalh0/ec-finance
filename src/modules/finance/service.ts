@@ -96,9 +96,9 @@ export async function createIncome(
             type: data.type,
             amountInCents: parseMoney(data.amountInCents),
             ...(data.categoryId ? { categoryId: data.categoryId } : {}),
-            responsible: data.type === 'RECURRING' ? data.responsible : null,
-            description: data.type === 'RECURRING' ? data.description : null,
-            date: data.type === 'RECURRING' ? toDate(data.date) : null,
+            responsible: data.type === 'RECURRING' ? data.responsible ?? null : null,
+            description: data.type !== 'SALARY' ? data.description ?? null : null,
+            date: data.type !== 'SALARY' && data.date ? toDate(data.date) : null,
         },
     });
 }
