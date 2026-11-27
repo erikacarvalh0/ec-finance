@@ -13,7 +13,7 @@ afterEach(cleanup);
 
 it('navigates to selected month', () => {
     render(<MonthSelector month="2026-11" />);
-    fireEvent.change(screen.getByLabelText('Período'), {
+    fireEvent.change(screen.getByLabelText('Mês'), {
         target: { value: '2026-10' },
     });
     expect(push).toHaveBeenCalledWith('/?month=2026-10');
@@ -22,7 +22,7 @@ it('navigates to selected month', () => {
 it('does not navigate when the month is cleared', () => {
     push.mockClear();
     render(<MonthSelector month="2026-11" />);
-    fireEvent.change(screen.getByLabelText('Período'), {
+    fireEvent.change(screen.getByLabelText('Mês'), {
         target: { value: '' },
     });
     expect(push).not.toHaveBeenCalled();
