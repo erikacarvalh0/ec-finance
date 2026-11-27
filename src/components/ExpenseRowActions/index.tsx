@@ -40,7 +40,7 @@ export function ExpenseRowActions({ row, expense, archived, categories, occurren
             {action === 'details' && <>
                 <ExpenseDetails
                     expense={{ ...row, type: expense.type === 'FIXED' ? 'Fixa' : 'Variável' }}
-                    footer={<ExpenseArchiveButton id={expense.id} archived={archived} />}
+                    footer={<ExpenseArchiveButton id={expense.id} archived={archived} onSuccess={closeDialog} />}
                 >
                     {additionalActions}
                 </ExpenseDetails>
@@ -49,7 +49,7 @@ export function ExpenseRowActions({ row, expense, archived, categories, occurren
             {action === 'edit' && <RecordEditForm record={{ ...expense, kind: 'expense' }} categories={categories} />}
             {(action === 'pay' || action === 'reopen') && <ExpensePayment id={expense.id} month={row.month} paid={row.state === 'SETTLED'} />}
             {action === 'installments' && <ExpenseInstallments expense={expense} occurrences={occurrences} />}
-            {(action === 'archive' || action === 'restore') && <ExpenseArchiveButton id={expense.id} archived={archived} />}
+            {(action === 'archive' || action === 'restore') && <ExpenseArchiveButton id={expense.id} archived={archived} onSuccess={closeDialog} />}
         </Dialog>}
     </>;
 }
