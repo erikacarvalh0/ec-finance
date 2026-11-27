@@ -79,3 +79,11 @@
         }
     }
 }
+
+.category-settings__delete {
+    & .category-settings__delete-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: var(--gridSize2x, 16px);
+    }
+}
