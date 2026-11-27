@@ -1,6 +1,5 @@
 import { listManagedCategories } from '@/modules/categories/management';
 import dashboardStyles from '@/components/DashboardLayout/index.module.css';
-import Link from 'next/link';
 import { CashflowChart } from '@/components/CashflowChart';
 import { ExpensesByCategory } from '@/components/ExpensesByCategory';
 import { FinancialSummary } from '@/components/FinancialSummary';
@@ -8,27 +7,17 @@ import { FinancialOverview } from '@/components/FinancialOverview';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { Page } from '@/components/Page';
 import { redirect } from 'next/navigation';
-import { Card } from '@/components/ecds-v1/compat';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getMonthlyFixedExpenses } from '@/modules/finance/monthly';
 import { getUserCashflowForecast } from '@/modules/forecast/repository';
 import { getOverdueExpenseTotals } from '@/modules/forecast/overdue';
 import { getCategoryBudgetReport } from '@/modules/budgets/service';
-import { MarkFixedButton } from '@/components/finance/forms';
 import { getUserMonthlyCashflowReport } from '@/modules/reports/monthly';
 import { summarizeDashboardRecordedCashflow } from '@/modules/reports/dashboard-cashflow';
+import { OverviewDetails } from '@/components/dashboard/overview-details';
 
 export const dynamic = 'force-dynamic';
-
-const currency = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-});
-
-function formatCents(value: bigint): string {
-    return currency.format(Number(value) / 100);
-}
 
 export default async function DashboardPage({
     searchParams,
@@ -66,6 +55,7 @@ export default async function DashboardPage({
                 amountInCents: true,
                 isFixed: true,
                 occurredAt: true,
+                cardId: true,
             },
         }),
         getUserCashflowForecast(prisma, userId, selectedMonth, 6),
@@ -117,116 +107,19 @@ export default async function DashboardPage({
                     count={overdue.count}
                     transactions={transactions.length}
                 />
-                <Card padding="lg" className={dashboardStyles.card}>
-                    <h2>Orçamentos deste mês</h2>
-                    {budgetReport.categories.length === 0 ? (
-                        <p>Nenhuma categoria cadastrada.</p>
-                    ) : (
-                        <ul>
-                            {budgetReport.categories.map((category) => (
-                                <li key={category.categoryId}>
-                                    <strong>{category.name}</strong>
-                                    {': '}
-                                    {formatCents(category.spentInCents)}
-                                    {' / '}
-                                    {category.limitInCents === null
-                                        ? 'Sem limite'
-                                        : formatCents(category.limitInCents)}
-                                    {category.status === 'OVER_LIMIT' && ' · Acima do limite'}
-                                    {category.status === 'AT_LIMIT' && ' · Limite atingido'}
-                                    {category.status === 'NEAR_LIMIT' && ' · Próximo do limite'}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                    <Link href="/budgets">Gerenciar limites e categorias</Link>
-                </Card>
-                <Card padding="lg" className={dashboardStyles.card}>
-                    <h2>Previsão dos próximos meses</h2>
-                    <p>
-                        Parcelas e recorrências calculadas a partir dos registros existentes.
-                        São previsões, não cobranças confirmadas.
-                    </p>
-                    <div className="table-scroll">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Mês</th>
-                                    <th>Despesas previstas</th>
-                                    <th>Entradas previstas</th>
-                                    <th>Saldo projetado</th>
-                                    <th>Realizado</th>
-                                    <th>Pendente</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {forecast.map((month) => (
-                                    <tr key={`${month.year}-${month.month}`}>
-                                        <td>{String(month.month).padStart(2, '0')}/{month.year}</td>
-                                        <td>{formatCents(month.expenseTotalInCents)}</td>
-                                        <td>{formatCents(month.incomeTotalInCents)}</td>
-                                        <td>{formatCents(month.balanceInCents)}</td>
-                                        <td>{formatCents(month.settledIncomeInCents - month.settledExpenseInCents)}</td>
-                                        <td>{formatCents(month.pendingIncomeInCents - month.pendingExpenseInCents)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    <Link href="/forecast">Ver detalhes do planejamento</Link>
-                </Card>
-                <Card padding="lg" className={dashboardStyles.card}>
-                    <h2>Despesas fixas do mês</h2>
-                    {fixed.expenses.length + fixed.cardTransactions.length === 0 ? (
-                        <p>Nenhuma despesa fixa encontrada para este mês.</p>
-                    ) : (
-                        <ul>
-                            {fixed.expenses.map((expense) => (
-                                <li key={expense.id}>
-                                    {expense.description}: {formatCents(expense.amountInCents)}
-                                </li>
-                            ))}
-                            {fixed.cardTransactions.map((expense) => (
-                                <li key={expense.id}>
-                                    {expense.description} (cartão): {formatCents(expense.amountInCents)}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </Card>
-                <Card padding="lg" className={dashboardStyles.card}>
-                    <h2>Compras do cartão</h2>
-                    {transactions.length === 0 ? (
-                        <p>Nenhuma compra de cartão registrada neste mês.</p>
-                    ) : (
-                        <div className="table-scroll">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Descrição</th>
-                                        <th>Valor</th>
-                                        <th>Classificação</th>
-                                        <th>Ação</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {transactions.map((transaction) => (
-                                        <tr key={transaction.id}>
-                                            <td>{transaction.description}</td>
-                                            <td>{formatCents(transaction.amountInCents)}</td>
-                                            <td>{transaction.isFixed ? 'Fixa' : 'Variável'}</td>
-                                            <td>
-                                                {!transaction.isFixed && (
-                                                    <MarkFixedButton transactionId={transaction.id} />
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </Card>
+                <OverviewDetails
+                    forecast={forecast}
+                    categories={budgetReport.categories.map(category => ({
+                        ...category,
+                        color: categoryMetadata.find(metadata => metadata.id === category.categoryId)?.color ?? '#137E76',
+                        iconBackground: categoryMetadata.find(metadata => metadata.id === category.categoryId)?.iconBackground ?? '#E6F3F0',
+                        icon: categoryMetadata.find(metadata => metadata.id === category.categoryId)?.icon ?? 'wallet',
+                    }))}
+                    fixedExpenses={fixed.expenses}
+                    fixedCardTransactions={fixed.cardTransactions}
+                    cardTransactions={transactions.filter(transaction => transaction.cardId !== null)}
+                    selectedPeriod={`${year}-${String(month).padStart(2, '0')}`}
+                />
             </div>
         </Page>
     );
