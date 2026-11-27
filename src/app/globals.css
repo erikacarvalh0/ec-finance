@@ -212,3 +212,8 @@ th {
 .finance-ds-button:disabled { cursor:not-allowed; opacity:.6; }
 .finance-ds-button-sm { font-size:.875rem; }
 .finance-ds-button-ghost { background:transparent; }
+
+/* Finance uses the rounded ECDS button convention, including composite controls. */
+:root { --button-radius: 6px; }
+body button, body .button, body [role="button"] { border-radius: var(--button-radius) !important; }
+body .button.finance-ds-button-ghost { background: transparent; color: inherit; }
