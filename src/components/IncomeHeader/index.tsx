@@ -1,7 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { Dialog } from '@erikacarvalho/react/Dialog';
+import { useEffect, useRef, useState } from 'react';
 import { IncomeForm } from '@/components/finance/forms';
 import styles from './index.module.css';
 
@@ -10,11 +9,19 @@ export function IncomeHeader({ categories }: {
 }) {
     const [open, setOpen] = useState(false);
 
+    const dialog = useRef<HTMLDialogElement>(null);
+    useEffect(() => {
+        if (open && dialog.current && !dialog.current.open) {
+            dialog.current.showModal();
+            dialog.current.querySelector<HTMLInputElement>('[name="description"]')?.focus();
+        }
+    }, [open]);
     const dirty = useRef(false);
     const trigger = useRef<HTMLButtonElement>(null);
 
     function closeDialog() {
         dirty.current = false;
+        dialog.current?.close();
         setOpen(false);
         requestAnimationFrame(() => trigger.current?.focus());
     }
@@ -41,9 +48,16 @@ export function IncomeHeader({ categories }: {
                 Nova entrada
             </button>
             {open && (
-                <Dialog isOpen toggleDialog={requestClose} title="Nova entrada">
+                <dialog ref={dialog} className={styles['income-dialog']} aria-labelledby="income-dialog-title" aria-describedby="income-dialog-description" onCancel={event => { event.preventDefault(); requestClose(); }}>
+                    <header className={styles['income-dialog__header']}>
+                        <span className={styles['income-dialog__icon']} aria-hidden="true">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 8v8m-4-4h8"/></svg>
+                        </span>
+                        <h2 id="income-dialog-title">Nova entrada</h2>
+                        <button type="button" aria-label="Fechar" onClick={requestClose}>×</button>
+                    </header>
                     <IncomeForm categories={categories} onSuccess={closeDialog} onCancel={requestClose} onDirty={() => { dirty.current = true; }} />
-                </Dialog>
+                </dialog>
             )}
         </header>
     );
