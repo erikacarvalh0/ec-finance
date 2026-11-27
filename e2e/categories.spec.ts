@@ -18,13 +18,13 @@ test('category changes reach financial forms and dashboard', async ({ page, cont
         const incomeCategory = await db.category.findFirstOrThrow({ where: { userId, name: 'E2E Income' } });
         const expenseCategory = await db.category.findFirstOrThrow({ where: { userId, type: 'EXPENSE', name: 'Moradia' } });
         await page.goto('/incomes');
-        await expect(page.locator('select[name="categoryId"] option', { hasText: 'E2E Income' })).toHaveCount(1);
+        await expect(page.getByRole('region', { name: 'Histórico de entradas' }).locator('select[name="categoryId"] option', { hasText: 'E2E Income' })).toHaveCount(1);
         const created = await page.request.post('/api/incomes', { data: { type: 'SALARY', amountInCents: '10000', categoryId: incomeCategory.id } });
         expect(created.status()).toBe(201);
         const rejected = await page.request.post('/api/incomes', { data: { type: 'SALARY', amountInCents: '10000', categoryId: expenseCategory.id } });
         expect(rejected.status()).toBe(404);
         await page.reload();
-        await expect(page.locator('.record-list small').filter({ hasText: 'E2E Income' }).first()).toBeVisible();
+        await expect(page.getByRole('cell', { name: 'E2E Income', exact: true }).first()).toBeVisible();
         await db.expense.create({ data: { userId, description: 'E2E Housing', amountInCents: BigInt(10000), type: 'VARIABLE', paymentMethod: 'PIX', categoryId: expenseCategory.id, date: new Date('2020-01-10T00:00:00Z') } });
         await page.goto('/?month=2020-01');
         await expect(page.getByText(/Moradia: R\$/).first()).toBeVisible();
