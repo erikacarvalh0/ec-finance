@@ -56,3 +56,30 @@
     line-height: 1.2;
     color: var(--dashboard-ink, #101127);
 }
+
+.metric-card--top-centered {
+    & .row {
+        align-items: flex-start;
+        justify-content: center;
+    }
+
+    & .content {
+        font-size: calc(var(--finance-page-subtitle-size, 16px) - 2px);
+
+        & p {
+            font-size: inherit;
+            margin: 4px 0 0;
+        }
+
+        & a {
+            font-size: inherit;
+            color: var(--acquaDark, #147b73);
+            text-decoration: none;
+
+            &:focus-visible {
+                outline: 2px solid currentColor;
+                outline-offset: 2px;
+            }
+        }
+    }
+}
