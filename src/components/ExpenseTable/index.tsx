@@ -3,6 +3,22 @@
 import type { ReactNode } from 'react';
 import { Table } from '@erikacarvalho/react/Table';
 
+import styles from './index.module.css';
+
+const badgeVariants: Record<string, string> = {
+    'Alimentação': 'food',
+    'Moradia': 'home',
+    'Transporte': 'transport',
+    'Pago': 'paid',
+    'Paga': 'paid',
+    'Pendente': 'pending',
+};
+
+function badge(value: string) {
+    const variant = badgeVariants[value];
+    return <span className={[styles['expense-table__badge'], variant && styles['expense-table__badge--' + variant]].filter(Boolean).join(' ')}>{value}</span>;
+}
+
 export type ExpenseTableRow = {
     id: string;
     date: string;
@@ -21,14 +37,15 @@ export function ExpenseTable({ rows }: { rows: ExpenseTableRow[] }) {
     }
 
     return (
+        <div className={styles['expense-table']}>
         <Table paginationConfig={{ itemsPerPage: 20, arrows: true }} data={rows.map(row => ({
             date: row.date,
             description: row.description,
-            category: row.category,
+            category: badge(row.category),
             paymentMethod: row.paymentMethod,
             installments: row.installments,
             amount: row.amount,
-            status: row.status,
+            status: badge(row.status),
             actions: <div key={row.id}>{row.actions}</div>,
         }))}>
             <th scope="col">Data</th>
@@ -40,5 +57,6 @@ export function ExpenseTable({ rows }: { rows: ExpenseTableRow[] }) {
             <th scope="col">Status</th>
             <th scope="col">Ações</th>
         </Table>
+        </div>
     );
 }
