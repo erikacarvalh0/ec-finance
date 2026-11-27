@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import styles from './index.module.css';
 import { Button } from '@/components/ecds-v1/compat';
 
-export function ExpensePayment({ id, month, paid }: { id: string; month: string; paid: boolean }) {
+export function ExpensePayment({ id, month, paid, direct = false, onSuccess }: { id: string; month: string; paid: boolean; direct?: boolean; onSuccess?: () => void }) {
     const router = useRouter();
     const [confirming, setConfirming] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -35,6 +36,7 @@ export function ExpensePayment({ id, month, paid }: { id: string; month: string;
             }
 
             setConfirming(false);
+            onSuccess?.();
             router.refresh();
         } catch (error) {
             setMessage(error instanceof Error ? error.message : 'Erro inesperado.');
@@ -45,13 +47,13 @@ export function ExpensePayment({ id, month, paid }: { id: string; month: string;
 
     return (
         <div>
-            <Button type="button" disabled={saving} onClick={requestConfirmation}>
+            {!direct && <Button type="button" disabled={saving} onClick={requestConfirmation}>
                 {paid ? 'Marcar como pendente' : 'Marcar como paga'}
-            </Button>
-            {confirming && (
-                <div role="group" aria-label="Confirmar pagamento">
-                    <p>{paid ? 'Reverter o pagamento desta parcela?' : 'Confirmar pagamento desta parcela?'}</p>
-                    <Button type="button" disabled={saving} onClick={cancelConfirmation}>Cancelar</Button>
+            </Button>}
+            {(direct || confirming) && (
+                <div className={direct ? styles['expense-payment__actions'] : undefined} role="group" aria-label="Confirmar pagamento">
+                    {!direct && <p>{paid ? 'Reverter o pagamento desta parcela?' : 'Confirmar pagamento desta parcela?'}</p>}
+                    {!direct && <Button type="button" disabled={saving} onClick={cancelConfirmation}>Cancelar</Button>}
                     <Button type="button" disabled={saving} onClick={savePayment}>Confirmar</Button>
                 </div>
             )}
