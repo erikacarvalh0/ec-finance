@@ -1,37 +1,57 @@
 .month-selector {
+    position: relative;
     display: grid;
     width: min(100%, 348px);
     min-width: 0;
     align-self: flex-start;
+    border-bottom: 2px solid #58c9d4;
+    padding: var(--gridSizeSmall, 4px) var(--gridSizeDefault, 8px);
+    cursor: pointer;
 
     & .month-selector__label {
-        padding: 0 var(--gridSizeDefault, 8px) 4px;
-        color: var(--acquaDark, #087e79);
-        font-size: 12px;
+        color: #58c9d4;
+        font-size: var(--gridSizeDefault, 8px);
         font-weight: 700;
         text-transform: uppercase;
     }
 
+    & .month-selector__value {
+        padding: var(--gridSizeDefault, 8px) var(--gridSize3x, 24px) var(--gridSizeSmall, 4px) 0;
+        color: #3f4147;
+        text-transform: capitalize;
+    }
+
+    & .month-selector__chevron {
+        position: absolute;
+        right: var(--gridSizeDefault, 8px);
+        top: 50%;
+        width: 9px;
+        height: 9px;
+        border-right: 3px solid #58c9d4;
+        border-bottom: 3px solid #58c9d4;
+        transform: translateY(-50%) rotate(45deg);
+        pointer-events: none;
+    }
+
     & .month-selector__input {
+        position: absolute;
+        inset: 0;
         width: 100%;
-        min-width: 0;
-        min-height: 56px;
-        padding: var(--gridSizeDefault, 8px) var(--gridSize2x, 16px);
-        border: 1px solid var(--finance-card-border);
-        border-top: 2px solid var(--acquaDark, #087e79);
-        border-radius: 0 0 6px 6px;
-        background: var(--finance-card-background);
-        color: var(--finance-ink);
-        font: inherit;
+        height: 100%;
+        opacity: 0;
         cursor: pointer;
 
-        &:focus-visible {
-            outline: 2px solid var(--acquaDark, #087e79);
-            outline-offset: 2px;
-        }
-
         &::-webkit-calendar-picker-indicator {
+            position: absolute;
+            inset: 0;
+            width: auto;
+            height: auto;
             cursor: pointer;
         }
+    }
+
+    &:focus-within {
+        outline: 2px solid var(--acquaDark, #21949f);
+        outline-offset: 3px;
     }
 }
