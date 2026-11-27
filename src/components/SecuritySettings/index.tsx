@@ -3,12 +3,12 @@ import styles from './index.module.css';
 
 export function SecuritySettings({ googleConnected }: { googleConnected: boolean }) {
     return (
-        <div className={styles.root}>
-            <div className={styles.account}>
+        <div className={styles['security-settings']}>
+            <div className={styles['security-settings__account']}>
                 <span>Conta Google</span>
-                <span className={styles.status}>{googleConnected ? 'Conectada' : 'Não identificada'}</span>
+                <span className={googleConnected ? styles['security-settings__status--connected'] : styles['security-settings__status']}>{googleConnected ? 'Conectada' : 'Não identificada'}</span>
             </div>
-            <div className={styles.notice}>
+            <div className={styles['security-settings__notice']}>
                 <span aria-hidden="true"><Info /></span>
                 <div>
                     <h3>{googleConnected ? 'Sua senha é gerenciada pelo Google' : 'Método de acesso não identificado'}</h3>
@@ -18,9 +18,9 @@ export function SecuritySettings({ googleConnected }: { googleConnected: boolean
                 </div>
             </div>
             {googleConnected && (
-                <div className={styles.actions}>
+                <div className={styles['security-settings__actions']}>
                     <a href="https://myaccount.google.com/security" target="_blank" rel="noopener noreferrer">
-                        Gerenciar segurança no Google <span className={styles.external}>(abre em nova aba)</span>
+                        Gerenciar segurança no Google
                     </a>
                 </div>
             )}
