@@ -1,0 +1,37 @@
+.month-selector {
+    display: grid;
+    width: min(100%, 348px);
+    min-width: 0;
+    align-self: flex-start;
+
+    & .month-selector__label {
+        padding: 0 var(--gridSizeDefault, 8px) 4px;
+        color: var(--acquaDark, #087e79);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    & .month-selector__input {
+        width: 100%;
+        min-width: 0;
+        min-height: 56px;
+        padding: var(--gridSizeDefault, 8px) var(--gridSize2x, 16px);
+        border: 1px solid var(--finance-card-border);
+        border-top: 2px solid var(--acquaDark, #087e79);
+        border-radius: 0 0 6px 6px;
+        background: var(--finance-card-background);
+        color: var(--finance-ink);
+        font: inherit;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--acquaDark, #087e79);
+            outline-offset: 2px;
+        }
+
+        &::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+        }
+    }
+}
