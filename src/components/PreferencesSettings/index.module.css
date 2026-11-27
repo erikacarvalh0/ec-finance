@@ -1,4 +1,68 @@
-.root { display: flex; flex-direction: column; flex: 1; gap: 16px; min-width: 0; }
-.fields { display: grid; grid-template-columns: minmax(0,1fr); gap: 16px; border: 0; margin: 0; padding: 0; min-width: 0; }
-.root small { font-size: 14px; line-height: 20px; }
-.root p { margin: 0; }
+.preferences-settings {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: var(--gridSize2x, 16px);
+    min-width: 0;
+
+    & .preferences-settings__fields {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--gridSize2x, 16px);
+        border: 0;
+        margin: 0;
+        padding: 0;
+        min-width: 0;
+    }
+
+    & .preferences-settings__select {
+        position: relative;
+        display: block;
+        width: 100%;
+        min-width: 0;
+        padding-top: var(--gridSize2x, 16px);
+
+        & > :global(.input.select) {
+            box-sizing: border-box;
+            width: 100%;
+            padding-right: var(--gridSize3x, 24px);
+        }
+
+        & > :global(.label) {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translate(8px, 1px);
+            font-weight: 700;
+            font-size: var(--gridSizeDefault, 8px);
+            color: #58c9d4;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        & > :global(.input__btn-select) {
+            position: absolute;
+            top: calc(var(--gridSize2x, 16px) + 8px);
+            right: var(--gridSizeDefault, 8px);
+        }
+    }
+
+    & .preferences-settings__switches {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+
+        & > button {
+            padding-block: 4px;
+        }
+    }
+
+    & small {
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+    & p {
+        margin: 0;
+    }
+}
