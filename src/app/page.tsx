@@ -164,7 +164,7 @@ export default async function DashboardPage({
                         </div>
                     </Card>
                     <div className={overviewStyles['dashboard-overview__tracking']}>
-                        <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles['dashboard-overview__card']}`}>
+                        <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles['dashboard-overview__card']} ${overviewStyles['dashboard-overview__card--tracking']}`}>
                             <h2>Orçamentos deste mês</h2>
                             {budgetReport.categories.length === 0 ? (
                                 <p className={overviewStyles['dashboard-overview__muted']}>Nenhuma categoria cadastrada.</p>
@@ -208,7 +208,7 @@ export default async function DashboardPage({
                             )}
                             <Link href="/budgets" className={overviewStyles['dashboard-overview__footer-link']}>Gerenciar limites e categorias →</Link>
                         </Card>
-                        <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles['dashboard-overview__card']}`}>
+                        <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles['dashboard-overview__card']} ${overviewStyles['dashboard-overview__card--tracking']}`}>
                             <h2>Despesas fixas do mês</h2>
                             {fixed.expenses.length + fixed.cardTransactions.length === 0 ? (
                                 <div className={overviewStyles['dashboard-overview__empty-state']}>
@@ -217,7 +217,7 @@ export default async function DashboardPage({
                                     <Link href="/expenses" className={overviewStyles['dashboard-overview__outline-action']}>Adicionar despesa fixa</Link>
                                 </div>
                             ) : (
-                                <ul>
+                                <ul className={overviewStyles['dashboard-overview__scroll-list']}>
                                     {fixed.expenses.map((expense) => (
                                         <li key={expense.id}>
                                             {expense.description}: {formatCents(expense.amountInCents)}
@@ -231,7 +231,7 @@ export default async function DashboardPage({
                                 </ul>
                             )}
                         </Card>
-                        <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles['dashboard-overview__card']}`}>
+                        <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles['dashboard-overview__card']} ${overviewStyles['dashboard-overview__card--tracking']}`}>
                             <div className={overviewStyles['dashboard-overview__header']}>
                                 <h2>Compras do cartão</h2>
                                 <Link href="/cards" className={overviewStyles['dashboard-overview__link']}>Ver todas →</Link>
@@ -243,7 +243,7 @@ export default async function DashboardPage({
                                     <Link href="/expenses" className={overviewStyles['dashboard-overview__outline-action']}>Registrar compra</Link>
                                 </div>
                             ) : (
-                                <div className="table-scroll">
+                                <div className={`table-scroll ${overviewStyles['dashboard-overview__scroll-list']}`}>
                                     <table>
                                         <thead>
                                             <tr>
