@@ -47,7 +47,7 @@ export function CategorySettings({ initialCategories }: {initialCategories: Mana
         {dialog && <Dialog isOpen toggleDialog={close} title={dialog.action==='delete'?'Excluir categoria':dialog.action==='edit'?'Editar categoria':'Nova categoria'}>
             {dialog.action==='delete'?<div><p>Excluir {dialog.row?.name}? Categorias em uso não podem ser excluídas.</p><Button type="button" theme="cancel" isDisabled={busy} action={()=>void submit({action:'delete',id:dialog.row?.id})}>Excluir</Button></div>:<CategoryForm row={dialog.row} busy={busy} save={category=>void submit(dialog.action==='create'?{action:'create',type,category}:{action:'edit',id:dialog.row?.id,category})}/>}
             <p role="status">{message}</p>
-            <Button type="button" theme="neutral" isDisabled={busy} action={close}>Cancelar</Button>
+            {dialog.action === 'delete' && <Button type="button" theme="neutral" isDisabled={busy} action={close}>Cancelar</Button>}
         </Dialog>}
     </div>;
 }
