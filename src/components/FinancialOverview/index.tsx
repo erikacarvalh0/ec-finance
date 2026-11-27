@@ -29,10 +29,11 @@ export function FinancialOverview({ fixed, overdue, count, transactions }: Finan
             <MetricCard
                 variant="lower"
                 title="Despesas atrasadas"
+                alignContent="top-centered"
                 value={money.format(overdue / 100)}
                 icon={<Calendar />}
             >
-                <p>{count} ocorrência(s) pendente(s)</p>
+                <p>{count} {count === 1 ? 'ocorrência pendente' : 'ocorrências pendentes'}</p>
                 <Link href="/forecast">Revisar pagamentos</Link>
             </MetricCard>
             <MetricCard
