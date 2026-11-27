@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import styles from './record-edit-form.module.css';
 import { Button, Input, Select } from '@/components/ecds-v1/compat';
 
 type ExpenseRecord = {
@@ -43,9 +44,13 @@ function parseCurrency(value: string): string {
 export function RecordEditForm({
     record,
     categories = [],
+    inline = false,
+    onSuccess,
 }: {
     record: ExpenseRecord | IncomeRecord;
     categories?: Array<{ id: string; name: string }>;
+    inline?: boolean;
+    onSuccess?: () => void;
 }) {
     const router = useRouter();
     const [expanded, setExpanded] = useState(false);
@@ -106,6 +111,7 @@ export function RecordEditForm({
 
             setExpanded(false);
             setFeedback('Alterações salvas.');
+            onSuccess?.();
             router.refresh();
         } catch (error) {
             setFeedback(error instanceof Error ? error.message : 'Erro ao atualizar.');
@@ -115,14 +121,14 @@ export function RecordEditForm({
     }
 
     return (
-        <div className="record-editor">
-            <Button type="button" variant="secondary" size="sm" onClick={() => setExpanded(!expanded)}>
+        <div className={inline ? styles['record-editor'] : "record-editor"}>
+            {!inline && <Button type="button" variant="secondary" size="sm" onClick={() => setExpanded(!expanded)}>
                 {expanded ? 'Fechar' : 'Editar'}
-            </Button>
-            {expanded && (
-                <form className="finance-form" onSubmit={save}>
+            </Button>}
+            {(inline || expanded) && (
+                <form className={inline ? styles['record-editor__form'] : "finance-form"} onSubmit={save}>
                     {record.kind === 'expense' && (
-                        <label>
+                        <label className={inline ? styles['record-editor__description'] : undefined}>
                             Descrição
                             <Input name="description" defaultValue={record.description} required />
                         </label>
@@ -224,7 +230,7 @@ export function RecordEditForm({
                             <Input name="endsOn" type="date" defaultValue={record.endsOn} />
                         </label>
                     )}
-                    <Button type="submit" disabled={saving}>Salvar alterações</Button>
+                    <Button className={inline ? styles['record-editor__submit'] : undefined} type="submit" disabled={saving}>Salvar alterações</Button>
                 </form>
             )}
             <span role="status">{feedback}</span>
