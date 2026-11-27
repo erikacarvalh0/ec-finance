@@ -119,32 +119,6 @@ export default async function DashboardPage({
                     transactions={transactions.length}
                 />
                 <section className={overviewStyles.sections} aria-label="Planejamento e acompanhamento financeiro">
-                <div className={overviewStyles.tracking}>
-                <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles.card} ${overviewStyles.budgetCard}`}>
-                    <h2>Orçamentos deste mês</h2>
-                    {budgetReport.categories.length === 0 ? (
-                        <p>Nenhuma categoria cadastrada.</p>
-                    ) : (
-                        <ul>
-                            {budgetReport.categories.map((category) => (
-                                <li key={category.categoryId}>
-                                    <strong>{category.name}</strong>
-                                    {': '}
-                                    {formatCents(category.spentInCents)}
-                                    {' / '}
-                                    {category.limitInCents === null
-                                        ? 'Sem limite'
-                                        : formatCents(category.limitInCents)}
-                                    {category.status === 'OVER_LIMIT' && ' · Acima do limite'}
-                                    {category.status === 'AT_LIMIT' && ' · Limite atingido'}
-                                    {category.status === 'NEAR_LIMIT' && ' · Próximo do limite'}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                    <Link href="/budgets">Gerenciar limites e categorias</Link>
-                </Card>
-                </div>
                 <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles.card} ${overviewStyles.forecastCard}`}>
                     <h2>Previsão dos próximos meses</h2>
                     <p>
@@ -180,6 +154,30 @@ export default async function DashboardPage({
                     <Link href="/forecast">Ver detalhes do planejamento</Link>
                 </Card>
                 <div className={overviewStyles.tracking}>
+                <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles.card} ${overviewStyles.budgetCard}`}>
+                    <h2>Orçamentos deste mês</h2>
+                    {budgetReport.categories.length === 0 ? (
+                        <p>Nenhuma categoria cadastrada.</p>
+                    ) : (
+                        <ul>
+                            {budgetReport.categories.map((category) => (
+                                <li key={category.categoryId}>
+                                    <strong>{category.name}</strong>
+                                    {': '}
+                                    {formatCents(category.spentInCents)}
+                                    {' / '}
+                                    {category.limitInCents === null
+                                        ? 'Sem limite'
+                                        : formatCents(category.limitInCents)}
+                                    {category.status === 'OVER_LIMIT' && ' · Acima do limite'}
+                                    {category.status === 'AT_LIMIT' && ' · Limite atingido'}
+                                    {category.status === 'NEAR_LIMIT' && ' · Próximo do limite'}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    <Link href="/budgets">Gerenciar limites e categorias</Link>
+                </Card>
                 <Card padding="lg" className={`${dashboardStyles.card} ${overviewStyles.card}`}>
                     <h2>Despesas fixas do mês</h2>
                     {fixed.expenses.length + fixed.cardTransactions.length === 0 ? (
