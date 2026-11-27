@@ -64,10 +64,10 @@ export function ExpenseForm({
         <Card padding="lg">
             <Accordion title="Nova despesa" size="large" hasArrow defaultOpen={monthlyExpenseCount < 5}>
                 <div aria-busy={feedback.saving}>
-                    <fieldset disabled={feedback.saving} className={styles.fields}>
-                        <Form key={revision} customClass={styles.form} handleSubmit={handleSubmit} buttonText="Salvar">
+                    <fieldset disabled={feedback.saving} className={styles['expense-form__fields']}>
+                        <Form key={revision} customClass={styles['expense-form']} handleSubmit={handleSubmit} buttonText="Salvar">
                             <Input name="amount" label="Valor (R$)" isRequired validate={validateAmount} />
-                            <Input name="description" label="Descrição" isRequired validate={validateDescription} customClass={styles.description} />
+                            <Input name="description" label="Descrição" isRequired validate={validateDescription} customClass={styles['expense-form__description']} />
                             <Select name="type" label="Tipo" options={typeOptions} defaultValue="VARIABLE" isRequired />
                             <Select name="paymentMethod" label="Forma de pagamento" options={paymentOptions} defaultValue="PIX" isRequired onValueChange={handlePaymentChange} />
                             <Select name="categoryId" label="Categoria (opcional)" options={[{ value: '', label: 'Sem categoria' }, ...categories.map(category => ({ value: category.id, label: category.name }))]} defaultValue="" />
@@ -80,7 +80,7 @@ export function ExpenseForm({
                             ) : <></>}
                         </Form>
                     </fieldset>
-                    <p className={styles.feedback} role="status">{feedback.message}</p>
+                    <p className={styles['expense-form__feedback']} role="status">{feedback.message}</p>
                 </div>
             </Accordion>
         </Card>
