@@ -1,0 +1,45 @@
+.expense-archive {
+    width: 100%;
+    min-width: 0;
+
+    & .expense-archive__divider {
+        border: 0;
+        border-top: 1px solid var(--finance-card-border, #e1e7f0);
+        margin: 24px 0 16px;
+    }
+
+    & .expense-archive__title {
+        font-family: "Josefin Sans", sans-serif;
+        color: #3f4147;
+        font-size: 18px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin: 0 0 16px;
+    }
+
+    & .expense-archive__actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        align-items: center;
+        gap: var(--gridSize2x, 16px);
+
+        & .expense-archive__trigger {
+            background: transparent;
+            border: 1px solid var(--acquaDark, #198e99);
+            color: var(--acquaDark, #198e99);
+            border-radius: 10px;
+            text-transform: none;
+            padding: 10px 16px;
+
+            &:hover:not(:disabled) {
+                background: var(--acquaLight, #dff4f5);
+            }
+        }
+
+        & .expense-archive__cancel {
+            background: #858585;
+            color: #fff;
+        }
+    }
+}

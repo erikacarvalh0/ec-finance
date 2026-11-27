@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import styles from './index.module.css';
 
 export type ExpenseDetailsData = {
@@ -11,7 +12,7 @@ export type ExpenseDetailsData = {
     status: string;
 };
 
-export function ExpenseDetails({ expense }: { expense: ExpenseDetailsData }) {
+export function ExpenseDetails({ expense, children, footer }: { expense: ExpenseDetailsData; children?: ReactNode; footer?: ReactNode }) {
     const fields = [
         ['Tipo', expense.type],
         ['Categoria', expense.category],
@@ -22,10 +23,10 @@ export function ExpenseDetails({ expense }: { expense: ExpenseDetailsData }) {
     ];
 
     return (
-        <section>
+        <section className={styles['expense-details']}>
             <h3>{expense.description}</h3>
-            <strong>{expense.amount}</strong>
-            <dl className={styles.fields}>
+            <strong className={styles['expense-details__amount']}>{expense.amount}</strong>
+            <dl className={styles['expense-details__fields']}>
                 {fields.map(([label, value]) => (
                     <div key={label}>
                         <dt>{label}</dt>
@@ -33,6 +34,8 @@ export function ExpenseDetails({ expense }: { expense: ExpenseDetailsData }) {
                     </div>
                 ))}
             </dl>
+            {children}
+            {footer && <footer className={styles['expense-details__footer']}>{footer}</footer>}
         </section>
     );
 }

@@ -1,10 +1,53 @@
-.fields {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 1rem;
+.expense-details {
+    & .expense-details__amount {
+        font-size: 18px;
+    }
+
+    & .expense-details__fields {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        margin-top: 24px;
+
+        & dt {
+            text-transform: uppercase;
+            color: var(--acqua);
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        & dd {
+            margin: 0;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+    }
 }
 
-.fields dd {
-    margin: 0;
-    font-weight: 600;
+:global(.dialog):has(.expense-details) {
+    box-sizing: border-box;
+    width: 40vw;
+    max-width: calc(100vw - 32px);
+
+    & :global(.dialog__title) {
+        max-width: 100%;
+        padding-right: var(--gridSize3x, 24px);
+        box-sizing: border-box;
+    }
+
+    & :global(.dialog__body) {
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+.expense-details__footer {
+    width: 100%;
+}
+
+@media (max-width: 1024px) {
+    :global(.dialog):has(.expense-details) {
+        width: min(640px, calc(100vw - 32px));
+    }
 }
