@@ -1,7 +1,21 @@
-.header {
+.expense-history__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 16px;
+
+    & h2 { margin: 0; }
+    & a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 0 24px;
+        border: 1px solid var(--field-focus, #008b8e);
+        border-radius: 6px;
+        color: var(--field-focus, #008b8e);
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 600;
+    }
 }
