@@ -3,19 +3,19 @@
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: var(--finance-space-16);
 
     & h2 { margin: 0; }
     & a {
         display: inline-flex;
         align-items: center;
         min-height: 40px;
-        padding: 0 24px;
-        border: 1px solid var(--field-focus, #008b8e);
+        padding: 0 var(--finance-space-24);
+        border: 1px solid var(--field-focus, var(--finance-color-008b8e));
         border-radius: 6px;
-        color: var(--field-focus, #008b8e);
+        color: var(--field-focus, var(--finance-color-008b8e));
         text-decoration: none;
-        font-size: 16px;
+        font-size: var(--finance-font-14);
         font-weight: 600;
     }
 }

@@ -19,7 +19,7 @@
 .row {
     display: flex;
     align-items: center;
-    gap: var(--gridSize2x, 16px);
+    gap: var(--gridSize2x, var(--finance-space-16));
     margin: 0;
 }
 
@@ -44,17 +44,17 @@
 }
 
 .card .label {
-    font-size: var(--dashboard-label-size, 18px);
+    font-size: var(--dashboard-label-size, var(--finance-font-16));
     font-weight: 500;
     line-height: 1.4;
 }
 
 .value {
     display: block;
-    font-size: var(--dashboard-value-size, 32px);
+    font-size: var(--dashboard-value-size, var(--finance-font-30));
     font-weight: 700;
     line-height: 1.2;
-    color: var(--dashboard-ink, #101127);
+    color: var(--dashboard-ink, var(--finance-ink));
 }
 
 .metric-card--top-centered {
@@ -64,16 +64,16 @@
     }
 
     & .content {
-        font-size: calc(var(--finance-page-subtitle-size, 16px) - 2px);
+        font-size: var(--finance-page-subtitle-size);
 
         & p {
             font-size: inherit;
-            margin: 4px 0 0;
+            margin: var(--finance-space-4) 0 0;
         }
 
         & a {
             font-size: inherit;
-            color: var(--acquaDark, #147b73);
+            color: var(--acquaDark, var(--finance-color-147b73));
             text-decoration: none;
 
             &:focus-visible {

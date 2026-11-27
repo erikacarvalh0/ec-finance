@@ -1,56 +1,56 @@
 .income-summary {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 20px;
+    gap: var(--finance-space-20);
 
     & .income-summary__card {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: var(--finance-space-16);
         min-width: 0;
         min-height: 104px;
         box-sizing: border-box;
-        padding: 20px;
-        background: #fafbfd;
-        border: 1px solid #e1e7f0;
+        padding: var(--finance-space-20);
+        background: var(--finance-color-fafbfd);
+        border: 1px solid var(--finance-color-e1e7f0);
         border-radius: 16px;
 
         & h2 {
             margin: 0;
-            font-size: 14px;
+            font-size: var(--finance-font-12);
             line-height: 20px;
             font-weight: 500;
-            color: #3b4262;
+            color: var(--grey3);
         }
 
         & strong {
             display: block;
-            font-size: 26px;
+            font-size: var(--finance-font-24);
             line-height: 32px;
             font-weight: 700;
-            color: #101127;
+            color: var(--finance-ink);
             font-variant-numeric: tabular-nums;
             overflow-wrap: anywhere;
         }
 
         & small {
             display: block;
-            color: #3b4262;
-            font-size: 12px;
+            color: var(--grey3);
+            font-size: var(--finance-font-12);
         }
 
         & .income-summary__value--positive {
-            color: #187a46;
+            color: var(--finance-color-187a46);
         }
 
         & .income-summary__value--negative {
-            color: #bd3847;
+            color: var(--finance-color-bd3847);
         }
     }
 
     & .income-summary__icon {
         flex: 0 0 32px;
-        color: #008b8e;
+        color: var(--finance-color-008b8e);
 
         & svg {
             width: 32px;

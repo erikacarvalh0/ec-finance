@@ -1,5 +1,5 @@
 .expense-payment__actions {
     display: flex;
     justify-content: flex-end;
-    margin-top: var(--gridSize3x, 24px);
+    margin-top: var(--gridSize3x, var(--finance-space-24));
 }

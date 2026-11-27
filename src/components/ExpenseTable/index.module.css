@@ -1,6 +1,6 @@
 .expense-table {
     min-width: 0;
-    margin-top: 24px;
+    margin-top: var(--finance-space-24);
     overflow-x: auto;
 
     & table {
@@ -8,39 +8,39 @@
         border-collapse: collapse;
         & th {
             height: 40px;
-            background: #edf2f7;
-            color: #626b85;
-            font-size: 12px;
+            background: var(--finance-color-edf2f7);
+            color: var(--finance-color-626b85);
+            font-size: var(--finance-font-12);
             line-height: 16px;
             font-weight: 700;
             text-transform: uppercase;
         }
         & td {
             height: 52px;
-            font-size: 14px;
+            font-size: var(--finance-font-12);
             line-height: 20px;
-            border-bottom: 1px solid #e7ecf2;
+            border-bottom: 1px solid var(--finance-color-e7ecf2);
         }
-        & th, & td { padding: 8px 12px; text-align: left; }
+        & th, & td { padding: var(--finance-space-8) var(--finance-space-12); text-align: left; }
         & th:nth-child(5), & td:nth-child(5) { text-align: center; }
         & th:nth-child(6), & td:nth-child(6) { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-        & tbody tr:hover { background: #f0f7f8; }
+        & tbody tr:hover { background: var(--finance-color-f0f7f8); }
         & td:last-child button { min-width: 40px; min-height: 40px; }
     }
     & .expense-table__badge {
         display: inline-flex;
         align-items: center;
         min-height: 24px;
-        padding: 2px 8px;
+        padding: 2px var(--finance-space-8);
         border-radius: 12px;
-        font-size: 12px;
+        font-size: var(--finance-font-12);
         font-weight: 600;
-        background: #edf2f7;
-        color: #626b85;
+        background: var(--finance-color-edf2f7);
+        color: var(--finance-color-626b85);
     }
-    & .expense-table__badge--food { background: #d9f5ec; color: #087d68; }
-    & .expense-table__badge--home { background: #e0f0ff; color: #245a9b; }
-    & .expense-table__badge--transport { background: #ede4fc; color: #7040ab; }
-    & .expense-table__badge--paid { background: #ddf6eb; color: #08785c; }
-    & .expense-table__badge--pending { background: #fff2cd; color: #856000; }
+    & .expense-table__badge--food { background: var(--finance-color-d9f5ec); color: var(--finance-color-087d68); }
+    & .expense-table__badge--home { background: var(--finance-color-e0f0ff); color: var(--finance-color-245a9b); }
+    & .expense-table__badge--transport { background: var(--finance-color-ede4fc); color: var(--finance-color-7040ab); }
+    & .expense-table__badge--paid { background: var(--finance-color-ddf6eb); color: var(--finance-color-08785c); }
+    & .expense-table__badge--pending { background: var(--finance-color-fff2cd); color: var(--finance-color-856000); }
 }
