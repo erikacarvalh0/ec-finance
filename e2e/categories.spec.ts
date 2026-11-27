@@ -42,7 +42,10 @@ test('category changes reach financial forms and dashboard', async ({ page, cont
         await expect(dialog).not.toBeVisible();
         await expect(trigger).toBeFocused();
         await trigger.click();
-        await expect(page.locator('select[name="categoryId"] option', { hasText: 'E2E Income' })).toHaveCount(1);
+        await expect(dialog.locator('select[name="categoryId"] option', { hasText: 'E2E Income' })).toHaveCount(1);
+        await expect(page.locator('section[aria-labelledby="income-history-title"] select[name="categoryId"] option', { hasText: 'E2E Income' })).toHaveCount(1);
+        await dialog.getByRole('button', { name: 'Cancelar' }).click();
+        await expect(dialog).not.toBeVisible();
         const created = await page.request.post('/api/incomes', { data: { type: 'SALARY', amountInCents: '10000', categoryId: incomeCategory.id } });
         expect(created.status()).toBe(201);
         const rejected = await page.request.post('/api/incomes', { data: { type: 'SALARY', amountInCents: '10000', categoryId: expenseCategory.id } });
