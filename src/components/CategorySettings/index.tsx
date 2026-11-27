@@ -34,13 +34,13 @@ export function CategorySettings({ initialCategories }: {initialCategories: Mana
         [ids[index],ids[target]]=[ids[target],ids[index]];
         void submit({action:'reorder',type,ids});
     }
-    return <div className={styles.root}>
-        <div className={styles.toolbar}>
+    return <div className={styles['category-settings']}>
+        <div className={styles['category-settings__toolbar']}>
             <div role="group" aria-label="Tipo de categoria">
                 <Button type="button" theme={type==='EXPENSE'?'cta':'neutral'} isDisabled={busy} action={()=>setType('EXPENSE')}>Despesas</Button>
                 <Button type="button" theme={type==='INCOME'?'cta':'neutral'} isDisabled={busy} action={()=>setType('INCOME')}>Entradas</Button>
             </div>
-            <Button type="button" theme="cta" isDisabled={busy} action={()=>{setMessage('');setDialog({action:'create'});}}>Nova categoria</Button>
+            <Button type="button" theme="cta" customClass={styles['category-settings__create']} isDisabled={busy} action={()=>{setMessage('');setDialog({action:'create'});}}>Nova categoria</Button>
         </div>
         <CategoryTable rows={rows} busy={busy} move={move} edit={row=>{setMessage('');setDialog({action:'edit',row});}} remove={row=>{setMessage('');setDialog({action:'delete',row});}} />
         <p role="status">{dialog?'':message}</p>

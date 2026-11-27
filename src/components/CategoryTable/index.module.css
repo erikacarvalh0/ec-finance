@@ -1,7 +1,80 @@
-.scroll {overflow-x:auto;min-width:0}
-.table {width:100%;border-collapse:collapse;text-align:left;font-size:var(--settings-description-size,16px)}
-.table th,.table td {height:46px;padding:4px;border-bottom:1px solid var(--settings-border,#E3E8F0)}
-.actions {display:flex;gap:4px}
-.symbol {display:inline-grid;place-items:center;width:32px;height:32px;border-radius:8px}
-.dot {display:inline-block;width:14px;height:14px;border-radius:50%}
-.sr {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.category-table {
+    overflow-x: auto;
+    min-width: 0;
+
+    & .category-table__table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: var(--settings-description-size, 16px);
+
+        & th,
+        & td {
+            height: 46px;
+            padding: 4px;
+            border-bottom: 1px solid var(--settings-border, #e3e8f0);
+        }
+    }
+
+    & .category-table__actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    & .category-table__action:global(.button) {
+        display: inline-grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        min-height: 24px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--acquaDark, #21949f);
+
+        &:hover:not(:disabled) {
+            background: transparent;
+            color: var(--finance-ink);
+        }
+
+        &:disabled {
+            background: transparent;
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        &:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 2px;
+        }
+
+        &.category-table__action--delete {
+            color: var(--pinkDark, #d93665);
+        }
+    }
+
+    & .category-table__symbol {
+        display: inline-grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+    }
+
+    & .category-table__dot {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+    }
+
+    & .category-table__sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+}
