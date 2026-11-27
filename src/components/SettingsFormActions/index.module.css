@@ -2,9 +2,9 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: var(--gridSize2x, 16px);
+    gap: var(--gridSize2x, var(--finance-space-16));
     margin-top: auto;
-    padding-top: var(--gridSize2x, 16px);
+    padding-top: var(--gridSize2x, var(--finance-space-16));
     border-top: 1px solid var(--settings-border);
 }
 

@@ -1,19 +1,19 @@
 .category-settings {
     display: grid;
-    gap: var(--gridSize2x, 16px);
+    gap: var(--gridSize2x, var(--finance-space-16));
     min-width: 0;
 
     & .category-settings__toolbar {
         display: flex;
         flex-wrap: wrap;
-        gap: var(--gridSizeDefault, 8px);
+        gap: var(--gridSizeDefault, var(--finance-space-8));
         align-items: center;
         justify-content: space-between;
 
         & > div {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--gridSizeDefault, 8px);
+            gap: var(--gridSizeDefault, var(--finance-space-8));
         }
 
         & button {
@@ -23,11 +23,11 @@
 
         & .category-settings__create:global(.button.cta) {
             background: transparent;
-            border: 1px solid var(--acquaDark, #21949f);
-            color: var(--acquaDark, #21949f);
+            border: 1px solid var(--acquaDark, var(--finance-color-21949f));
+            color: var(--acquaDark, var(--finance-color-21949f));
 
             &:hover:not(:disabled) {
-                background: var(--acquaLight, #dff4f5);
+                background: var(--acquaLight, var(--finance-color-dff4f5));
             }
 
             &:disabled {
@@ -45,7 +45,7 @@
 
     & :global(.dialog__title) {
         max-width: 100%;
-        padding-right: var(--gridSize3x, 24px);
+        padding-right: var(--gridSize3x, var(--finance-space-24));
         box-sizing: border-box;
         overflow-wrap: normal;
     }
@@ -71,7 +71,7 @@
             font-size: calc(var(--gridSizeDefault) + var(--gridSizeSmall));
             white-space: normal;
             overflow-wrap: anywhere;
-            color: var(--alert, #ff4141);
+            color: var(--alert, var(--finance-color-ff4141));
         }
 
         & > :global(.input.error) ~ :global(.label) {
@@ -81,7 +81,7 @@
             font-size: var(--gridSizeDefault);
             font-weight: 700;
             text-transform: uppercase;
-            color: var(--alert, #ff4141);
+            color: var(--alert, var(--finance-color-ff4141));
             transform: none;
         }
     }
@@ -91,6 +91,6 @@
     & .category-settings__delete-actions {
         display: flex;
         justify-content: flex-end;
-        margin-top: var(--gridSize2x, 16px);
+        margin-top: var(--gridSize2x, var(--finance-space-16));
     }
 }

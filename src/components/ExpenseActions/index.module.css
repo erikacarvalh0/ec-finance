@@ -10,28 +10,28 @@
     max-width: calc(100vw - 16px);
     max-height: calc(100vh - 16px);
     overflow-y: auto;
-    background: var(--finance-card-background, #fafbfd);
-    border: 1px solid var(--finance-card-border, #e1e7f0);
+    background: var(--finance-card-background, var(--finance-color-fafbfd));
+    border: 1px solid var(--finance-card-border, var(--finance-color-e1e7f0));
     border-radius: 8px;
-    box-shadow: 0 4px 16px #1011271a;
-    padding: var(--gridSizeDefault, 8px);
-    gap: var(--gridSizeSmall, 4px);
+    box-shadow: 0 4px 16px var(--finance-color-1011271a);
+    padding: var(--gridSizeDefault, var(--finance-space-8));
+    gap: var(--gridSizeSmall, var(--finance-space-4));
 
     & .expense-actions__item {
         appearance: none;
         background: transparent;
         border: 0;
-        color: #198e99;
+        color: var(--finance-color-198e99);
         font: inherit;
         font-weight: 600;
         text-align: left;
         text-decoration: none;
-        padding: 8px 12px;
+        padding: var(--finance-space-8) var(--finance-space-12);
         cursor: pointer;
         overflow-wrap: anywhere;
 
         &:hover {
-            background: #edf7f7;
+            background: var(--finance-color-edf7f7);
         }
 
         &:focus-visible {

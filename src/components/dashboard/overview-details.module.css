@@ -1,20 +1,20 @@
 .dashboard-overview {
-    --overview-accent: var(--acquaDark, #147b73);
-    --overview-accent-soft: var(--acquaLight, #e7f4f0);
-    --overview-ink: var(--finance-ink, #101127);
-    --overview-border: var(--finance-card-border, #e1e7f0);
-    --overview-muted: var(--secondaryText, #687989);
+    --overview-accent: var(--acquaDark, var(--finance-color-147b73));
+    --overview-accent-soft: var(--acquaLight, var(--finance-color-e7f4f0));
+    --overview-ink: var(--finance-ink, var(--finance-ink));
+    --overview-border: var(--finance-card-border, var(--finance-color-e1e7f0));
+    --overview-muted: var(--secondaryText, var(--finance-color-687989));
     display: grid;
-    gap: var(--finance-section-gap, 24px);
+    gap: var(--finance-section-gap, var(--finance-space-24));
     min-width: 0;
 
     & .dashboard-overview__header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: var(--finance-space-12);
         flex-wrap: wrap;
-        margin-bottom: 12px;
+        margin-bottom: var(--finance-space-12);
     }
 
     & .dashboard-overview__header h2 {
@@ -23,14 +23,14 @@
 
     & h2 {
         color: var(--overview-ink);
-        font-size: 21px;
+        font-size: var(--finance-font-19);
         font-weight: 700;
         line-height: 1.35;
     }
 
     & .dashboard-overview__link, & .dashboard-overview__footer-link {
         color: var(--overview-accent);
-        font-size: 14px;
+        font-size: var(--finance-font-12);
         font-weight: 600;
         text-decoration: none;
     }
@@ -46,8 +46,8 @@
 
     & .dashboard-overview__card--forecast > p {
         color: var(--overview-muted);
-        font-size: 14px;
-        margin: 0 0 20px;
+        font-size: var(--finance-font-12);
+        margin: 0 0 var(--finance-space-20);
     }
 
     & .dashboard-overview__table-scroll {
@@ -59,12 +59,12 @@
         width: 100%;
         min-width: 800px;
         border-collapse: collapse;
-        font-size: 14px;
+        font-size: var(--finance-font-12);
         font-variant-numeric: tabular-nums;
     }
 
     & .dashboard-overview__table thead {
-        background: #f0f3f6;
+        background: var(--finance-color-f0f3f6);
     }
 
     & .dashboard-overview__table th, & .dashboard-overview__table td {
@@ -92,17 +92,17 @@
     }
 
     & .dashboard-overview__row--current {
-        background: #eaf6f2;
+        background: var(--finance-color-eaf6f2);
     }
 
     & .dashboard-overview__badge {
         display: inline-block;
-        margin-left: 8px;
-        padding: 3px 8px;
+        margin-left: var(--finance-space-8);
+        padding: 3px var(--finance-space-8);
         border-radius: 99px;
         color: var(--overview-accent);
-        background: #d5ebe4;
-        font-size: 11px;
+        background: var(--finance-color-d5ebe4);
+        font-size: var(--finance-font-11);
         font-weight: 700;
     }
 
@@ -115,13 +115,13 @@
     }
 
     & .dashboard-overview__balance--negative {
-        color: #b0443a;
+        color: var(--finance-color-b0443a);
     }
 
     & .dashboard-overview__tracking {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: var(--finance-section-gap, 24px);
+        gap: var(--finance-section-gap, var(--finance-space-24));
         align-items: stretch;
     }
 
@@ -157,12 +157,12 @@
         & .dashboard-overview__empty-state {
             flex: 1;
             min-height: 0;
-            padding-block: var(--gridSize2x, 16px);
+            padding-block: var(--gridSize2x, var(--finance-space-16));
         }
 
         & .dashboard-overview__footer-link {
             margin-top: auto;
-            padding-top: var(--gridSize2x, 16px);
+            padding-top: var(--gridSize2x, var(--finance-space-16));
         }
     }
 
@@ -175,8 +175,8 @@
     & .dashboard-overview__budget-item {
         display: flex;
         align-items: flex-start;
-        gap: 12px;
-        padding: 16px 0;
+        gap: var(--finance-space-12);
+        padding: var(--finance-space-16) 0;
         border-bottom: 1px solid var(--overview-border);
     }
 
@@ -195,15 +195,15 @@
         display: grid;
         place-items: center;
         border-radius: var(--finance-icon-radius, 12px);
-        font-size: 19px;
+        font-size: var(--finance-font-17);
     }
 
     & .dashboard-overview__budget-content {
         min-width: 0;
         flex: 1;
         display: grid;
-        gap: 8px;
-        font-size: 14px;
+        gap: var(--finance-space-8);
+        font-size: var(--finance-font-12);
     }
 
     & .dashboard-overview__budget-line {
@@ -211,7 +211,7 @@
         flex-wrap: wrap;
         justify-content: space-between;
         align-items: baseline;
-        gap: 4px 10px;
+        gap: var(--finance-space-4) var(--finance-space-10);
     }
 
     & .dashboard-overview__budget-line strong {
@@ -225,7 +225,7 @@
 
     & .dashboard-overview__muted {
         color: var(--overview-muted);
-        font-size: 14px;
+        font-size: var(--finance-font-12);
     }
 
     & .dashboard-overview__progress {
@@ -237,7 +237,7 @@
 
     & .dashboard-overview__footer-link {
         display: inline-block;
-        margin-top: 18px;
+        margin-top: var(--finance-space-18);
     }
 
     & .dashboard-overview__empty-state {
@@ -253,7 +253,7 @@
     & .dashboard-overview__empty-state p {
         color: var(--overview-muted);
         margin: 0;
-        font-size: 14px;
+        font-size: var(--finance-font-12);
     }
 
     & .dashboard-overview__empty-icon {
@@ -276,12 +276,12 @@
         min-height: 40px;
         align-items: center;
         justify-content: center;
-        padding: 10px 14px;
+        padding: var(--finance-space-10) 14px;
         border: 1px solid var(--overview-accent);
         border-radius: 10px;
         color: var(--overview-accent);
         font-weight: 600;
-        font-size: 14px;
+        font-size: var(--finance-font-12);
         text-decoration: none;
     }
 
@@ -311,11 +311,11 @@
 
     @media (max-width: 600px) {
         & .dashboard-overview__card {
-            padding: 20px;
+            padding: var(--finance-space-20);
         }
 
         & h2 {
-            font-size: 20px;
+            font-size: var(--finance-font-18);
         }
 
         & .dashboard-overview__empty-state {

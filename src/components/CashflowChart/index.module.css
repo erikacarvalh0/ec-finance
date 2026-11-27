@@ -41,7 +41,7 @@
                 margin: 0;
                 justify-self: center;
             }
-            column-gap: var(--gridSize2x, 16px);
+            column-gap: var(--gridSize2x, var(--finance-space-16));
 
             & :global(.chart__label),
             & :global(.chart__value),
@@ -81,8 +81,8 @@
         display: flex;
         flex-wrap: wrap;
         font-size: calc(var(--dashboard-label-size, 16px) - 2px);
-        margin-top: var(--gridSize3x, 24px);
-        gap: 0 var(--gridSizeDefault, 8px);
+        margin-top: var(--gridSize3x, var(--finance-space-24));
+        gap: 0 var(--gridSizeDefault, var(--finance-space-8));
 
         & span {
             white-space: nowrap;

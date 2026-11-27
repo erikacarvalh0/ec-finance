@@ -1,19 +1,19 @@
 .expense-details {
     & .expense-details__amount {
-        font-size: 18px;
+        font-size: var(--finance-font-16);
     }
 
     & .expense-details__fields {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 1rem;
-        margin-top: 24px;
+        margin-top: var(--finance-space-24);
 
         & dt {
             text-transform: uppercase;
             color: var(--acqua);
             font-weight: bold;
-            font-size: 10px;
+            font-size: var(--finance-font-12);
         }
 
         & dd {
@@ -31,7 +31,7 @@
 
     & :global(.dialog__title) {
         max-width: 100%;
-        padding-right: var(--gridSize3x, 24px);
+        padding-right: var(--gridSize3x, var(--finance-space-24));
         box-sizing: border-box;
     }
 

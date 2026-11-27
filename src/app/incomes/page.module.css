@@ -1,35 +1,35 @@
 .incomes-page {
-    --field-accent: #50c8d6;
-    --field-focus: #008b8e;
-    --field-error: #ff4141;
-    --field-text: #101127;
+    --field-accent: var(--finance-color-50c8d6);
+    --field-focus: var(--finance-color-008b8e);
+    --field-error: var(--finance-color-ff4141);
+    --field-text: var(--finance-ink);
     display: grid;
-    gap: 24px;
+    gap: var(--finance-space-24);
     min-width: 0;
-    padding: 24px 40px;
-    background: #f4f7fa;
+    padding: var(--finance-space-24) var(--finance-space-40);
+    background: var(--finance-color-f4f7fa);
     color: var(--field-text);
 
     & > :global(.finance-ds-card) {
         min-width: 0;
-        padding: 24px;
-        background: #fafbfd;
-        border: 1px solid #e1e7f0;
+        padding: var(--finance-space-24);
+        background: var(--finance-color-fafbfd);
+        border: 1px solid var(--finance-color-e1e7f0);
         border-radius: 18px;
         box-shadow: none;
 
         & h2 {
-            font-size: 22px;
+            font-size: var(--finance-font-20);
             line-height: 28px;
             font-weight: 700;
         }
     }
 
     @media (max-width: 720px) {
-        padding: 16px;
+        padding: var(--finance-space-16);
 
         & > :global(.finance-ds-card) {
-            padding: 16px;
+            padding: var(--finance-space-16);
         }
     }
 }

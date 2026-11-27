@@ -1,33 +1,33 @@
 .expenses-page {
-    --field-accent: #50c8d6;
-    --field-focus: #008b8e;
-    --field-error: #ff4141;
-    --field-text: #101127;
+    --field-accent: var(--finance-color-50c8d6);
+    --field-focus: var(--finance-color-008b8e);
+    --field-error: var(--finance-color-ff4141);
+    --field-text: var(--finance-ink);
     display: grid;
-    gap: 24px;
-    padding: 24px 40px;
-    background: #f4f7fa;
+    gap: var(--finance-space-24);
+    padding: var(--finance-space-24) var(--finance-space-40);
+    background: var(--finance-color-f4f7fa);
     color: var(--field-text);
     min-width: 0;
 
     & .expenses-page__header {
-        & h1 { margin: 0; font-size: 40px; line-height: 48px; font-weight: 700; }
-        & p { margin: 8px 0 0; font-size: 18px; line-height: 26px; color: #3b4262; }
+        & h1 { margin: 0; font-size: var(--finance-page-title-size); line-height: 1.15em; font-weight: 700; }
+        & p { margin: var(--finance-space-8) 0 0; font-size: var(--finance-font-16); line-height: 26px; color: var(--grey3); }
     }
 
     & > :global(.finance-ds-card) {
         min-width: 0;
-        background: #fafbfd;
-        border: 1px solid #e1e7f0;
+        background: var(--finance-color-fafbfd);
+        border: 1px solid var(--finance-color-e1e7f0);
         border-radius: 18px;
-        padding: 24px;
+        padding: var(--finance-space-24);
         box-shadow: none;
 
-        & h2 { font-size: 22px; line-height: 28px; font-weight: 700; }
+        & h2 { font-size: var(--finance-font-20); line-height: 28px; font-weight: 700; }
     }
 
     @media (max-width: 720px) {
-        padding: 16px;
-        & > :global(.finance-ds-card) { padding: 16px; }
+        padding: var(--finance-space-16);
+        & > :global(.finance-ds-card) { padding: var(--finance-space-16); }
     }
 }

@@ -1,7 +1,7 @@
 .main {
-    --settings-border: #E3E8F0;
-    --settings-card-title-size: 24px;
-    --settings-description-size: 16px;
+    --settings-border: var(--finance-color-e3e8f0);
+    --settings-card-title-size: var(--finance-font-22);
+    --settings-description-size: var(--finance-font-14);
     --settings-description-line: 24px;
     --settings-icon-size: 60px;
     --settings-button-height: 40px;
@@ -9,8 +9,8 @@
     --settings-switch-height: 28px;
     --settings-row-height: 46px;
     --settings-notice-radius: 8px;
-    --settings-notice-background: #DDF5FC;
-    --settings-notice-border: #BCE5EF;
+    --settings-notice-background: var(--finance-color-ddf5fc);
+    --settings-notice-border: var(--finance-color-bce5ef);
     max-width: none;
     min-width: 0;
     min-height: 100vh;
@@ -34,10 +34,10 @@
 
 @media (max-width: 767px) {
     .main {
-        padding: 20px;
+        padding: var(--finance-space-20);
     }
 
     .grid {
-        gap: 20px;
+        gap: var(--finance-space-20);
     }
 }
