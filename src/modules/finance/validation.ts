@@ -49,7 +49,14 @@ export const incomeInputSchema = z.discriminatedUnion('type', [
 
 export const investmentInputSchema = z.object({
     name: z.string().trim().min(1).max(120),
-});
+    type: z.enum(['Renda Fixa', 'Tesouro Direto', 'Renda Variável', 'Outros']).optional(),
+    institution: z.string().trim().max(120).optional(),
+    product: z.string().trim().max(120).optional(),
+    appliedAt: dateSchema.optional(),
+    maturityAt: dateSchema.optional(),
+    contractedRate: z.string().trim().max(120).optional(),
+    amountInCents: positiveMoney.optional(),
+}).refine(d => !d.amountInCents || !!(d.type && d.appliedAt), { path: ['appliedAt'], message: 'Tipo e aplicação obrigatórios' }).refine(d => !d.maturityAt || !!d.appliedAt && d.maturityAt >= d.appliedAt, { path: ['maturityAt'], message: 'Vencimento anterior à aplicação' });
 
 export const investmentSnapshotInputSchema = z.object({
     amountInCents: nonNegativeMoney,

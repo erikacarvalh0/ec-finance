@@ -15,9 +15,14 @@ import { calculateMoneyWeightedReturn } from '@/modules/investments/money-weight
 import { summarizeInvestmentPortfolio } from '@/modules/investments/portfolio';
 import { summarizePortfolioMonthlyHistory } from '@/modules/investments/portfolio-history';
 
+import { InvestmentRegistration } from '@/components/InvestmentRegistration';
+import styles from './page.module.css';
+
+const money = (value: bigint) => new Intl.NumberFormat('pt-BR', {style:'currency',currency:'BRL'}).format(Number(value)/100);
+
 export const dynamic = 'force-dynamic';
 
-export default async function InvestmentsPage() {
+export default async function InvestmentsPage({searchParams}: {searchParams: Promise<{period?:string;type?:string;institution?:string;status?:string}>}) {
     const session = await auth();
 
     if (!session?.user?.id) {
@@ -32,22 +37,37 @@ export default async function InvestmentsPage() {
         investments, historyStart.getUTCFullYear(), historyStart.getUTCMonth() + 1, 6,
     );
 
+    const filters = await searchParams;
+    const institutions = [...new Set(investments.flatMap(i=>i.institution ? [i.institution] : []))].sort();
+    const start = new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth()-11,1));
+    const status = (i: typeof investments[number]) => !i.maturityAt ? 'Ativo' : i.maturityAt < new Date(now.toISOString().slice(0,10)) ? 'Vencido' : i.maturityAt.getTime()-now.getTime() <= 30*86400000 ? 'Vencendo' : 'Ativo';
+    const visible = investments.filter(i=>(filters.period==='all'||(i.appliedAt??i.createdAt)>=start)&&(!filters.type||i.type===filters.type)&&(!filters.institution||i.institution===filters.institution)&&(!filters.status||status(i)===filters.status));
+    const gains = investments.map(i=>summarizeInvestmentPerformance(i.snapshots,i.cashflows).estimatedGainInCents);
+    const gain = gains.length && gains.every(g=>g!==null) ? gains.reduce<bigint>((sum,g)=>sum+(g??BigInt(0)),BigInt(0)) : null;
     return (
         <Page>
-            <div className="finance-page">
-            <h1>Investimentos</h1>
-            <Card padding="lg">
-                <h2>Patrimônio investido estimado</h2>
-                <p className="metric">R$ {(Number(portfolio.totalInCents) / 100).toFixed(2)}</p>
-                <p>{portfolio.valuedCount} investimento(s) com avaliação registrada.</p>
-                {portfolio.unvaluedCount > 0 && (
-                    <p>{portfolio.unvaluedCount} investimento(s) sem avaliação não entram no total.</p>
-                )}
-                {portfolio.latestValuationAt && (
-                    <p>Última avaliação registrada: {portfolio.latestValuationAt.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
-                )}
-                <p>Estimativa baseada no saldo mais recente de cada investimento. As avaliações podem ter datas diferentes e não são saldos bancários sincronizados.</p>
-            </Card>
+            <div className={`finance-page ${styles.investments}`}>
+            <header><h1>Investimentos</h1><p>Registre, acompanhe e analise seus investimentos.</p></header>
+            <section className={styles.metrics} aria-label="Indicadores de investimentos">
+                {[
+                    ['Patrimônio investido',portfolio.valuedCount?money(portfolio.totalInCents):'—',portfolio.valuedCount+' com avaliação; '+portfolio.unvaluedCount+' sem avaliação','◈'],
+                    ['Rentabilidade do período','—','Retorno agregado ainda indisponível','%'],
+                    ['Rendimento',gain===null?'—':money(gain),'Estimado desde as primeiras avaliações','↗'],
+                    ['Meta de investimentos','—','Meta não configurada','◎'],
+                ].map(([label,value,detail,icon])=><article key={label} className={styles.metric}><span className={styles.icon} aria-hidden="true">{icon}</span><div><h2>{label}</h2><strong>{value}</strong><small>{detail}</small></div></article>)}
+            </section>
+            <section className={styles.panel}><h2>Novo investimento</h2><InvestmentRegistration institutions={institutions}/></section>
+            <section className={styles.panel}><h2>Histórico de investimentos</h2>
+                <form action="/investments" className={styles.filters}>
+                    <label>Período<select name="period" defaultValue={filters.period??'12'}><option value="12">Últimos 12 meses</option><option value="all">Todos os períodos</option></select></label>
+                    <label>Tipo<select name="type" defaultValue={filters.type??''}><option value="">Todos</option>{['Renda Fixa','Tesouro Direto','Renda Variável','Outros'].map(t=><option key={t}>{t}</option>)}</select></label>
+                    <label>Instituição<select name="institution" defaultValue={filters.institution??''}><option value="">Todas</option>{institutions.map(t=><option key={t}>{t}</option>)}</select></label>
+                    <label>Status<select name="status" defaultValue={filters.status??''}><option value="">Todos</option>{['Ativo','Vencendo','Vencido'].map(t=><option key={t}>{t}</option>)}</select></label>
+                    <button type="submit">Aplicar filtros</button>
+                </form>
+                <div className={styles.scroll}><table><thead><tr>{['Data','Descrição','Tipo','Instituição','Valor','Taxa / rentabilidade','Status','Ações'].map(t=><th key={t} scope="col">{t}</th>)}</tr></thead><tbody>{visible.map(i=>{const p=summarizeInvestmentPerformance(i.snapshots,i.cashflows);return <tr key={i.id}><td>{(i.appliedAt??i.createdAt).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td>{i.name}</td><td><span className={styles.badge} data-type={i.type}>{i.type??'Não informado'}</span></td><td>{i.institution??'—'}</td><td>{p.currentBalanceInCents===null?'—':money(p.currentBalanceInCents)}</td><td>{i.contractedRate??'—'}</td><td><span className={styles.badge} data-status={status(i)}>{status(i)}</span></td><td><a className={styles.action} href={'#investment-'+i.id} aria-label={'Detalhes de '+i.name}>⋯</a></td></tr>})}</tbody></table></div>
+                {!visible.length&&<p>Nenhum investimento encontrado.</p>}
+            </section>
             <Card padding="lg">
                 <h2>Evolução patrimonial estimada</h2>
                 <p>Última avaliação disponível até o fim de cada mês. Meses sem nova avaliação reutilizam o último saldo conhecido.</p>
@@ -72,16 +92,13 @@ export default async function InvestmentsPage() {
                 </div>
                 <p>Valores estimados com avaliações manuais; não representam cotações históricas sincronizadas.</p>
             </Card>
-            <Card padding="lg">
-                <h2>Adicionar investimento</h2>
-                <InvestmentForm />
-            </Card>
             {investments.length === 0 && (
                 <p>Cadastre sua primeira caixinha ou outro investimento.</p>
             )}
             <div className="investment-grid">
                 {investments.map((investment) => (
                     <Card key={investment.id} padding="lg">
+                        <div id={`investment-${investment.id}`} />
                         <h2>{investment.name}</h2>
                         <InvestmentChart
                             name={investment.name}
