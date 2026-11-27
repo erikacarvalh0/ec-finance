@@ -40,7 +40,7 @@ describe('finance editing interface', () => {
         expect(screen.getByLabelText('Encerrar recorrência em')).toBeTruthy();
     });
 
-    it('requires recurring income details when changing type', async () => {
+    it('keeps income date and description visible and requires them for recurring income', async () => {
         const user = userEvent.setup();
 
         render(<RecordEditForm record={{
@@ -55,10 +55,14 @@ describe('finance editing interface', () => {
         }} />);
 
         await user.click(screen.getByRole('button', { name: 'Editar' }));
+        expect(screen.getByLabelText('Data')).toBeTruthy();
+        expect(screen.getByLabelText('Descrição')).toBeTruthy();
+        expect(screen.queryByLabelText('Responsável')).toBeNull();
         await user.selectOptions(screen.getByLabelText('Tipo'), 'RECURRING');
 
-        expect(screen.getByLabelText('Responsável')).toBeTruthy();
-        expect(screen.getByLabelText('Data inicial')).toBeTruthy();
+        expect((screen.getByLabelText('Responsável') as HTMLInputElement).required).toBe(false);
+        expect((screen.getByLabelText('Data') as HTMLInputElement).required).toBe(true);
+        expect((screen.getByLabelText('Descrição') as HTMLInputElement).required).toBe(true);
     });
 
     it('ends a recurring expense through the dedicated endpoint', async () => {
